@@ -29,22 +29,43 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
 {
     QList<PROCESS_INFO> listResult;
 #ifdef Q_OS_WIN
-    PROCESSENTRY32W pe32;
-    pe32.dwSize=sizeof(PROCESSENTRY32W);
 
     HANDLE hProcesses=CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
 
     if(hProcesses!=INVALID_HANDLE_VALUE)
     {
+        PROCESSENTRY32W pe32;
+        pe32.dwSize=sizeof(PROCESSENTRY32W);
+
         if(Process32FirstW(hProcesses,&pe32))
         {
             do
             {
-                PROCESS_INFO record;
+                PROCESS_INFO record={0};
 
                 record.nID=pe32.th32ProcessID;
                 record.nParentID=pe32.th32ParentProcessID;
                 record.sName=QString::fromWCharArray(pe32.szExeFile);
+
+                if(record.nID)
+                {
+                    HANDLE hModule=CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,record.nID);
+
+                    if(hModule!=INVALID_HANDLE_VALUE)
+                    {
+                        MODULEENTRY32 me32;
+                        me32.dwSize=sizeof(MODULEENTRY32);
+
+                        if(Module32First(hModule,&me32))
+                        {
+                            record.nImageAddress=(qint64)me32.modBaseAddr;
+                            record.nImageSize=(qint64)me32.modBaseSize;
+                            record.sFilePath=QString::fromWCharArray(me32.szExePath);
+                        }
+
+                        CloseHandle(hModule);
+                    }
+                }
 
                 listResult.append(record);
             }

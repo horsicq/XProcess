@@ -30,7 +30,7 @@
 #endif
 
 #define X_ALIGN_DOWN(x,align)     ((x)&~(align-1))
-#define X_ALIGN_UP(x,align)       (((x)&(align-1))?__ALIGN_DOWN(x,align)+align:x)
+#define X_ALIGN_UP(x,align)       (((x)&(align-1))?X_ALIGN_DOWN(x,align)+align:x)
 
 class XProcessDevice : public QIODevice
 {

@@ -37,6 +37,9 @@ public:
         QString sName;
         qint64 nParentID;
         qint64 nID;
+        QString sFilePath;
+        qint64 nImageAddress;
+        qint64 nImageSize;
     };
 
     explicit XProcess(QObject *parent = nullptr);
