@@ -20,13 +20,17 @@
 //
 #include "xprocessdevice.h"
 
-XProcessDevice::XProcessDevice(HANDLE hProcess, qint64 __nAddress, qint64 __nSize, QObject *parent)
+XProcessDevice::XProcessDevice(qint64 nPID, qint64 __nAddress, qint64 __nSize, QObject *parent)
 {
     Q_UNUSED(parent);
 
-    this->hProcess=hProcess;
+    this->nPID=nPID;
     this->__nAddress=__nAddress;
     this->__nSize=__nSize;
+
+#ifdef Q_OS_WIN
+    hProcess=0;
+#endif
 }
 
 XProcessDevice::~XProcessDevice()
@@ -67,10 +71,27 @@ bool XProcessDevice::open(QIODevice::OpenMode mode)
 {
     bool bResult=true;
 
-    if(bResult)
+    setOpenMode(mode);
+
+    quint32 nFlags=0;
+
+
+    if(mode==ReadOnly)
     {
-        setOpenMode(mode);
+        nFlags=PROCESS_VM_READ;
     }
+    else if(mode==WriteOnly)
+    {
+        nFlags=PROCESS_VM_WRITE;
+    }
+    else if(mode==ReadWrite)
+    {
+        nFlags=PROCESS_ALL_ACCESS;
+    }
+
+    hProcess=OpenProcess(nFlags,0,nPID);
+
+    bResult=(hProcess!=nullptr);
 
     return bResult;
 }
@@ -82,7 +103,10 @@ bool XProcessDevice::atEnd()
 
 void XProcessDevice::close()
 {
-    setOpenMode(NotOpen);
+    if(CloseHandle(hProcess))
+    {
+        setOpenMode(NotOpen);
+    }
 }
 
 qint64 XProcessDevice::pos()
@@ -102,6 +126,24 @@ qint64 XProcessDevice::adjustSize(qint64 nSize)
     qint64 nResult=qMin(nSize,_nSize);
 
     return nResult;
+}
+
+void XProcessDevice::checkWindowsLastError()
+{
+    quint32 nLastErrorCode=GetLastError();
+
+    if(nLastErrorCode)
+    {
+        LPSTR messageBuffer=nullptr;
+        size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                                     NULL, nLastErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+
+
+        setErrorString(QString("%1: ").arg(nLastErrorCode,0,16)+QString::fromUtf8((char *)messageBuffer,size));
+
+        //Free the buffer.
+        LocalFree(messageBuffer);
+    }
 }
 
 qint64 XProcessDevice::readData(char *data, qint64 maxSize)
@@ -134,6 +176,8 @@ qint64 XProcessDevice::readData(char *data, qint64 maxSize)
         nResult+=nDelta;
         i+=nDelta;
     }
+
+    checkWindowsLastError();
 
     return nResult;
 }
@@ -168,6 +212,8 @@ qint64 XProcessDevice::writeData(const char *data, qint64 maxSize)
         nResult+=nDelta;
         i+=nDelta;
     }
+
+    checkWindowsLastError();
 
     return nResult;
 }

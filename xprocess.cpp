@@ -78,3 +78,30 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
 
     return listResult;
 }
+
+bool XProcess::setPrivilege(char *pszName, bool bEnable)
+{
+    bool bResult=false;
+    HANDLE hToken;
+
+    if(OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES|TOKEN_QUERY,&hToken))
+    {
+        LUID SeValue;
+        if(LookupPrivilegeValueA(nullptr,pszName,&SeValue))
+        {
+            TOKEN_PRIVILEGES tp;
+
+            tp.PrivilegeCount=1;
+            tp.Privileges[0].Luid=SeValue;
+            tp.Privileges[0].Attributes=bEnable?SE_PRIVILEGE_ENABLED:0;
+
+            AdjustTokenPrivileges(hToken,FALSE,&tp,sizeof(tp),nullptr,nullptr);
+
+            bResult=true;
+        }
+
+        CloseHandle(hToken);
+    }
+
+    return bResult;
+}

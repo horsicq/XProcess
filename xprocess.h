@@ -44,7 +44,7 @@ public:
 
     explicit XProcess(QObject *parent = nullptr);
     static QList<PROCESS_INFO> getProcessesList();
-
+    static bool setPrivilege(char *pszName,bool bEnable);
 signals:
 
 public slots:

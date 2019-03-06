@@ -36,7 +36,7 @@ class XProcessDevice : public QIODevice
 {
     Q_OBJECT
 public:
-    explicit XProcessDevice(HANDLE hProcess, qint64 __nAddress, qint64 __nSize, QObject *parent = nullptr);
+    explicit XProcessDevice(qint64 nPID, qint64 __nAddress, qint64 __nSize, QObject *parent = nullptr);
     ~XProcessDevice();
 
     virtual qint64 size() const;
@@ -50,6 +50,7 @@ public:
 
 private:
     qint64 adjustSize(qint64 nSize);
+    void checkWindowsLastError();
 protected:
     virtual qint64 readData(char *data, qint64 maxSize);
     virtual qint64 writeData(const char *data, qint64 maxSize);
@@ -59,7 +60,10 @@ signals:
 public slots:
 
 private:
+    qint64 nPID;
+#ifdef Q_OS_WIN
     HANDLE hProcess;
+#endif
     qint64 __nAddress;
     qint64 __nSize;
 };

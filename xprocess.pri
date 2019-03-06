@@ -10,3 +10,8 @@ HEADERS += \
 SOURCES += \ 
     $$PWD/xprocess.cpp \
     $$PWD/xprocessdevice.cpp
+
+win32
+{
+    LIBS += Advapi32.lib
+}
