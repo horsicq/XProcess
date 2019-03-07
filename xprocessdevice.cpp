@@ -75,7 +75,7 @@ bool XProcessDevice::open(QIODevice::OpenMode mode)
 
     quint32 nFlags=0;
 
-
+#ifdef Q_OS_WIN
     if(mode==ReadOnly)
     {
         nFlags=PROCESS_VM_READ;
@@ -92,6 +92,7 @@ bool XProcessDevice::open(QIODevice::OpenMode mode)
     hProcess=OpenProcess(nFlags,0,nPID);
 
     bResult=(hProcess!=nullptr);
+#endif
 
     return bResult;
 }
@@ -103,7 +104,11 @@ bool XProcessDevice::atEnd()
 
 void XProcessDevice::close()
 {
-    if(CloseHandle(hProcess))
+    bool bSuccess=true;
+#ifdef Q_OS_WIN
+    bSuccess=CloseHandle(hProcess);
+#endif
+    if(bSuccess)
     {
         setOpenMode(NotOpen);
     }
@@ -127,7 +132,7 @@ qint64 XProcessDevice::adjustSize(qint64 nSize)
 
     return nResult;
 }
-
+#ifdef Q_OS_WIN
 void XProcessDevice::checkWindowsLastError()
 {
     quint32 nLastErrorCode=GetLastError();
@@ -145,7 +150,7 @@ void XProcessDevice::checkWindowsLastError()
         LocalFree(messageBuffer);
     }
 }
-
+#endif
 qint64 XProcessDevice::readData(char *data, qint64 maxSize)
 {
     qint64 nResult=0;
@@ -162,23 +167,26 @@ qint64 XProcessDevice::readData(char *data, qint64 maxSize)
             nDelta=0x1000;
         }
         nDelta=qMin(nDelta,(qint64)(maxSize-i));
+#ifdef Q_OS_WIN
         SIZE_T nSize=0;
         if(!ReadProcessMemory(hProcess,(LPVOID *)(_nPos+__nAddress),data,nDelta,&nSize))
         {
             break;
         }
+
         if(nSize!=nDelta)
         {
             break;
         }
+#endif
         _nPos+=nDelta;
         data+=nDelta;
         nResult+=nDelta;
         i+=nDelta;
     }
-
+#ifdef Q_OS_WIN
     checkWindowsLastError();
-
+#endif
     return nResult;
 }
 
@@ -198,6 +206,7 @@ qint64 XProcessDevice::writeData(const char *data, qint64 maxSize)
             nDelta=0x1000;
         }
         nDelta=qMin(nDelta,(qint64)(maxSize-i));
+#ifdef Q_OS_WIN
         SIZE_T nSize=0;
         if(!WriteProcessMemory(hProcess,(LPVOID *)(_nPos+__nAddress),data,nDelta,&nSize))
         {
@@ -207,14 +216,15 @@ qint64 XProcessDevice::writeData(const char *data, qint64 maxSize)
         {
             break;
         }
+#endif
         _nPos+=nDelta;
         data+=nDelta;
         nResult+=nDelta;
         i+=nDelta;
     }
-
+#ifdef Q_OS_WIN
     checkWindowsLastError();
-
+#endif
     return nResult;
 }
 

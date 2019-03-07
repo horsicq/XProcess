@@ -75,10 +75,13 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
         CloseHandle(hProcesses);
     }
 #endif
+#ifdef Q_OS_LINUX
+
+#endif
 
     return listResult;
 }
-
+#ifdef Q_OS_WIN
 bool XProcess::setPrivilege(char *pszName, bool bEnable)
 {
     bool bResult=false;
@@ -105,3 +108,4 @@ bool XProcess::setPrivilege(char *pszName, bool bEnable)
 
     return bResult;
 }
+#endif

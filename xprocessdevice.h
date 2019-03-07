@@ -50,7 +50,9 @@ public:
 
 private:
     qint64 adjustSize(qint64 nSize);
+#ifdef Q_OS_WIN
     void checkWindowsLastError();
+#endif
 protected:
     virtual qint64 readData(char *data, qint64 maxSize);
     virtual qint64 writeData(const char *data, qint64 maxSize);
