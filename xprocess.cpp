@@ -29,7 +29,6 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
 {
     QList<PROCESS_INFO> listResult;
 #ifdef Q_OS_WIN
-
     HANDLE hProcesses=CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
 
     if(hProcesses!=INVALID_HANDLE_VALUE)
@@ -76,7 +75,7 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
     }
 #endif
 #ifdef Q_OS_LINUX
-
+    // TODO
 #endif
 
     return listResult;
