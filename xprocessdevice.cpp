@@ -121,7 +121,7 @@ qint64 XProcessDevice::pos()
 {
     return QIODevice::pos();
 }
-
+#ifdef Q_OS_WIN
 bool XProcessDevice::openHandle(HANDLE hProcess, QIODevice::OpenMode mode)
 {
     setOpenMode(mode);
@@ -129,7 +129,7 @@ bool XProcessDevice::openHandle(HANDLE hProcess, QIODevice::OpenMode mode)
 
     return true;
 }
-
+#endif
 qint64 XProcessDevice::adjustSize(qint64 nSize)
 {
     qint64 nPos=pos();

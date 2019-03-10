@@ -75,11 +75,67 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
     }
 #endif
 #ifdef Q_OS_LINUX
-    // TODO
+    QDirIterator it("/proc");
+
+    while(it.hasNext())
+    {
+        QString sRecord=it.next();
+
+        QFileInfo fi(sRecord);
+
+        if(fi.isDir())
+        {
+            quint64 nPID=fi.baseName().toUInt();
+
+            PROCESS_INFO processInfo=getInfoByPID(nPID);
+
+            if(processInfo.nID)
+            {
+                listResult.append(processInfo);
+            }
+        }
+    }
 #endif
 
     return listResult;
 }
+
+XProcess::PROCESS_INFO XProcess::getInfoByPID(qint64 nPID)
+{
+    PROCESS_INFO result={0};
+#ifdef Q_OS_WIN
+#endif
+#ifdef Q_OS_LINUX
+    if(nPID)
+    {
+        QFile file;
+        file.setFileName(QString("/proc/%1/cmdline").arg(nPID));
+        if(file.open(QIODevice::ReadOnly))
+        {
+            QByteArray baData=file.readAll();
+            QList<QByteArray> list=baData.split(0);
+
+            if(list.count())
+            {
+                result.sFilePath=list.at(0).data();
+
+                if(result.sFilePath!="")
+                {
+                    QFileInfo fi(result.sFilePath);
+                    result.sName=fi.baseName();
+
+                    result.nID=nPID;
+                }
+            }
+
+            file.close();
+        }
+    }
+
+#endif
+    return result;
+}
+
 #ifdef Q_OS_WIN
 bool XProcess::setPrivilege(char *pszName, bool bEnable)
 {

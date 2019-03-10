@@ -27,6 +27,7 @@
 #include <winternl.h>
 #include <Tlhelp32.h>
 #endif
+#include <QDirIterator>
 
 class XProcess : public QObject
 {
@@ -47,6 +48,7 @@ public:
 #ifdef Q_OS_WIN
     static bool setPrivilege(char *pszName,bool bEnable);
 #endif
+    static PROCESS_INFO getInfoByPID(qint64 nPID);
 signals:
 
 public slots:

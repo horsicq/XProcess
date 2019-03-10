@@ -47,8 +47,9 @@ public:
     virtual bool atEnd();
     virtual void close();
     virtual qint64 pos();
-
+#ifdef Q_OS_WIN
     bool openHandle(HANDLE hProcess,OpenMode mode);
+#endif
 private:
     qint64 adjustSize(qint64 nSize);
 #ifdef Q_OS_WIN
