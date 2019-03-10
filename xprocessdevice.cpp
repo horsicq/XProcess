@@ -106,7 +106,10 @@ void XProcessDevice::close()
 {
     bool bSuccess=true;
 #ifdef Q_OS_WIN
-    bSuccess=CloseHandle(hProcess);
+    if(nPID)
+    {
+        bSuccess=CloseHandle(hProcess);
+    }
 #endif
     if(bSuccess)
     {
@@ -117,6 +120,14 @@ void XProcessDevice::close()
 qint64 XProcessDevice::pos()
 {
     return QIODevice::pos();
+}
+
+bool XProcessDevice::openHandle(HANDLE hProcess, QIODevice::OpenMode mode)
+{
+    setOpenMode(mode);
+    this->hProcess=hProcess;
+
+    return true;
 }
 
 qint64 XProcessDevice::adjustSize(qint64 nSize)
