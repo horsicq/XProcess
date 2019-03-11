@@ -40,33 +40,12 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
         {
             do
             {
-                PROCESS_INFO record={0};
+                PROCESS_INFO processInfo=getInfoByPID(pe32.th32ProcessID);
 
-                record.nID=pe32.th32ProcessID;
-                record.nParentID=pe32.th32ParentProcessID;
-                record.sName=QString::fromWCharArray(pe32.szExeFile);
-
-                if(record.nID)
+                if(processInfo.nID)
                 {
-                    HANDLE hModule=CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,record.nID);
-
-                    if(hModule!=INVALID_HANDLE_VALUE)
-                    {
-                        MODULEENTRY32 me32;
-                        me32.dwSize=sizeof(MODULEENTRY32);
-
-                        if(Module32First(hModule,&me32))
-                        {
-                            record.nImageAddress=(qint64)me32.modBaseAddr;
-                            record.nImageSize=(qint64)me32.modBaseSize;
-                            record.sFilePath=QString::fromWCharArray(me32.szExePath);
-                        }
-
-                        CloseHandle(hModule);
-                    }
+                    listResult.append(processInfo);
                 }
-
-                listResult.append(record);
             }
             while(Process32NextW(hProcesses,&pe32));
         }
@@ -104,6 +83,31 @@ XProcess::PROCESS_INFO XProcess::getInfoByPID(qint64 nPID)
 {
     PROCESS_INFO result={0};
 #ifdef Q_OS_WIN
+    if(nPID)
+    {
+        HANDLE hModule=CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,nPID);
+
+        if(hModule!=INVALID_HANDLE_VALUE)
+        {
+            MODULEENTRY32 me32;
+            me32.dwSize=sizeof(MODULEENTRY32);
+
+            if(Module32First(hModule,&me32))
+            {
+                if((qint64)me32.modBaseAddr)
+                {
+                    result.nID=nPID;
+                    result.nImageAddress=(qint64)me32.modBaseAddr;
+                    result.nImageSize=(qint64)me32.modBaseSize;
+                    result.sFilePath=QString::fromWCharArray(me32.szExePath);
+                    result.sName=QString::fromWCharArray(me32.szModule);
+                }
+
+            }
+
+            CloseHandle(hModule);
+        }
+    }
 #endif
 #ifdef Q_OS_LINUX
     if(nPID)
