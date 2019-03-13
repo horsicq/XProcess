@@ -48,6 +48,9 @@ public:
 #ifdef Q_OS_WIN
     static bool setPrivilege(char *pszName,bool bEnable);
 #endif
+#ifdef Q_OS_WIN
+    static qint64 getPIDByHandle(HANDLE hProcess);
+#endif
     static PROCESS_INFO getInfoByPID(qint64 nPID);
 signals:
 

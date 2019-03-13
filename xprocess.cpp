@@ -102,7 +102,6 @@ XProcess::PROCESS_INFO XProcess::getInfoByPID(qint64 nPID)
                     result.sFilePath=QString::fromWCharArray(me32.szExePath);
                     result.sName=QString::fromWCharArray(me32.szModule);
                 }
-
             }
 
             CloseHandle(hModule);
@@ -166,5 +165,15 @@ bool XProcess::setPrivilege(char *pszName, bool bEnable)
     }
 
     return bResult;
+}
+#endif
+#ifdef Q_OS_WIN
+qint64 XProcess::getPIDByHandle(HANDLE hProcess)
+{
+    qint64 nResult=0;
+
+    nResult=GetProcessId(hProcess);
+
+    return nResult;
 }
 #endif
