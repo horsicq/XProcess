@@ -52,6 +52,7 @@ public:
     static qint64 getPIDByHandle(HANDLE hProcess);
 #endif
     static PROCESS_INFO getInfoByPID(qint64 nPID);
+    static qint64 getImageSize(HANDLE hProcess,qint64 nImageBase);
 signals:
 
 public slots:

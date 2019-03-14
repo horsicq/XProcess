@@ -36,7 +36,7 @@ class XProcessDevice : public QIODevice
 {
     Q_OBJECT
 public:
-    explicit XProcessDevice(qint64 nPID, qint64 __nAddress, qint64 __nSize, QObject *parent = nullptr);
+    explicit XProcessDevice(QObject *parent = nullptr);
     ~XProcessDevice();
 
     virtual qint64 size() const;
@@ -47,8 +47,9 @@ public:
     virtual bool atEnd();
     virtual void close();
     virtual qint64 pos();
+    bool openPID(qint64 nPID,qint64 __nAddress, qint64 __nSize,OpenMode mode);
 #ifdef Q_OS_WIN
-    bool openHandle(HANDLE hProcess,OpenMode mode);
+    bool openHandle(HANDLE hProcess,qint64 __nAddress, qint64 __nSize,OpenMode mode);
 #endif
 private:
     qint64 adjustSize(qint64 nSize);

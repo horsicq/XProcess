@@ -20,14 +20,9 @@
 //
 #include "xprocessdevice.h"
 
-XProcessDevice::XProcessDevice(qint64 nPID, qint64 __nAddress, qint64 __nSize, QObject *parent)
+XProcessDevice::XProcessDevice(QObject *parent) :
+    QIODevice(parent)
 {
-    Q_UNUSED(parent);
-
-    this->nPID=nPID;
-    this->__nAddress=__nAddress;
-    this->__nSize=__nSize;
-
 #ifdef Q_OS_WIN
     hProcess=0;
 #endif
@@ -69,32 +64,7 @@ bool XProcessDevice::reset()
 
 bool XProcessDevice::open(QIODevice::OpenMode mode)
 {
-    bool bResult=true;
-
-    setOpenMode(mode);
-
-    quint32 nFlags=0;
-
-#ifdef Q_OS_WIN
-    if(mode==ReadOnly)
-    {
-        nFlags=PROCESS_VM_READ;
-    }
-    else if(mode==WriteOnly)
-    {
-        nFlags=PROCESS_VM_WRITE;
-    }
-    else if(mode==ReadWrite)
-    {
-        nFlags=PROCESS_ALL_ACCESS;
-    }
-
-    hProcess=OpenProcess(nFlags,0,nPID);
-
-    bResult=(hProcess!=nullptr);
-#endif
-
-    return bResult;
+    return false; // Use openPId o OpenHandle
 }
 
 bool XProcessDevice::atEnd()
@@ -121,9 +91,47 @@ qint64 XProcessDevice::pos()
 {
     return QIODevice::pos();
 }
-#ifdef Q_OS_WIN
-bool XProcessDevice::openHandle(HANDLE hProcess, QIODevice::OpenMode mode)
+
+bool XProcessDevice::openPID(qint64 nPID, qint64 __nAddress, qint64 __nSize, QIODevice::OpenMode mode)
 {
+    bool bResult=true;
+
+    setOpenMode(mode);
+
+    this->nPID=nPID;
+    this->__nAddress=__nAddress;
+    this->__nSize=__nSize;
+
+    quint32 nFlags=0;
+
+#ifdef Q_OS_WIN
+    if(mode==ReadOnly)
+    {
+        nFlags=PROCESS_VM_READ;
+    }
+    else if(mode==WriteOnly)
+    {
+        nFlags=PROCESS_VM_WRITE;
+    }
+    else if(mode==ReadWrite)
+    {
+        nFlags=PROCESS_ALL_ACCESS;
+    }
+
+    hProcess=OpenProcess(nFlags,0,nPID);
+
+    bResult=(hProcess!=nullptr);
+#endif
+
+    return bResult;
+}
+#ifdef Q_OS_WIN
+bool XProcessDevice::openHandle(HANDLE hProcess, qint64 __nAddress, qint64 __nSize, QIODevice::OpenMode mode)
+{
+    this->hProcess=hProcess;
+    this->__nAddress=__nAddress;
+    this->__nSize=__nSize;
+
     setOpenMode(mode);
     this->hProcess=hProcess;
 

@@ -139,6 +139,32 @@ XProcess::PROCESS_INFO XProcess::getInfoByPID(qint64 nPID)
     return result;
 }
 
+qint64 XProcess::getImageSize(HANDLE hProcess,qint64 nImageBase)
+{
+    qint64 nResult=0;
+
+    qint64 _nAddress=nImageBase;
+    while(true)
+    {
+        MEMORY_BASIC_INFORMATION mbi={};
+        if(!VirtualQueryEx(hProcess,(LPCVOID)_nAddress,&mbi,sizeof(mbi)))
+        {
+            break;
+        }
+        if((mbi.RegionSize)&&((qint64)mbi.AllocationBase==nImageBase))
+        {
+            nResult+=mbi.RegionSize;
+            _nAddress+=mbi.RegionSize;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return nResult;
+}
+
 #ifdef Q_OS_WIN
 bool XProcess::setPrivilege(char *pszName, bool bEnable)
 {
