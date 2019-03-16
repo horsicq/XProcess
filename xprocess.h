@@ -27,7 +27,9 @@
 #include <winternl.h>
 #include <Tlhelp32.h>
 #endif
+#ifdef Q_OS_LINUX
 #include <QDirIterator>
+#endif
 
 class XProcess : public QObject
 {

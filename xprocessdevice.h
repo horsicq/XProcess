@@ -65,6 +65,7 @@ signals:
 public slots:
 
 private:
+    const qint64 N_BUFFER_SIZE=0x1000;
     qint64 nPID;
 #ifdef Q_OS_WIN
     HANDLE hProcess;

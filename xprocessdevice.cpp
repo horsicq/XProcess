@@ -24,7 +24,7 @@ XProcessDevice::XProcessDevice(QObject *parent) :
     QIODevice(parent)
 {
 #ifdef Q_OS_WIN
-    hProcess=0;
+    hProcess=nullptr;
 #endif
 }
 
@@ -64,7 +64,7 @@ bool XProcessDevice::reset()
 
 bool XProcessDevice::open(QIODevice::OpenMode mode)
 {
-    return false; // Use openPId o OpenHandle
+    return false; // Use openPId or OpenHandle
 }
 
 bool XProcessDevice::atEnd()
@@ -118,7 +118,7 @@ bool XProcessDevice::openPID(qint64 nPID, qint64 __nAddress, qint64 __nSize, QIO
         nFlags=PROCESS_ALL_ACCESS;
     }
 
-    hProcess=OpenProcess(nFlags,0,nPID);
+    hProcess=OpenProcess(nFlags,0,(DWORD)nPID);
 
     bResult=(hProcess!=nullptr);
 #endif
@@ -160,8 +160,7 @@ void XProcessDevice::checkWindowsLastError()
     {
         LPSTR messageBuffer=nullptr;
         size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                                     NULL, nLastErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
-
+                                     nullptr, nLastErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, nullptr);
 
         setErrorString(QString("%1: ").arg(nLastErrorCode,0,16)+QString::fromUtf8((char *)messageBuffer,size));
 
@@ -180,15 +179,15 @@ qint64 XProcessDevice::readData(char *data, qint64 maxSize)
 
     for(qint64 i=0;i<maxSize;)
     {
-        qint64 nDelta=X_ALIGN_UP(_nPos,0x1000)-_nPos;
+        qint64 nDelta=X_ALIGN_UP(_nPos,N_BUFFER_SIZE)-_nPos;
         if(nDelta==0)
         {
-            nDelta=0x1000;
+            nDelta=N_BUFFER_SIZE;
         }
         nDelta=qMin(nDelta,(qint64)(maxSize-i));
 #ifdef Q_OS_WIN
         SIZE_T nSize=0;
-        if(!ReadProcessMemory(hProcess,(LPVOID *)(_nPos+__nAddress),data,nDelta,&nSize))
+        if(!ReadProcessMemory(hProcess,(LPVOID *)(_nPos+__nAddress),data,(SIZE_T)nDelta,&nSize))
         {
             break;
         }
@@ -219,15 +218,15 @@ qint64 XProcessDevice::writeData(const char *data, qint64 maxSize)
 
     for(qint64 i=0;i<maxSize;)
     {
-        qint64 nDelta=X_ALIGN_UP(_nPos,0x1000)-_nPos;
+        qint64 nDelta=X_ALIGN_UP(_nPos,N_BUFFER_SIZE)-_nPos;
         if(nDelta==0)
         {
-            nDelta=0x1000;
+            nDelta=N_BUFFER_SIZE;
         }
         nDelta=qMin(nDelta,(qint64)(maxSize-i));
 #ifdef Q_OS_WIN
         SIZE_T nSize=0;
-        if(!WriteProcessMemory(hProcess,(LPVOID *)(_nPos+__nAddress),data,nDelta,&nSize))
+        if(!WriteProcessMemory(hProcess,(LPVOID *)(_nPos+__nAddress),data,(SIZE_T)nDelta,&nSize))
         {
             break;
         }
