@@ -197,6 +197,9 @@ qint64 XProcessDevice::readData(char *data, qint64 maxSize)
             break;
         }
 #endif
+#ifdef Q_OS_LINUX
+        break;
+#endif
         _nPos+=nDelta;
         data+=nDelta;
         nResult+=nDelta;
@@ -234,6 +237,9 @@ qint64 XProcessDevice::writeData(const char *data, qint64 maxSize)
         {
             break;
         }
+#endif
+#ifdef Q_OS_LINUX
+        break;
 #endif
         _nPos+=nDelta;
         data+=nDelta;
