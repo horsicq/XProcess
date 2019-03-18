@@ -165,6 +165,65 @@ qint64 XProcess::getImageSize(HANDLE hProcess,qint64 nImageBase)
     return nResult;
 }
 
+QString XProcess::getFileNameByHandle(HANDLE hHandle)
+{
+    QString sResult;
+
+    HANDLE hFileMapping=CreateFileMappingW(hHandle,NULL,PAGE_READONLY,NULL,GetFileSize(hHandle,NULL),NULL);
+
+    if(hFileMapping)
+    {
+        void *pMem=MapViewOfFile(hFileMapping,FILE_MAP_READ,NULL,NULL,NULL);
+
+        if(pMem)
+        {
+            WCHAR wszBuffer[1024];
+            if(GetMappedFileNameW(GetCurrentProcess(),pMem,wszBuffer,sizeof(wszBuffer)))
+            {
+                sResult=QString::fromUtf16((ushort *)wszBuffer);
+            }
+
+            UnmapViewOfFile(pMem);
+        }
+
+        CloseHandle(hFileMapping);
+    }
+
+    return sResult;
+}
+
+bool XProcess::readData(HANDLE hProcess, qint64 nAddress, char *pBuffer, qint32 nBufferSize)
+{
+    bool bResult=false;
+
+    SIZE_T nSize=0;
+    if(ReadProcessMemory(hProcess,(LPVOID *)nAddress,pBuffer,(SIZE_T)nBufferSize,&nSize))
+    {
+        if(nSize==(SIZE_T)nBufferSize)
+        {
+            bResult=true;
+        }
+    }
+
+    return bResult;
+}
+
+bool XProcess::writeData(HANDLE hProcess, qint64 nAddress, char *pBuffer, qint32 nBufferSize)
+{
+    bool bResult=false;
+
+    SIZE_T nSize=0;
+    if(WriteProcessMemory(hProcess,(LPVOID *)nAddress,pBuffer,(SIZE_T)nBufferSize,&nSize))
+    {
+        if(nSize==(SIZE_T)nBufferSize)
+        {
+            bResult=true;
+        }
+    }
+
+    return bResult;
+}
+
 #ifdef Q_OS_WIN
 bool XProcess::setPrivilege(char *pszName, bool bEnable)
 {

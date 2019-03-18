@@ -26,6 +26,7 @@
 #include <Windows.h>
 #include <winternl.h>
 #include <Tlhelp32.h>
+#include <psapi.h>
 #endif
 #ifdef Q_OS_LINUX
 #include <QDirIterator>
@@ -55,6 +56,9 @@ public:
 #endif
     static PROCESS_INFO getInfoByPID(qint64 nPID);
     static qint64 getImageSize(HANDLE hProcess,qint64 nImageBase);
+    static QString getFileNameByHandle(HANDLE hHandle);
+    static bool readData(HANDLE hProcess,qint64 nAddress,char *pBuffer,qint32 nBufferSize);
+    static bool writeData(HANDLE hProcess,qint64 nAddress,char *pBuffer,qint32 nBufferSize);
 signals:
 
 public slots:
