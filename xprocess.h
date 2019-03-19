@@ -52,13 +52,16 @@ public:
     static bool setPrivilege(char *pszName,bool bEnable);
 #endif
 #ifdef Q_OS_WIN
-    static qint64 getPIDByHandle(HANDLE hProcess);
+    static qint64 getProcessIDByHandle(HANDLE hProcess);
+    static qint64 getThreadIDByHandle(HANDLE hThread);
 #endif
-    static PROCESS_INFO getInfoByPID(qint64 nPID);
+    static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
     static qint64 getImageSize(HANDLE hProcess,qint64 nImageBase);
     static QString getFileNameByHandle(HANDLE hHandle);
     static bool readData(HANDLE hProcess,qint64 nAddress,char *pBuffer,qint32 nBufferSize);
     static bool writeData(HANDLE hProcess,qint64 nAddress,char *pBuffer,qint32 nBufferSize);
+    static quint32 read_uint32(HANDLE hProcess,qint64 nAddress);
+    static quint64 read_uint64(HANDLE hProcess,qint64 nAddress);
 signals:
 
 public slots:

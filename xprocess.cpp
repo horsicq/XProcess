@@ -40,7 +40,7 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
         {
             do
             {
-                PROCESS_INFO processInfo=getInfoByPID(pe32.th32ProcessID);
+                PROCESS_INFO processInfo=getInfoByProcessID(pe32.th32ProcessID);
 
                 if(processInfo.nID)
                 {
@@ -79,13 +79,13 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
     return listResult;
 }
 
-XProcess::PROCESS_INFO XProcess::getInfoByPID(qint64 nPID)
+XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
 {
     PROCESS_INFO result={0};
 #ifdef Q_OS_WIN
-    if(nPID)
+    if(nProcessID)
     {
-        HANDLE hModule=CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,nPID);
+        HANDLE hModule=CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,nProcessID);
 
         if(hModule!=INVALID_HANDLE_VALUE)
         {
@@ -96,7 +96,7 @@ XProcess::PROCESS_INFO XProcess::getInfoByPID(qint64 nPID)
             {
                 if((qint64)me32.modBaseAddr)
                 {
-                    result.nID=nPID;
+                    result.nID=nProcessID;
                     result.nImageAddress=(qint64)me32.modBaseAddr;
                     result.nImageSize=(qint64)me32.modBaseSize;
                     result.sFilePath=QString::fromWCharArray(me32.szExePath);
@@ -224,6 +224,24 @@ bool XProcess::writeData(HANDLE hProcess, qint64 nAddress, char *pBuffer, qint32
     return bResult;
 }
 
+quint32 XProcess::read_uint32(HANDLE hProcess, qint64 nAddress)
+{
+    quint32 nResult=0;
+
+    readData(hProcess,nAddress,(char *)&nResult,4);
+
+    return nResult;
+}
+
+quint64 XProcess::read_uint64(HANDLE hProcess, qint64 nAddress)
+{
+    quint64 nResult=0;
+
+    readData(hProcess,nAddress,(char *)&nResult,8);
+
+    return nResult;
+}
+
 #ifdef Q_OS_WIN
 bool XProcess::setPrivilege(char *pszName, bool bEnable)
 {
@@ -253,11 +271,20 @@ bool XProcess::setPrivilege(char *pszName, bool bEnable)
 }
 #endif
 #ifdef Q_OS_WIN
-qint64 XProcess::getPIDByHandle(HANDLE hProcess)
+qint64 XProcess::getProcessIDByHandle(HANDLE hProcess)
 {
     qint64 nResult=0;
 
     nResult=GetProcessId(hProcess);
+
+    return nResult;
+}
+
+qint64 XProcess::getThreadIDByHandle(HANDLE hThread)
+{
+    qint64 nResult=0;
+
+    nResult=GetThreadId(hThread);
 
     return nResult;
 }

@@ -25,6 +25,9 @@ XProcessDevice::XProcessDevice(QObject *parent) :
 {
 #ifdef Q_OS_WIN
     hProcess=nullptr;
+    nPID=0;
+    __nAddress=0;
+    __nSize=0;
 #endif
 }
 
