@@ -242,6 +242,17 @@ quint64 XProcess::read_uint64(HANDLE hProcess, qint64 nAddress)
     return nResult;
 }
 
+QByteArray XProcess::readArray(HANDLE hProcess, qint64 nAddress, qint32 nSize)
+{
+    QByteArray baResult;
+
+    baResult.resize(nSize);
+
+    readData(hProcess,nAddress,baResult.data(),nSize);
+
+    return baResult;
+}
+
 #ifdef Q_OS_WIN
 bool XProcess::setPrivilege(char *pszName, bool bEnable)
 {
