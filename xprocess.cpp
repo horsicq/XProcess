@@ -224,6 +224,24 @@ bool XProcess::writeData(HANDLE hProcess, qint64 nAddress, char *pBuffer, qint32
     return bResult;
 }
 
+quint8 XProcess::read_uint8(HANDLE hProcess, qint64 nAddress)
+{
+    quint8 nResult=0;
+
+    readData(hProcess,nAddress,(char *)&nResult,1);
+
+    return nResult;
+}
+
+quint16 XProcess::read_uint16(HANDLE hProcess, qint64 nAddress)
+{
+    quint16 nResult=0;
+
+    readData(hProcess,nAddress,(char *)&nResult,2);
+
+    return nResult;
+}
+
 quint32 XProcess::read_uint32(HANDLE hProcess, qint64 nAddress)
 {
     quint32 nResult=0;
