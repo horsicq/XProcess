@@ -50,12 +50,8 @@ public:
     static QList<PROCESS_INFO> getProcessesList();
 #ifdef Q_OS_WIN
     static bool setPrivilege(char *pszName,bool bEnable);
-#endif
-#ifdef Q_OS_WIN
     static qint64 getProcessIDByHandle(HANDLE hProcess);
     static qint64 getThreadIDByHandle(HANDLE hThread);
-#endif
-    static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
     static qint64 getImageSize(HANDLE hProcess,qint64 nImageBase);
     static QString getFileNameByHandle(HANDLE hHandle);
     static bool readData(HANDLE hProcess,qint64 nAddress,char *pBuffer,qint32 nBufferSize);
@@ -65,6 +61,8 @@ public:
     static quint32 read_uint32(HANDLE hProcess,qint64 nAddress);
     static quint64 read_uint64(HANDLE hProcess,qint64 nAddress);
     static QByteArray readArray(HANDLE hProcess,qint64 nAddress,qint32 nSize);
+#endif
+    static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
 signals:
 
 public slots:
