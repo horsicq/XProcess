@@ -46,7 +46,7 @@ public:
         qint64 nImageSize;
     };
 
-    explicit XProcess(QObject *parent = nullptr);
+    explicit XProcess(QObject *parent=nullptr);
     static QList<PROCESS_INFO> getProcessesList();
 #ifdef Q_OS_WIN
     static bool setPrivilege(char *pszName,bool bEnable);
