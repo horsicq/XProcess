@@ -63,9 +63,6 @@ public:
     static QByteArray readArray(HANDLE hProcess,qint64 nAddress,qint32 nSize);
 #endif
     static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
-signals:
-
-public slots:
 };
 
 #endif // XPROCESS_H
