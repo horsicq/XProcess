@@ -44,9 +44,9 @@ public:
     virtual bool seek(qint64 pos);
     virtual bool reset();
     virtual bool open(OpenMode mode);
-    virtual bool atEnd();
+    virtual bool atEnd() const;
     virtual void close();
-    virtual qint64 pos();
+    virtual qint64 pos() const;
     bool openPID(qint64 nPID,qint64 __nAddress, qint64 __nSize,OpenMode mode);
 #ifdef Q_OS_WIN
     bool openHandle(HANDLE hProcess,qint64 __nAddress, qint64 __nSize,OpenMode mode);
@@ -60,9 +60,6 @@ protected:
     virtual qint64 readData(char *data, qint64 maxSize);
     virtual qint64 writeData(const char *data, qint64 maxSize);
     virtual void setErrorString(const QString &str);
-signals:
-
-public slots:
 
 private:
     const qint64 N_BUFFER_SIZE=0x1000;

@@ -70,7 +70,7 @@ bool XProcessDevice::open(QIODevice::OpenMode mode)
     return false; // Use openPId or OpenHandle
 }
 
-bool XProcessDevice::atEnd()
+bool XProcessDevice::atEnd() const
 {
     return (bytesAvailable()==0);
 }
@@ -90,7 +90,7 @@ void XProcessDevice::close()
     }
 }
 
-qint64 XProcessDevice::pos()
+qint64 XProcessDevice::pos() const
 {
     return QIODevice::pos();
 }
