@@ -53,6 +53,7 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
         CloseHandle(hProcesses);
     }
 #endif
+    // TODO Check Mac
 #ifdef Q_OS_LINUX
     QDirIterator it("/proc");
 
@@ -85,7 +86,7 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
 #ifdef Q_OS_WIN
     if(nProcessID)
     {
-        HANDLE hModule=CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,nProcessID);
+        HANDLE hModule=CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,(DWORD)nProcessID);
 
         if(hModule!=INVALID_HANDLE_VALUE)
         {
@@ -169,7 +170,7 @@ QString XProcess::getFileNameByHandle(HANDLE hHandle)
 {
     QString sResult;
 
-    HANDLE hFileMapping=CreateFileMappingW(hHandle,NULL,PAGE_READONLY,NULL,GetFileSize(hHandle,NULL),NULL);
+    HANDLE hFileMapping=CreateFileMappingW(hHandle,nullptr,PAGE_READONLY,NULL,GetFileSize(hHandle,nullptr),nullptr);
 
     if(hFileMapping)
     {
