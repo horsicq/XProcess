@@ -67,7 +67,7 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
         {
             quint64 nPID=fi.baseName().toUInt();
 
-            PROCESS_INFO processInfo=getInfoByPID(nPID);
+            PROCESS_INFO processInfo=getInfoByProcessID(nPID);
 
             if(processInfo.nID)
             {
@@ -110,10 +110,10 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
     }
 #endif
 #ifdef Q_OS_LINUX
-    if(nPID)
+    if(nProcessID)
     {
         QFile file;
-        file.setFileName(QString("/proc/%1/cmdline").arg(nPID));
+        file.setFileName(QString("/proc/%1/cmdline").arg(nProcessID));
         if(file.open(QIODevice::ReadOnly))
         {
             QByteArray baData=file.readAll();
@@ -128,18 +128,17 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
                     QFileInfo fi(result.sFilePath);
                     result.sName=fi.baseName();
 
-                    result.nID=nPID;
+                    result.nID=nProcessID;
                 }
             }
 
             file.close();
         }
     }
-
 #endif
     return result;
 }
-
+#ifdef Q_OS_WIN
 qint64 XProcess::getImageSize(HANDLE hProcess,qint64 nImageBase)
 {
     qint64 nResult=0;
@@ -165,7 +164,8 @@ qint64 XProcess::getImageSize(HANDLE hProcess,qint64 nImageBase)
 
     return nResult;
 }
-
+#endif
+#ifdef Q_OS_WIN
 QString XProcess::getFileNameByHandle(HANDLE hHandle)
 {
     QString sResult;
@@ -192,7 +192,8 @@ QString XProcess::getFileNameByHandle(HANDLE hHandle)
 
     return sResult;
 }
-
+#endif
+#ifdef Q_OS_WIN
 bool XProcess::readData(HANDLE hProcess, qint64 nAddress, char *pBuffer, qint32 nBufferSize)
 {
     bool bResult=false;
@@ -208,7 +209,8 @@ bool XProcess::readData(HANDLE hProcess, qint64 nAddress, char *pBuffer, qint32 
 
     return bResult;
 }
-
+#endif
+#ifdef Q_OS_WIN
 bool XProcess::writeData(HANDLE hProcess, qint64 nAddress, char *pBuffer, qint32 nBufferSize)
 {
     bool bResult=false;
@@ -224,7 +226,8 @@ bool XProcess::writeData(HANDLE hProcess, qint64 nAddress, char *pBuffer, qint32
 
     return bResult;
 }
-
+#endif
+#ifdef Q_OS_WIN
 quint8 XProcess::read_uint8(HANDLE hProcess, qint64 nAddress)
 {
     quint8 nResult=0;
@@ -233,7 +236,8 @@ quint8 XProcess::read_uint8(HANDLE hProcess, qint64 nAddress)
 
     return nResult;
 }
-
+#endif
+#ifdef Q_OS_WIN
 quint16 XProcess::read_uint16(HANDLE hProcess, qint64 nAddress)
 {
     quint16 nResult=0;
@@ -242,7 +246,8 @@ quint16 XProcess::read_uint16(HANDLE hProcess, qint64 nAddress)
 
     return nResult;
 }
-
+#endif
+#ifdef Q_OS_WIN
 quint32 XProcess::read_uint32(HANDLE hProcess, qint64 nAddress)
 {
     quint32 nResult=0;
@@ -251,7 +256,8 @@ quint32 XProcess::read_uint32(HANDLE hProcess, qint64 nAddress)
 
     return nResult;
 }
-
+#endif
+#ifdef Q_OS_WIN
 quint64 XProcess::read_uint64(HANDLE hProcess, qint64 nAddress)
 {
     quint64 nResult=0;
@@ -260,7 +266,8 @@ quint64 XProcess::read_uint64(HANDLE hProcess, qint64 nAddress)
 
     return nResult;
 }
-
+#endif
+#ifdef Q_OS_WIN
 QByteArray XProcess::readArray(HANDLE hProcess, qint64 nAddress, qint32 nSize)
 {
     QByteArray baResult;
@@ -271,7 +278,7 @@ QByteArray XProcess::readArray(HANDLE hProcess, qint64 nAddress, qint32 nSize)
 
     return baResult;
 }
-
+#endif
 #ifdef Q_OS_WIN
 bool XProcess::setPrivilege(char *pszName, bool bEnable)
 {
