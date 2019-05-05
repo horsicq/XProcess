@@ -65,7 +65,7 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
 
         if(fi.isDir())
         {
-            quint64 nPID=fi.baseName().toUInt();
+            qint64 nPID=fi.baseName().toInt();
 
             PROCESS_INFO processInfo=getInfoByProcessID(nPID);
 
@@ -112,6 +112,7 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
 #ifdef Q_OS_LINUX
     if(nProcessID)
     {
+        // TODO argument
         QFile file;
         file.setFileName(QString("/proc/%1/cmdline").arg(nProcessID));
         if(file.open(QIODevice::ReadOnly))
