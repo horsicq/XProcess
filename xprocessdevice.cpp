@@ -79,11 +79,14 @@ void XProcessDevice::close()
 {
     bool bSuccess=true;
 #ifdef Q_OS_WIN
+
     if(nPID)
     {
         bSuccess=CloseHandle(hProcess);
     }
+
 #endif
+
     if(bSuccess)
     {
         setOpenMode(NotOpen);
@@ -108,6 +111,7 @@ bool XProcessDevice::openPID(qint64 nPID, qint64 __nAddress, qint64 __nSize, QIO
     quint32 nFlags=0;
 
 #ifdef Q_OS_WIN
+
     if(mode==ReadOnly)
     {
         nFlags=PROCESS_VM_READ;
@@ -145,10 +149,12 @@ qint64 XProcessDevice::adjustSize(qint64 nSize)
 {
     qint64 nPos=pos();
     qint64 _nSize=X_ALIGN_UP(nPos,0x1000)-nPos;
+
     if(_nSize==0)
     {
         _nSize=0x1000;
     }
+
     _nSize=qMin(_nSize,(qint64)(__nSize-nPos));
     qint64 nResult=qMin(nSize,_nSize);
 
@@ -180,16 +186,19 @@ qint64 XProcessDevice::readData(char *data, qint64 maxSize)
 
     maxSize=qMin(maxSize,(qint64)(__nSize-_nPos));
 
-    for(qint64 i=0;i<maxSize;)
+    for(qint64 i=0; i<maxSize;)
     {
         qint64 nDelta=X_ALIGN_UP(_nPos,N_BUFFER_SIZE)-_nPos;
+
         if(nDelta==0)
         {
             nDelta=N_BUFFER_SIZE;
         }
+
         nDelta=qMin(nDelta,(qint64)(maxSize-i));
 #ifdef Q_OS_WIN
         SIZE_T nSize=0;
+
         if(!ReadProcessMemory(hProcess,(LPVOID *)(_nPos+__nAddress),data,(SIZE_T)nDelta,&nSize))
         {
             break;
@@ -199,6 +208,7 @@ qint64 XProcessDevice::readData(char *data, qint64 maxSize)
         {
             break;
         }
+
 #endif
 #ifdef Q_OS_LINUX
         break;
@@ -208,6 +218,7 @@ qint64 XProcessDevice::readData(char *data, qint64 maxSize)
         nResult+=nDelta;
         i+=nDelta;
     }
+
 #ifdef Q_OS_WIN
     checkWindowsLastError();
 #endif
@@ -222,24 +233,29 @@ qint64 XProcessDevice::writeData(const char *data, qint64 maxSize)
 
     maxSize=qMin(maxSize,(qint64)(__nSize-_nPos));
 
-    for(qint64 i=0;i<maxSize;)
+    for(qint64 i=0; i<maxSize;)
     {
         qint64 nDelta=X_ALIGN_UP(_nPos,N_BUFFER_SIZE)-_nPos;
+
         if(nDelta==0)
         {
             nDelta=N_BUFFER_SIZE;
         }
+
         nDelta=qMin(nDelta,(qint64)(maxSize-i));
 #ifdef Q_OS_WIN
         SIZE_T nSize=0;
+
         if(!WriteProcessMemory(hProcess,(LPVOID *)(_nPos+__nAddress),data,(SIZE_T)nDelta,&nSize))
         {
             break;
         }
+
         if(nSize!=nDelta)
         {
             break;
         }
+
 #endif
 #ifdef Q_OS_LINUX
         break;
@@ -249,6 +265,7 @@ qint64 XProcessDevice::writeData(const char *data, qint64 maxSize)
         nResult+=nDelta;
         i+=nDelta;
     }
+
 #ifdef Q_OS_WIN
     checkWindowsLastError();
 #endif

@@ -52,6 +52,7 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
 
         CloseHandle(hProcesses);
     }
+
 #endif
     // TODO Check Mac
 #ifdef Q_OS_LINUX
@@ -75,6 +76,7 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
             }
         }
     }
+
 #endif
 
     return listResult;
@@ -82,8 +84,9 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
 
 XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
 {
-    PROCESS_INFO result={0};
+    PROCESS_INFO result= {0};
 #ifdef Q_OS_WIN
+
     if(nProcessID)
     {
         HANDLE hModule=CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,(DWORD)nProcessID);
@@ -108,13 +111,16 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
             CloseHandle(hModule);
         }
     }
+
 #endif
 #ifdef Q_OS_LINUX
+
     if(nProcessID)
     {
         // TODO argument
         QFile file;
         file.setFileName(QString("/proc/%1/cmdline").arg(nProcessID));
+
         if(file.open(QIODevice::ReadOnly))
         {
             QByteArray baData=file.readAll();
@@ -136,6 +142,7 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
             file.close();
         }
     }
+
 #endif
     return result;
 }
@@ -145,13 +152,16 @@ qint64 XProcess::getImageSize(HANDLE hProcess,qint64 nImageBase)
     qint64 nResult=0;
 
     qint64 _nAddress=nImageBase;
+
     while(true)
     {
-        MEMORY_BASIC_INFORMATION mbi={};
+        MEMORY_BASIC_INFORMATION mbi= {};
+
         if(!VirtualQueryEx(hProcess,(LPCVOID)_nAddress,&mbi,sizeof(mbi)))
         {
             break;
         }
+
         if((mbi.RegionSize)&&((qint64)mbi.AllocationBase==nImageBase))
         {
             nResult+=mbi.RegionSize;
@@ -180,6 +190,7 @@ QString XProcess::getFileNameByHandle(HANDLE hHandle)
         if(pMem)
         {
             WCHAR wszBuffer[1024];
+
             if(GetMappedFileNameW(GetCurrentProcess(),pMem,wszBuffer,sizeof(wszBuffer)))
             {
                 sResult=QString::fromUtf16((ushort *)wszBuffer);
@@ -200,6 +211,7 @@ bool XProcess::readData(HANDLE hProcess, qint64 nAddress, char *pBuffer, qint32 
     bool bResult=false;
 
     SIZE_T nSize=0;
+
     if(ReadProcessMemory(hProcess,(LPVOID *)nAddress,pBuffer,(SIZE_T)nBufferSize,&nSize))
     {
         if(nSize==(SIZE_T)nBufferSize)
@@ -217,6 +229,7 @@ bool XProcess::writeData(HANDLE hProcess, qint64 nAddress, char *pBuffer, qint32
     bool bResult=false;
 
     SIZE_T nSize=0;
+
     if(WriteProcessMemory(hProcess,(LPVOID *)nAddress,pBuffer,(SIZE_T)nBufferSize,&nSize))
     {
         if(nSize==(SIZE_T)nBufferSize)
@@ -289,6 +302,7 @@ bool XProcess::setPrivilege(char *pszName, bool bEnable)
     if(OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES|TOKEN_QUERY,&hToken))
     {
         LUID SeValue;
+
         if(LookupPrivilegeValueA(nullptr,pszName,&SeValue))
         {
             TOKEN_PRIVILEGES tp;

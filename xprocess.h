@@ -39,7 +39,7 @@ public:
     struct PROCESS_INFO
     {
         QString sName;
-//        qint64 nParentID;
+        //        qint64 nParentID;
         qint64 nID;
         QString sFilePath;
         qint64 nImageAddress;
