@@ -61,6 +61,7 @@ public:
     static quint32 read_uint32(HANDLE hProcess,qint64 nAddress);
     static quint64 read_uint64(HANDLE hProcess,qint64 nAddress);
     static QByteArray readArray(HANDLE hProcess,qint64 nAddress,qint32 nSize);
+    static QString readAnsiString(HANDLE hProcess,qint64 nAddress,qint64 nMaxSize=256);
 #endif
     static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
 };

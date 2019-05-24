@@ -294,6 +294,34 @@ QByteArray XProcess::readArray(HANDLE hProcess, qint64 nAddress, qint32 nSize)
 }
 #endif
 #ifdef Q_OS_WIN
+QString XProcess::readAnsiString(HANDLE hProcess, qint64 nAddress, qint64 nMaxSize)
+{
+    char *pBuffer=new char[nMaxSize+1];
+    QString sResult;
+    int i=0;
+
+    for(; i<nMaxSize; i++)
+    {
+        if(!readData(hProcess,nAddress+i,&(pBuffer[i]),1))
+        {
+            break;
+        }
+
+        if(pBuffer[i]==0)
+        {
+            break;
+        }
+    }
+
+    pBuffer[i]=0;
+    sResult.append(pBuffer);
+
+    delete [] pBuffer;
+
+    return sResult;
+}
+#endif
+#ifdef Q_OS_WIN
 bool XProcess::setPrivilege(char *pszName, bool bEnable)
 {
     bool bResult=false;
