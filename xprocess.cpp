@@ -322,7 +322,7 @@ QString XProcess::readAnsiString(HANDLE hProcess, qint64 nAddress, qint64 nMaxSi
 }
 #endif
 #ifdef Q_OS_WIN
-bool XProcess::setPrivilege(char *pszName, bool bEnable)
+bool XProcess::setPrivilege(QString sName, bool bEnable)
 {
     bool bResult=false;
     HANDLE hToken;
@@ -331,7 +331,7 @@ bool XProcess::setPrivilege(char *pszName, bool bEnable)
     {
         LUID SeValue;
 
-        if(LookupPrivilegeValueA(nullptr,pszName,&SeValue))
+        if(LookupPrivilegeValueA(nullptr,sName.toLatin1().data(),&SeValue))
         {
             TOKEN_PRIVILEGES tp;
 

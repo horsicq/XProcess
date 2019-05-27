@@ -49,7 +49,7 @@ public:
     explicit XProcess(QObject *parent=nullptr);
     static QList<PROCESS_INFO> getProcessesList();
 #ifdef Q_OS_WIN
-    static bool setPrivilege(char *pszName,bool bEnable);
+    static bool setPrivilege(QString sName,bool bEnable);
     static qint64 getProcessIDByHandle(HANDLE hProcess);
     static qint64 getThreadIDByHandle(HANDLE hThread);
     static qint64 getImageSize(HANDLE hProcess,qint64 nImageBase);
