@@ -177,6 +177,43 @@ qint64 XProcess::getImageSize(HANDLE hProcess,qint64 nImageBase)
 }
 #endif
 #ifdef Q_OS_WIN
+XProcess::MEMORY_FLAGS XProcess::getMemoryFlags(HANDLE hProcess, qint64 nAddress)
+{
+    MEMORY_FLAGS result={};
+    MEMORY_BASIC_INFORMATION mbi= {};
+
+    if(VirtualQueryEx(hProcess,(LPCVOID)nAddress,&mbi,sizeof(mbi)))
+    {
+        if(mbi.Protect==PAGE_READONLY)
+        {
+            result.bRead=true;
+        }
+        else if(mbi.Protect==PAGE_READWRITE)
+        {
+            result.bRead=true;
+            result.bWrite=true;
+        }
+        else if(mbi.Protect==PAGE_EXECUTE)
+        {
+            result.bExecute=true;
+        }
+        else if(mbi.Protect==PAGE_EXECUTE_READ)
+        {
+            result.bRead=true;
+            result.bExecute=true;
+        }
+        else if(mbi.Protect==PAGE_EXECUTE_READWRITE)
+        {
+            result.bRead=true;
+            result.bWrite=true;
+            result.bWrite=true;
+        }
+    }
+
+    return result;
+}
+#endif
+#ifdef Q_OS_WIN
 QString XProcess::getFileNameByHandle(HANDLE hHandle)
 {
     QString sResult;

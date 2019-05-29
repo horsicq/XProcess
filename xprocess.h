@@ -45,6 +45,12 @@ public:
         qint64 nImageAddress;
         qint64 nImageSize;
     };
+    struct MEMORY_FLAGS
+    {
+        bool bRead;
+        bool bWrite;
+        bool bExecute;
+    };
 
     explicit XProcess(QObject *parent=nullptr);
     static QList<PROCESS_INFO> getProcessesList();
@@ -53,6 +59,7 @@ public:
     static qint64 getProcessIDByHandle(HANDLE hProcess);
     static qint64 getThreadIDByHandle(HANDLE hThread);
     static qint64 getImageSize(HANDLE hProcess,qint64 nImageBase);
+    static MEMORY_FLAGS getMemoryFlags(HANDLE hProcess,qint64 nAddress);
     static QString getFileNameByHandle(HANDLE hHandle);
     static bool readData(HANDLE hProcess,qint64 nAddress,char *pBuffer,qint32 nBufferSize);
     static bool writeData(HANDLE hProcess,qint64 nAddress,char *pBuffer,qint32 nBufferSize);
