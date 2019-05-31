@@ -319,7 +319,7 @@ quint64 XProcess::read_uint64(HANDLE hProcess, qint64 nAddress)
 }
 #endif
 #ifdef Q_OS_WIN
-QByteArray XProcess::readArray(HANDLE hProcess, qint64 nAddress, qint32 nSize)
+QByteArray XProcess::read_array(HANDLE hProcess, qint64 nAddress, qint32 nSize)
 {
     QByteArray baResult;
 
@@ -331,7 +331,7 @@ QByteArray XProcess::readArray(HANDLE hProcess, qint64 nAddress, qint32 nSize)
 }
 #endif
 #ifdef Q_OS_WIN
-QString XProcess::readAnsiString(HANDLE hProcess, qint64 nAddress, qint64 nMaxSize)
+QString XProcess::read_ansiString(HANDLE hProcess, qint64 nAddress, qint64 nMaxSize)
 {
     char *pBuffer=new char[nMaxSize+1];
     QString sResult;
@@ -354,6 +354,38 @@ QString XProcess::readAnsiString(HANDLE hProcess, qint64 nAddress, qint64 nMaxSi
     sResult.append(pBuffer);
 
     delete [] pBuffer;
+
+    return sResult;
+}
+#endif
+#ifdef Q_OS_WIN
+QString XProcess::read_unicodeString(HANDLE hProcess, qint64 nAddress, qint64 nMaxSize)
+{
+    QString sResult;
+
+    if(nMaxSize)
+    {
+        quint16 *pBuffer=new quint16[nMaxSize+1];
+
+        for(int i=0; i<nMaxSize; i++)
+        {
+            pBuffer[i]=read_uint16(hProcess,nAddress+2*i);
+
+            if(pBuffer[i]==0)
+            {
+                break;
+            }
+
+            if(i==nMaxSize-1)
+            {
+                pBuffer[nMaxSize]=0;
+            }
+        }
+
+        sResult=QString::fromUtf16(pBuffer);
+
+        delete [] pBuffer;
+    }
 
     return sResult;
 }

@@ -67,8 +67,9 @@ public:
     static quint16 read_uint16(HANDLE hProcess,qint64 nAddress);
     static quint32 read_uint32(HANDLE hProcess,qint64 nAddress);
     static quint64 read_uint64(HANDLE hProcess,qint64 nAddress);
-    static QByteArray readArray(HANDLE hProcess,qint64 nAddress,qint32 nSize);
-    static QString readAnsiString(HANDLE hProcess,qint64 nAddress,qint64 nMaxSize=256);
+    static QByteArray read_array(HANDLE hProcess,qint64 nAddress,qint32 nSize);
+    static QString read_ansiString(HANDLE hProcess,qint64 nAddress,qint64 nMaxSize=256);
+    static QString read_unicodeString(HANDLE hProcess,qint64 nAddress,qint64 nMaxSize=256); // TODO endian ??
 #endif
     static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
 };
