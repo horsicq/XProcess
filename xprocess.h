@@ -51,6 +51,12 @@ public:
         bool bWrite;
         bool bExecute;
     };
+    struct MEMORY_REGION
+    {
+        qint64 nAddress;
+        qint64 nSize;
+        MEMORY_FLAGS mf;
+    };
 
     explicit XProcess(QObject *parent=nullptr);
     static QList<PROCESS_INFO> getProcessesList();
