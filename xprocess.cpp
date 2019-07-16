@@ -76,7 +76,6 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
             }
         }
     }
-
 #endif
 
     return listResult;
@@ -86,7 +85,6 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
 {
     PROCESS_INFO result= {0};
 #ifdef Q_OS_WIN
-
     if(nProcessID)
     {
         HANDLE hModule=CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,(DWORD)nProcessID);
@@ -111,10 +109,8 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
             CloseHandle(hModule);
         }
     }
-
 #endif
 #ifdef Q_OS_LINUX
-
     if(nProcessID)
     {
         // TODO argument
@@ -142,7 +138,6 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
             file.close();
         }
     }
-
 #endif
     return result;
 }
