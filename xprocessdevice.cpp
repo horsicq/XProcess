@@ -67,6 +67,8 @@ bool XProcessDevice::reset()
 
 bool XProcessDevice::open(QIODevice::OpenMode mode)
 {
+    Q_UNUSED(mode)
+
     return false; // Use openPId or OpenHandle
 }
 
