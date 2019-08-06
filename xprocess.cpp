@@ -226,12 +226,57 @@ QString XProcess::getFileNameByHandle(HANDLE hHandle)
             if(GetMappedFileNameW(GetCurrentProcess(),pMem,wszBuffer,sizeof(wszBuffer)))
             {
                 sResult=QString::fromUtf16((ushort *)wszBuffer);
+                sResult=convertNtToDosPath(sResult);
             }
 
             UnmapViewOfFile(pMem);
         }
 
         CloseHandle(hFileMapping);
+    }
+
+    return sResult;
+}
+#endif
+#ifdef Q_OS_WIN
+QString XProcess::convertNtToDosPath(QString sNtPath)
+{
+    QString sResult=sNtPath;
+
+    int nSize=GetLogicalDriveStringsW(0,0);
+
+    if(nSize)
+    {
+        WCHAR wszNtBuffer[256];
+
+        WCHAR *pwszBuffer=new WCHAR[nSize+1];
+
+        nSize=GetLogicalDriveStringsW(nSize,pwszBuffer);
+
+        for(int i=0;i<nSize;)
+        {
+            QString sDisk=QString::fromUtf16((ushort *)(pwszBuffer+i));
+            sDisk=sDisk.remove("\\");
+
+            i+=sDisk.size()+1;
+
+            if(QueryDosDeviceW((WCHAR *)sDisk.utf16(),wszNtBuffer,sizeof(wszNtBuffer)))
+            {
+                QString sNt=QString::fromUtf16((const ushort *)wszNtBuffer);
+
+                QString _sNtPath=sNtPath;
+                _sNtPath.resize(sNt.size());
+
+                if(_sNtPath==sNt)
+                {
+                    sResult=sDisk+sNtPath.mid(sNt.size(),-1);
+
+                    break;
+                }
+            }
+        }
+
+        delete [] pwszBuffer;
     }
 
     return sResult;

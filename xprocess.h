@@ -67,6 +67,7 @@ public:
     static qint64 getImageSize(HANDLE hProcess,qint64 nImageBase);
     static MEMORY_FLAGS getMemoryFlags(HANDLE hProcess,qint64 nAddress);
     static QString getFileNameByHandle(HANDLE hHandle);
+    static QString convertNtToDosPath(QString sNtPath);
     static bool readData(HANDLE hProcess,qint64 nAddress,char *pBuffer,qint32 nBufferSize);
     static bool writeData(HANDLE hProcess,qint64 nAddress,char *pBuffer,qint32 nBufferSize);
     static quint8 read_uint8(HANDLE hProcess,qint64 nAddress);
