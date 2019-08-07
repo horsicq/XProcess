@@ -365,6 +365,12 @@ void XProcess::write_uint32(HANDLE hProcess, qint64 nAddress, quint32 nValue)
 }
 #endif
 #ifdef Q_OS_WIN
+void XProcess::write_uint64(HANDLE hProcess, qint64 nAddress, quint64 nValue)
+{
+    writeData(hProcess,nAddress,(char *)&nValue,8);
+}
+#endif
+#ifdef Q_OS_WIN
 QByteArray XProcess::read_array(HANDLE hProcess, qint64 nAddress, qint32 nSize)
 {
     QByteArray baResult;

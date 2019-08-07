@@ -75,6 +75,7 @@ public:
     static quint32 read_uint32(HANDLE hProcess,qint64 nAddress);
     static quint64 read_uint64(HANDLE hProcess,qint64 nAddress);
     static void write_uint32(HANDLE hProcess,qint64 nAddress,quint32 nValue);
+    static void write_uint64(HANDLE hProcess,qint64 nAddress,quint64 nValue);
     static QByteArray read_array(HANDLE hProcess,qint64 nAddress,qint32 nSize);
     static QString read_ansiString(HANDLE hProcess,qint64 nAddress,qint64 nMaxSize=256);
     static QString read_unicodeString(HANDLE hProcess,qint64 nAddress,qint64 nMaxSize=256); // TODO endian ??
