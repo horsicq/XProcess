@@ -359,6 +359,18 @@ quint64 XProcess::read_uint64(HANDLE hProcess, qint64 nAddress)
 }
 #endif
 #ifdef Q_OS_WIN
+void XProcess::write_uint8(HANDLE hProcess, qint64 nAddress, quint8 nValue)
+{
+    writeData(hProcess,nAddress,(char *)&nValue,1);
+}
+#endif
+#ifdef Q_OS_WIN
+void XProcess::write_uint16(HANDLE hProcess, qint64 nAddress, quint16 nValue)
+{
+    writeData(hProcess,nAddress,(char *)&nValue,2);
+}
+#endif
+#ifdef Q_OS_WIN
 void XProcess::write_uint32(HANDLE hProcess, qint64 nAddress, quint32 nValue)
 {
     writeData(hProcess,nAddress,(char *)&nValue,4);
