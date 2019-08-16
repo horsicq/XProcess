@@ -35,6 +35,7 @@
 class XProcessDevice : public QIODevice
 {
     Q_OBJECT
+
 public:
     explicit XProcessDevice(QObject *parent=nullptr);
     ~XProcessDevice();

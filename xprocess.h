@@ -35,6 +35,7 @@
 class XProcess : public QObject
 {
     Q_OBJECT
+
 public:
     struct PROCESS_INFO
     {
