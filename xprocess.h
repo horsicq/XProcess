@@ -32,6 +32,9 @@
 #include <QDirIterator>
 #endif
 
+#define X_ALIGN_DOWN(x,align)     ((x)&~(align-1))
+#define X_ALIGN_UP(x,align)       (((x)&(align-1))?X_ALIGN_DOWN(x,align)+align:x)
+
 class XProcess : public QObject
 {
     Q_OBJECT
@@ -65,7 +68,10 @@ public:
     static bool setPrivilege(QString sName,bool bEnable);
     static qint64 getProcessIDByHandle(HANDLE hProcess);
     static qint64 getThreadIDByHandle(HANDLE hThread);
-    static qint64 getImageSize(HANDLE hProcess,qint64 nImageBase);
+    static qint64 getRegionAllocationSize(HANDLE hProcess, qint64 nRegionBase);
+    static qint64 getRegionAllocationBase(HANDLE hProcess, qint64 nAddress);
+    static qint64 getRegionBase(HANDLE hProcess, qint64 nAddress);
+    static qint64 getRegionSize(HANDLE hProcess, qint64 nAddress);
     static MEMORY_FLAGS getMemoryFlags(HANDLE hProcess,qint64 nAddress);
     static QString getFileNameByHandle(HANDLE hHandle);
     static QString convertNtToDosPath(QString sNtPath);

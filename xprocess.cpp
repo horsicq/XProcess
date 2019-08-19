@@ -142,11 +142,11 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
     return result;
 }
 #ifdef Q_OS_WIN
-qint64 XProcess::getImageSize(HANDLE hProcess,qint64 nImageBase)
+qint64 XProcess::getRegionAllocationSize(HANDLE hProcess,qint64 nRegionBase)
 {
     qint64 nResult=0;
 
-    qint64 _nAddress=nImageBase;
+    qint64 _nAddress=nRegionBase;
 
     while(true)
     {
@@ -157,7 +157,7 @@ qint64 XProcess::getImageSize(HANDLE hProcess,qint64 nImageBase)
             break;
         }
 
-        if((mbi.RegionSize)&&((qint64)mbi.AllocationBase==nImageBase))
+        if((mbi.RegionSize)&&((qint64)mbi.AllocationBase==nRegionBase))
         {
             nResult+=mbi.RegionSize;
             _nAddress+=mbi.RegionSize;
@@ -166,6 +166,57 @@ qint64 XProcess::getImageSize(HANDLE hProcess,qint64 nImageBase)
         {
             break;
         }
+    }
+
+    return nResult;
+}
+#endif
+#ifdef Q_OS_WIN
+qint64 XProcess::getRegionAllocationBase(HANDLE hProcess, qint64 nAddress)
+{
+    qint64 nResult=-1;
+
+    nAddress=X_ALIGN_DOWN(nAddress,0x1000);
+
+    MEMORY_BASIC_INFORMATION mbi= {};
+
+    if(VirtualQueryEx(hProcess,(LPCVOID)nAddress,&mbi,sizeof(mbi)))
+    {
+        nResult=(qint64)mbi.AllocationBase;
+    }
+
+    return nResult;
+}
+#endif
+#ifdef Q_OS_WIN
+qint64 XProcess::getRegionBase(HANDLE hProcess, qint64 nAddress)
+{
+    qint64 nResult=-1;
+
+    nAddress=X_ALIGN_DOWN(nAddress,0x1000);
+
+    MEMORY_BASIC_INFORMATION mbi= {};
+
+    if(VirtualQueryEx(hProcess,(LPCVOID)nAddress,&mbi,sizeof(mbi)))
+    {
+        nResult=(qint64)mbi.BaseAddress;
+    }
+
+    return nResult;
+}
+#endif
+#ifdef Q_OS_WIN
+qint64 XProcess::getRegionSize(HANDLE hProcess, qint64 nAddress)
+{
+    qint64 nResult=-1;
+
+    nAddress=X_ALIGN_DOWN(nAddress,0x1000);
+
+    MEMORY_BASIC_INFORMATION mbi= {};
+
+    if(VirtualQueryEx(hProcess,(LPCVOID)nAddress,&mbi,sizeof(mbi)))
+    {
+        nResult=(qint64)mbi.RegionSize;
     }
 
     return nResult;
