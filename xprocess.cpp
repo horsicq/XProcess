@@ -506,6 +506,26 @@ QString XProcess::read_unicodeString(HANDLE hProcess, qint64 nAddress, qint64 nM
 }
 #endif
 #ifdef Q_OS_WIN
+qint64 XProcess::getTEBAddress(HANDLE hThread)
+{
+    qint64 nResult=-1;
+
+    HMODULE hNtDll=LoadLibrary(TEXT("ntdll.dll"));
+    if(hNtDll)
+    {
+        S_THREAD_BASIC_INFORMATION tbi={};
+
+        pfnNtQueryInformationThread gNtQueryInformationThread=(pfnNtQueryInformationThread)GetProcAddress(hNtDll,"NtQueryInformationThread");
+
+        LONG nTemp=0;
+        gNtQueryInformationThread(hThread,(THREADINFOCLASS)0,&tbi,sizeof(tbi),(PULONG)&nTemp);
+        nResult=(qint64)tbi.TebBaseAddress;
+    }
+
+    return nResult;
+}
+#endif
+#ifdef Q_OS_WIN
 bool XProcess::setPrivilege(QString sName, bool bEnable)
 {
     bool bResult=false;

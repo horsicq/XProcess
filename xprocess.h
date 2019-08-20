@@ -35,6 +35,32 @@
 #define X_ALIGN_DOWN(x,align)     ((x)&~(align-1))
 #define X_ALIGN_UP(x,align)       (((x)&(align-1))?X_ALIGN_DOWN(x,align)+align:x)
 
+#ifdef Q_OS_WIN
+struct S_CLIENT_ID
+{
+    PVOID UniqueProcess;
+    PVOID UniqueThread;
+};
+
+struct S_THREAD_BASIC_INFORMATION {
+    NTSTATUS                ExitStatus;
+    PVOID                   TebBaseAddress;
+    S_CLIENT_ID             ClientId;
+    KAFFINITY               AffinityMask;
+    LONG                    Priority;
+    LONG                    BasePriority;
+
+};
+
+typedef NTSTATUS (NTAPI *pfnNtQueryInformationThread)(
+        HANDLE ThreadHandle,
+        THREADINFOCLASS ThreadInformationClass,
+        PVOID ThreadInformation,
+        ULONG ThreadInformationLength,
+        PULONG ReturnLength
+        );
+#endif
+
 class XProcess : public QObject
 {
     Q_OBJECT
@@ -88,6 +114,7 @@ public:
     static QByteArray read_array(HANDLE hProcess,qint64 nAddress,qint32 nSize);
     static QString read_ansiString(HANDLE hProcess,qint64 nAddress,qint64 nMaxSize=256);
     static QString read_unicodeString(HANDLE hProcess,qint64 nAddress,qint64 nMaxSize=256); // TODO endian ??
+    static qint64 getTEBAddress(HANDLE hThread);
 #endif
     static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
 };
