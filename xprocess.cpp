@@ -150,7 +150,7 @@ qint64 XProcess::getRegionAllocationSize(HANDLE hProcess,qint64 nRegionBase)
 
     while(true)
     {
-        MEMORY_BASIC_INFORMATION mbi= {};
+        MEMORY_BASIC_INFORMATION mbi={};
 
         if(!VirtualQueryEx(hProcess,(LPCVOID)_nAddress,&mbi,sizeof(mbi)))
         {
@@ -178,7 +178,7 @@ qint64 XProcess::getRegionAllocationBase(HANDLE hProcess, qint64 nAddress)
 
     nAddress=X_ALIGN_DOWN(nAddress,0x1000);
 
-    MEMORY_BASIC_INFORMATION mbi= {};
+    MEMORY_BASIC_INFORMATION mbi={};
 
     if(VirtualQueryEx(hProcess,(LPCVOID)nAddress,&mbi,sizeof(mbi)))
     {
@@ -195,7 +195,7 @@ qint64 XProcess::getRegionBase(HANDLE hProcess, qint64 nAddress)
 
     nAddress=X_ALIGN_DOWN(nAddress,0x1000);
 
-    MEMORY_BASIC_INFORMATION mbi= {};
+    MEMORY_BASIC_INFORMATION mbi={};
 
     if(VirtualQueryEx(hProcess,(LPCVOID)nAddress,&mbi,sizeof(mbi)))
     {
@@ -212,7 +212,7 @@ qint64 XProcess::getRegionSize(HANDLE hProcess, qint64 nAddress)
 
     nAddress=X_ALIGN_DOWN(nAddress,0x1000);
 
-    MEMORY_BASIC_INFORMATION mbi= {};
+    MEMORY_BASIC_INFORMATION mbi={};
 
     if(VirtualQueryEx(hProcess,(LPCVOID)nAddress,&mbi,sizeof(mbi)))
     {
@@ -226,7 +226,7 @@ qint64 XProcess::getRegionSize(HANDLE hProcess, qint64 nAddress)
 XProcess::MEMORY_FLAGS XProcess::getMemoryFlags(HANDLE hProcess, qint64 nAddress)
 {
     MEMORY_FLAGS result={};
-    MEMORY_BASIC_INFORMATION mbi= {};
+    MEMORY_BASIC_INFORMATION mbi={};
 
     if(VirtualQueryEx(hProcess,(LPCVOID)nAddress,&mbi,sizeof(mbi)))
     {
