@@ -439,7 +439,7 @@ QByteArray XProcess::read_array(HANDLE hProcess, qint64 nAddress, qint32 nSize)
     QByteArray baResult;
 
     baResult.resize(nSize);
-
+    // TODO Check if fails
     readData(hProcess,nAddress,baResult.data(),nSize);
 
     return baResult;
