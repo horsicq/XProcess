@@ -206,7 +206,7 @@ qint64 XProcessDevice::readData(char *data, qint64 maxSize)
             break;
         }
 
-        if(nSize!=nDelta)
+        if(nSize!=(SIZE_T)nDelta)
         {
             break;
         }
@@ -253,7 +253,7 @@ qint64 XProcessDevice::writeData(const char *data, qint64 maxSize)
             break;
         }
 
-        if(nSize!=nDelta)
+        if(nSize!=(SIZE_T)nDelta)
         {
             break;
         }

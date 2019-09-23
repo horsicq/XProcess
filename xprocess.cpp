@@ -264,11 +264,11 @@ QString XProcess::getFileNameByHandle(HANDLE hHandle)
 {
     QString sResult;
 
-    HANDLE hFileMapping=CreateFileMappingW(hHandle,nullptr,PAGE_READONLY,NULL,GetFileSize(hHandle,nullptr),nullptr);
+    HANDLE hFileMapping=CreateFileMappingW(hHandle,nullptr,PAGE_READONLY,0,GetFileSize(hHandle,nullptr),nullptr);
 
     if(hFileMapping)
     {
-        void *pMem=MapViewOfFile(hFileMapping,FILE_MAP_READ,NULL,NULL,NULL);
+        void *pMem=MapViewOfFile(hFileMapping,FILE_MAP_READ,0,0,0);
 
         if(pMem)
         {
