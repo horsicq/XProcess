@@ -51,13 +51,14 @@ bool XProcessDevice::isSequential() const
 
 bool XProcessDevice::seek(qint64 pos)
 {
+    bool bResult=false;
+
     if((pos<(qint64)__nSize)&&(pos>=0))
     {
-        QIODevice::seek(pos);
-        return true;
+        bResult=QIODevice::seek(pos);
     }
 
-    return false;
+    return bResult;
 }
 
 bool XProcessDevice::reset()
@@ -81,14 +82,11 @@ void XProcessDevice::close()
 {
     bool bSuccess=true;
 #ifdef Q_OS_WIN
-
     if(nPID)
     {
         bSuccess=CloseHandle(hProcess);
     }
-
 #endif
-
     if(bSuccess)
     {
         setOpenMode(NotOpen);
@@ -113,7 +111,6 @@ bool XProcessDevice::openPID(qint64 nPID, qint64 __nAddress, qint64 __nSize, QIO
     quint32 nFlags=0;
 
 #ifdef Q_OS_WIN
-
     if(mode==ReadOnly)
     {
         nFlags=PROCESS_VM_READ;
