@@ -75,12 +75,14 @@ public:
         qint64 nImageAddress;
         qint64 nImageSize;
     };
+
     struct MEMORY_FLAGS
     {
         bool bRead;
         bool bWrite;
         bool bExecute;
     };
+
     struct MEMORY_REGION
     {
         qint64 nAddress;
