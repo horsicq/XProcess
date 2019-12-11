@@ -100,6 +100,7 @@ public:
     static qint64 getRegionAllocationBase(HANDLE hProcess, qint64 nAddress);
     static qint64 getRegionBase(HANDLE hProcess, qint64 nAddress);
     static qint64 getRegionSize(HANDLE hProcess, qint64 nAddress);
+    static MEMORY_FLAGS dwordToFlags(quint32 nValue);
     static MEMORY_FLAGS getMemoryFlags(HANDLE hProcess,qint64 nAddress);
     static QString getFileNameByHandle(HANDLE hHandle);
     static QString convertNtToDosPath(QString sNtPath);
@@ -117,6 +118,7 @@ public:
     static QString read_ansiString(HANDLE hProcess,qint64 nAddress,qint64 nMaxSize=256);
     static QString read_unicodeString(HANDLE hProcess,qint64 nAddress,qint64 nMaxSize=256); // TODO endian ??
     static qint64 getTEBAddress(HANDLE hThread);
+    static QList<MEMORY_REGION> getMemoryRegionsList(HANDLE hProcess,qint64 nAddress,qint32 nSize);
 #endif
     static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
 };

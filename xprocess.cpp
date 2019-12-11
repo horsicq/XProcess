@@ -81,6 +81,37 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
     return listResult;
 }
 
+QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLE hProcess, qint64 nAddress, qint32 nSize)
+{
+    QList<XProcess::MEMORY_REGION> listResult;
+
+    for(qint64 nCurrentAddress=nAddress;nCurrentAddress<nAddress+nSize;)
+    {
+        nCurrentAddress=X_ALIGN_DOWN(nCurrentAddress,0x1000);
+
+        MEMORY_BASIC_INFORMATION mbi={};
+
+        if(VirtualQueryEx(hProcess,(LPCVOID)nAddress,&mbi,sizeof(mbi)))
+        {
+            MEMORY_REGION memoryRegion={};
+
+            memoryRegion.nAddress=(qint64)mbi.BaseAddress;
+            memoryRegion.nSize=(qint64)mbi.RegionSize;
+            memoryRegion.mf=dwordToFlags(mbi.Protect);
+
+            nCurrentAddress+=memoryRegion.nSize;
+
+            listResult.append(memoryRegion);
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return listResult;
+}
+
 XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
 {
     PROCESS_INFO result= {0};
@@ -221,6 +252,38 @@ qint64 XProcess::getRegionSize(HANDLE hProcess, qint64 nAddress)
 
     return nResult;
 }
+
+XProcess::MEMORY_FLAGS XProcess::dwordToFlags(quint32 nValue)
+{
+    MEMORY_FLAGS result={};
+
+    if(nValue==PAGE_READONLY)
+    {
+        result.bRead=true;
+    }
+    else if(nValue==PAGE_READWRITE)
+    {
+        result.bRead=true;
+        result.bWrite=true;
+    }
+    else if(nValue==PAGE_EXECUTE)
+    {
+        result.bExecute=true;
+    }
+    else if(nValue==PAGE_EXECUTE_READ)
+    {
+        result.bRead=true;
+        result.bExecute=true;
+    }
+    else if(nValue==PAGE_EXECUTE_READWRITE)
+    {
+        result.bRead=true;
+        result.bWrite=true;
+        result.bWrite=true;
+    }
+
+    return result;
+}
 #endif
 #ifdef Q_OS_WIN
 XProcess::MEMORY_FLAGS XProcess::getMemoryFlags(HANDLE hProcess, qint64 nAddress)
@@ -230,30 +293,7 @@ XProcess::MEMORY_FLAGS XProcess::getMemoryFlags(HANDLE hProcess, qint64 nAddress
 
     if(VirtualQueryEx(hProcess,(LPCVOID)nAddress,&mbi,sizeof(mbi)))
     {
-        if(mbi.Protect==PAGE_READONLY)
-        {
-            result.bRead=true;
-        }
-        else if(mbi.Protect==PAGE_READWRITE)
-        {
-            result.bRead=true;
-            result.bWrite=true;
-        }
-        else if(mbi.Protect==PAGE_EXECUTE)
-        {
-            result.bExecute=true;
-        }
-        else if(mbi.Protect==PAGE_EXECUTE_READ)
-        {
-            result.bRead=true;
-            result.bExecute=true;
-        }
-        else if(mbi.Protect==PAGE_EXECUTE_READWRITE)
-        {
-            result.bRead=true;
-            result.bWrite=true;
-            result.bWrite=true;
-        }
+        result=dwordToFlags(mbi.Protect);
     }
 
     return result;
