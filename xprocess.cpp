@@ -557,9 +557,37 @@ qint64 XProcess::getTEBAddress(HANDLE hThread)
 
         pfnNtQueryInformationThread gNtQueryInformationThread=(pfnNtQueryInformationThread)GetProcAddress(hNtDll,"NtQueryInformationThread");
 
-        LONG nTemp=0;
-        gNtQueryInformationThread(hThread,(THREADINFOCLASS)0,&tbi,sizeof(tbi),(PULONG)&nTemp);
-        nResult=(qint64)tbi.TebBaseAddress;
+        if(gNtQueryInformationThread)
+        {
+            LONG nTemp=0;
+            gNtQueryInformationThread(hThread,(THREADINFOCLASS)0,&tbi,sizeof(tbi),(PULONG)&nTemp); // mb TODO error handle
+            nResult=(qint64)tbi.TebBaseAddress;
+        }
+    }
+
+    return nResult;
+}
+#endif
+#ifdef Q_OS_WIN
+qint64 XProcess::getPEBAddress(HANDLE hProcess)
+{
+    qint64 nResult=-1;
+
+    HMODULE hNtDll=LoadLibrary(TEXT("ntdll.dll"));
+    if(hNtDll)
+    {
+        S_PROCESS_BASIC_INFORMATION pbi={};
+
+        pfnNtQueryInformationProcess gNtQueryInformationProcess=(pfnNtQueryInformationProcess)GetProcAddress(hNtDll,"NtQueryInformationProcess");
+
+        if(gNtQueryInformationProcess)
+        {
+            LONG nTemp=0;
+            if(gNtQueryInformationProcess(hProcess,ProcessBasicInformation,&pbi,sizeof(pbi),(PULONG)&nTemp)==ERROR_SUCCESS)
+            {
+                nResult=(qint64)pbi.PebBaseAddress;
+            }
+        }
     }
 
     return nResult;

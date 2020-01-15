@@ -42,14 +42,23 @@ struct S_CLIENT_ID
     PVOID UniqueThread;
 };
 
-struct S_THREAD_BASIC_INFORMATION {
+struct S_THREAD_BASIC_INFORMATION
+{
     NTSTATUS                ExitStatus;
     PVOID                   TebBaseAddress;
     S_CLIENT_ID             ClientId;
     KAFFINITY               AffinityMask;
     LONG                    Priority;
     LONG                    BasePriority;
+};
 
+struct S_PROCESS_BASIC_INFORMATION
+{
+    PVOID Reserved1;
+    PPEB PebBaseAddress;
+    PVOID Reserved2[2];
+    ULONG_PTR UniqueProcessId;
+    PVOID Reserved3;
 };
 
 typedef NTSTATUS (NTAPI *pfnNtQueryInformationThread)(
@@ -57,6 +66,14 @@ typedef NTSTATUS (NTAPI *pfnNtQueryInformationThread)(
         THREADINFOCLASS ThreadInformationClass,
         PVOID ThreadInformation,
         ULONG ThreadInformationLength,
+        PULONG ReturnLength
+        );
+
+typedef NTSTATUS (NTAPI *pfnNtQueryInformationProcess)(
+        HANDLE ProcessHandle,
+        PROCESSINFOCLASS ProcessInformationClass,
+        PVOID ProcessInformation,
+        ULONG ProcessInformationLength,
         PULONG ReturnLength
         );
 #endif
@@ -118,6 +135,7 @@ public:
     static QString read_ansiString(HANDLE hProcess,qint64 nAddress,qint64 nMaxSize=256);
     static QString read_unicodeString(HANDLE hProcess,qint64 nAddress,qint64 nMaxSize=256); // TODO endian ??
     static qint64 getTEBAddress(HANDLE hThread);
+    static qint64 getPEBAddress(HANDLE hProcess);
     static QList<MEMORY_REGION> getMemoryRegionsList(HANDLE hProcess,qint64 nAddress,qint32 nSize);
 #endif
     static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
