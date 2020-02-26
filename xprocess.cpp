@@ -80,7 +80,7 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
 
     return listResult;
 }
-
+#ifdef Q_OS_WIN
 QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLE hProcess, qint64 nAddress, qint32 nSize)
 {
     QList<XProcess::MEMORY_REGION> listResult;
@@ -111,7 +111,7 @@ QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLE hProcess, q
 
     return listResult;
 }
-
+#endif
 XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
 {
     PROCESS_INFO result= {0};
