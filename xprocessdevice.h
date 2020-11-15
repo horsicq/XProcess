@@ -65,12 +65,12 @@ protected:
 
 private:
     const qint64 N_BUFFER_SIZE=0x1000;
-    qint64 nPID;
+    qint64 g_nPID;
 #ifdef Q_OS_WIN
-    HANDLE hProcess;
+    HANDLE g_hProcess;
 #endif
-    qint64 __nAddress;
-    qint64 __nSize;
+    qint64 g_nAddress;
+    qint64 g_nSize;
 };
 
 #endif // XPROCESSDEVICE_H
