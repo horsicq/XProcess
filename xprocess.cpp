@@ -474,6 +474,36 @@ void XProcess::write_uint64(HANDLE hProcess, qint64 nAddress, quint64 nValue)
 }
 #endif
 #ifdef Q_OS_WIN
+qint64 XProcess::read_array(HANDLE hProcess, qint64 nAddress, char *pData, qint64 nSize)
+{
+    qint64 nResult=0;
+
+    SIZE_T _nSize=0;
+
+    if(ReadProcessMemory(hProcess,(LPVOID *)nAddress,pData,(SIZE_T)nSize,&_nSize))
+    {
+        nResult=(qint64)_nSize;
+    }
+
+    return nResult;
+}
+#endif
+#ifdef Q_OS_WIN
+qint64 XProcess::write_array(HANDLE hProcess, qint64 nAddress, char *pData, qint64 nSize)
+{
+    qint64 nResult=0;
+
+    SIZE_T _nSize=0;
+
+    if(WriteProcessMemory(hProcess,(LPVOID *)nAddress,pData,(SIZE_T)nSize,&_nSize))
+    {
+        nResult=(qint64)_nSize;
+    }
+
+    return nResult;
+}
+#endif
+#ifdef Q_OS_WIN
 QByteArray XProcess::read_array(HANDLE hProcess, qint64 nAddress, qint32 nSize)
 {
     QByteArray baResult;
