@@ -35,7 +35,7 @@ XProcessDevice::~XProcessDevice()
 {
     if(isOpen())
     {
-        close();
+        XProcessDevice::close();
     }
 }
 
