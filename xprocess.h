@@ -110,6 +110,7 @@ public:
     explicit XProcess(QObject *parent=nullptr);
     static QList<PROCESS_INFO> getProcessesList();
 #ifdef Q_OS_WIN
+    // TODO HANDLE -> (void *)
     static bool setPrivilege(QString sName,bool bEnable);
     static qint64 getProcessIDByHandle(HANDLE hProcess);
     static qint64 getThreadIDByHandle(HANDLE hThread);
@@ -139,6 +140,7 @@ public:
     static qint64 getTEBAddress(HANDLE hThread);
     static qint64 getPEBAddress(HANDLE hProcess);
     static QList<MEMORY_REGION> getMemoryRegionsList(HANDLE hProcess,qint64 nAddress,qint32 nSize);
+    static MEMORY_REGION getMemoryRegion(HANDLE hProcess,qint64 nAddress);
 #endif
     static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
 };

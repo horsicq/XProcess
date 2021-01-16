@@ -112,9 +112,28 @@ QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLE hProcess, q
     return listResult;
 }
 #endif
+#ifdef Q_OS_WIN
+XProcess::MEMORY_REGION XProcess::getMemoryRegion(HANDLE hProcess, qint64 nAddress)
+{
+    MEMORY_REGION result={};
+
+    MEMORY_BASIC_INFORMATION mbi={};
+
+//    nAddress=X_ALIGN_DOWN(nAddress,0x1000);
+
+    if(VirtualQueryEx(hProcess,(LPCVOID)nAddress,&mbi,sizeof(mbi)))
+    {
+        result.nAddress=(qint64)mbi.BaseAddress;
+        result.nSize=(qint64)mbi.RegionSize;
+        result.mf=dwordToFlags(mbi.Protect);
+    }
+
+    return result;
+}
+#endif
 XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
 {
-    PROCESS_INFO result= {0};
+    PROCESS_INFO result={0};
 #ifdef Q_OS_WIN
     if(nProcessID)
     {
