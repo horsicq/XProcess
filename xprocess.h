@@ -122,26 +122,26 @@ public:
     static MEMORY_FLAGS getMemoryFlags(HANDLE hProcess,qint64 nAddress);
     static QString getFileNameByHandle(HANDLE hHandle);
     static QString convertNtToDosPath(QString sNtPath);
-    static bool readData(HANDLE hProcess,qint64 nAddress,char *pBuffer,qint32 nBufferSize); // TODO use read_array
-    static bool writeData(HANDLE hProcess,qint64 nAddress,char *pBuffer,qint32 nBufferSize); // TODO use write_array
-    static quint8 read_uint8(HANDLE hProcess,qint64 nAddress);
-    static quint16 read_uint16(HANDLE hProcess,qint64 nAddress);
-    static quint32 read_uint32(HANDLE hProcess,qint64 nAddress);
-    static quint64 read_uint64(HANDLE hProcess,qint64 nAddress);
-    static void write_uint8(HANDLE hProcess,qint64 nAddress,quint8 nValue);
-    static void write_uint16(HANDLE hProcess,qint64 nAddress,quint16 nValue);
-    static void write_uint32(HANDLE hProcess,qint64 nAddress,quint32 nValue);
-    static void write_uint64(HANDLE hProcess,qint64 nAddress,quint64 nValue);
-    static qint64 read_array(HANDLE hProcess,qint64 nAddress,char *pData,qint64 nSize);
-    static qint64 write_array(HANDLE hProcess,qint64 nAddress,char *pData,qint64 nSize);
-    static QByteArray read_array(HANDLE hProcess,qint64 nAddress,qint32 nSize);
-    static QString read_ansiString(HANDLE hProcess,qint64 nAddress,qint64 nMaxSize=256);
-    static QString read_unicodeString(HANDLE hProcess,qint64 nAddress,qint64 nMaxSize=256); // TODO endian ??
     static qint64 getTEBAddress(HANDLE hThread);
     static qint64 getPEBAddress(HANDLE hProcess);
-    static QList<MEMORY_REGION> getMemoryRegionsList(HANDLE hProcess,qint64 nAddress,qint32 nSize);
-    static MEMORY_REGION getMemoryRegion(HANDLE hProcess,qint64 nAddress);
 #endif
+    static bool readData(void *hProcess,qint64 nAddress,char *pBuffer,qint32 nBufferSize); // TODO use read_array
+    static bool writeData(void *hProcess,qint64 nAddress,char *pBuffer,qint32 nBufferSize); // TODO use write_array
+    static quint8 read_uint8(void *hProcess,qint64 nAddress);
+    static quint16 read_uint16(void *hProcess,qint64 nAddress);
+    static quint32 read_uint32(void *hProcess,qint64 nAddress);
+    static quint64 read_uint64(void *hProcess,qint64 nAddress);
+    static void write_uint8(void *hProcess,qint64 nAddress,quint8 nValue);
+    static void write_uint16(void *hProcess,qint64 nAddress,quint16 nValue);
+    static void write_uint32(void *hProcess,qint64 nAddress,quint32 nValue);
+    static void write_uint64(void *hProcess,qint64 nAddress,quint64 nValue);
+    static qint64 read_array(void *hProcess,qint64 nAddress,char *pData,qint64 nSize);
+    static qint64 write_array(void *hProcess,qint64 nAddress,char *pData,qint64 nSize);
+    static QByteArray read_array(void *hProcess,qint64 nAddress,qint32 nSize);
+    static QString read_ansiString(void *hProcess,qint64 nAddress,qint64 nMaxSize=256);
+    static QString read_unicodeString(void *hProcess,qint64 nAddress,qint64 nMaxSize=256); // TODO endian ??
+    static QList<MEMORY_REGION> getMemoryRegionsList(void *hProcess,qint64 nAddress,qint32 nSize);
+    static MEMORY_REGION getMemoryRegion(void *hProcess,qint64 nAddress);
     static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
 };
 

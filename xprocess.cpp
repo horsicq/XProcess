@@ -112,11 +112,10 @@ QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLE hProcess, q
     return listResult;
 }
 #endif
-#ifdef Q_OS_WIN
-XProcess::MEMORY_REGION XProcess::getMemoryRegion(HANDLE hProcess, qint64 nAddress)
+XProcess::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess, qint64 nAddress)
 {
     MEMORY_REGION result={};
-
+#ifdef Q_OS_WIN
     MEMORY_BASIC_INFORMATION mbi={};
 
 //    nAddress=X_ALIGN_DOWN(nAddress,0x1000);
@@ -127,10 +126,10 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegion(HANDLE hProcess, qint64 nAddre
         result.nSize=(qint64)mbi.RegionSize;
         result.mf=dwordToFlags(mbi.Protect);
     }
-
+#endif
     return result;
 }
-#endif
+
 XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
 {
     PROCESS_INFO result={0};
@@ -392,11 +391,11 @@ QString XProcess::convertNtToDosPath(QString sNtPath)
     return sResult;
 }
 #endif
-#ifdef Q_OS_WIN
-bool XProcess::readData(HANDLE hProcess, qint64 nAddress, char *pBuffer, qint32 nBufferSize)
+
+bool XProcess::readData(void *hProcess, qint64 nAddress, char *pBuffer, qint32 nBufferSize)
 {
     bool bResult=false;
-
+#ifdef Q_OS_WIN
     SIZE_T nSize=0;
 
     if(ReadProcessMemory(hProcess,(LPVOID *)nAddress,pBuffer,(SIZE_T)nBufferSize,&nSize))
@@ -406,15 +405,14 @@ bool XProcess::readData(HANDLE hProcess, qint64 nAddress, char *pBuffer, qint32 
             bResult=true;
         }
     }
-
+#endif
     return bResult;
 }
-#endif
-#ifdef Q_OS_WIN
-bool XProcess::writeData(HANDLE hProcess, qint64 nAddress, char *pBuffer, qint32 nBufferSize)
+
+bool XProcess::writeData(void *hProcess, qint64 nAddress, char *pBuffer, qint32 nBufferSize)
 {
     bool bResult=false;
-
+#ifdef Q_OS_WIN
     SIZE_T nSize=0;
 
     if(WriteProcessMemory(hProcess,(LPVOID *)nAddress,pBuffer,(SIZE_T)nBufferSize,&nSize))
@@ -424,12 +422,11 @@ bool XProcess::writeData(HANDLE hProcess, qint64 nAddress, char *pBuffer, qint32
             bResult=true;
         }
     }
-
+#endif
     return bResult;
 }
-#endif
-#ifdef Q_OS_WIN
-quint8 XProcess::read_uint8(HANDLE hProcess, qint64 nAddress)
+
+quint8 XProcess::read_uint8(void *hProcess, qint64 nAddress)
 {
     quint8 nResult=0;
 
@@ -437,9 +434,8 @@ quint8 XProcess::read_uint8(HANDLE hProcess, qint64 nAddress)
 
     return nResult;
 }
-#endif
-#ifdef Q_OS_WIN
-quint16 XProcess::read_uint16(HANDLE hProcess, qint64 nAddress)
+
+quint16 XProcess::read_uint16(void *hProcess, qint64 nAddress)
 {
     quint16 nResult=0;
 
@@ -447,9 +443,8 @@ quint16 XProcess::read_uint16(HANDLE hProcess, qint64 nAddress)
 
     return nResult;
 }
-#endif
-#ifdef Q_OS_WIN
-quint32 XProcess::read_uint32(HANDLE hProcess, qint64 nAddress)
+
+quint32 XProcess::read_uint32(void *hProcess, qint64 nAddress)
 {
     quint32 nResult=0;
 
@@ -457,9 +452,8 @@ quint32 XProcess::read_uint32(HANDLE hProcess, qint64 nAddress)
 
     return nResult;
 }
-#endif
-#ifdef Q_OS_WIN
-quint64 XProcess::read_uint64(HANDLE hProcess, qint64 nAddress)
+
+quint64 XProcess::read_uint64(void *hProcess, qint64 nAddress)
 {
     quint64 nResult=0;
 
@@ -467,63 +461,56 @@ quint64 XProcess::read_uint64(HANDLE hProcess, qint64 nAddress)
 
     return nResult;
 }
-#endif
-#ifdef Q_OS_WIN
-void XProcess::write_uint8(HANDLE hProcess, qint64 nAddress, quint8 nValue)
+
+void XProcess::write_uint8(void *hProcess, qint64 nAddress, quint8 nValue)
 {
     writeData(hProcess,nAddress,(char *)&nValue,1);
 }
-#endif
-#ifdef Q_OS_WIN
-void XProcess::write_uint16(HANDLE hProcess, qint64 nAddress, quint16 nValue)
+
+void XProcess::write_uint16(void *hProcess, qint64 nAddress, quint16 nValue)
 {
     writeData(hProcess,nAddress,(char *)&nValue,2);
 }
-#endif
-#ifdef Q_OS_WIN
-void XProcess::write_uint32(HANDLE hProcess, qint64 nAddress, quint32 nValue)
+
+void XProcess::write_uint32(void *hProcess, qint64 nAddress, quint32 nValue)
 {
     writeData(hProcess,nAddress,(char *)&nValue,4);
 }
-#endif
-#ifdef Q_OS_WIN
-void XProcess::write_uint64(HANDLE hProcess, qint64 nAddress, quint64 nValue)
+
+void XProcess::write_uint64(void *hProcess, qint64 nAddress, quint64 nValue)
 {
     writeData(hProcess,nAddress,(char *)&nValue,8);
 }
-#endif
-#ifdef Q_OS_WIN
-qint64 XProcess::read_array(HANDLE hProcess, qint64 nAddress, char *pData, qint64 nSize)
+
+qint64 XProcess::read_array(void *hProcess, qint64 nAddress, char *pData, qint64 nSize)
 {
     qint64 nResult=0;
-
+#ifdef Q_OS_WIN
     SIZE_T _nSize=0;
 
     if(ReadProcessMemory(hProcess,(LPVOID *)nAddress,pData,(SIZE_T)nSize,&_nSize))
     {
         nResult=(qint64)_nSize;
     }
-
+#endif
     return nResult;
 }
-#endif
-#ifdef Q_OS_WIN
-qint64 XProcess::write_array(HANDLE hProcess, qint64 nAddress, char *pData, qint64 nSize)
+
+qint64 XProcess::write_array(void *hProcess, qint64 nAddress, char *pData, qint64 nSize)
 {
     qint64 nResult=0;
-
+#ifdef Q_OS_WIN
     SIZE_T _nSize=0;
 
     if(WriteProcessMemory(hProcess,(LPVOID *)nAddress,pData,(SIZE_T)nSize,&_nSize))
     {
         nResult=(qint64)_nSize;
     }
-
+#endif
     return nResult;
 }
-#endif
-#ifdef Q_OS_WIN
-QByteArray XProcess::read_array(HANDLE hProcess, qint64 nAddress, qint32 nSize)
+
+QByteArray XProcess::read_array(void *hProcess, qint64 nAddress, qint32 nSize)
 {
     QByteArray baResult;
 
@@ -533,9 +520,8 @@ QByteArray XProcess::read_array(HANDLE hProcess, qint64 nAddress, qint32 nSize)
 
     return baResult;
 }
-#endif
-#ifdef Q_OS_WIN
-QString XProcess::read_ansiString(HANDLE hProcess, qint64 nAddress, qint64 nMaxSize)
+
+QString XProcess::read_ansiString(void *hProcess, qint64 nAddress, qint64 nMaxSize)
 {
     char *pBuffer=new char[nMaxSize+1];
     QString sResult;
@@ -561,9 +547,8 @@ QString XProcess::read_ansiString(HANDLE hProcess, qint64 nAddress, qint64 nMaxS
 
     return sResult;
 }
-#endif
-#ifdef Q_OS_WIN
-QString XProcess::read_unicodeString(HANDLE hProcess, qint64 nAddress, qint64 nMaxSize)
+
+QString XProcess::read_unicodeString(void *hProcess, qint64 nAddress, qint64 nMaxSize)
 {
     QString sResult;
 
@@ -593,7 +578,7 @@ QString XProcess::read_unicodeString(HANDLE hProcess, qint64 nAddress, qint64 nM
 
     return sResult;
 }
-#endif
+
 #ifdef Q_OS_WIN
 qint64 XProcess::getTEBAddress(HANDLE hThread)
 {

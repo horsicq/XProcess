@@ -23,12 +23,10 @@
 XProcessDevice::XProcessDevice(QObject *parent) :
     QIODevice(parent)
 {
-#ifdef Q_OS_WIN
     g_hProcess=nullptr;
     g_nPID=0;
     g_nAddress=0;
     g_nSize=0;
-#endif
 }
 
 XProcessDevice::~XProcessDevice()
@@ -108,9 +106,9 @@ bool XProcessDevice::openPID(qint64 nPID, qint64 __nAddress, qint64 __nSize, QIO
     this->g_nAddress=__nAddress;
     this->g_nSize=__nSize;
 
+#ifdef Q_OS_WIN
     quint32 nFlags=0;
 
-#ifdef Q_OS_WIN
     if(mode==ReadOnly)
     {
         nFlags=PROCESS_VM_READ;
@@ -131,19 +129,19 @@ bool XProcessDevice::openPID(qint64 nPID, qint64 __nAddress, qint64 __nSize, QIO
 
     return bResult;
 }
-#ifdef Q_OS_WIN
-bool XProcessDevice::openHandle(HANDLE hProcess, qint64 __nAddress, qint64 __nSize, QIODevice::OpenMode mode)
+
+bool XProcessDevice::openHandle(void *hProcess, qint64 nAddress, qint64 nSize, QIODevice::OpenMode mode)
 {
     this->g_hProcess=hProcess;
-    this->g_nAddress=__nAddress;
-    this->g_nSize=__nSize;
+    this->g_nAddress=nAddress;
+    this->g_nSize=nSize;
 
     setOpenMode(mode);
     this->g_hProcess=hProcess;
 
     return true;
 }
-#endif
+
 qint64 XProcessDevice::adjustSize(qint64 nSize)
 {
     qint64 nPos=pos();

@@ -49,9 +49,7 @@ public:
     virtual void close();
     virtual qint64 pos() const;
     bool openPID(qint64 nPID,qint64 __nAddress, qint64 __nSize,OpenMode mode);
-#ifdef Q_OS_WIN
-    bool openHandle(HANDLE hProcess,qint64 __nAddress, qint64 __nSize,OpenMode mode);
-#endif
+    bool openHandle(void *hProcess, qint64 nAddress, qint64 nSize, OpenMode mode);
 private:
     qint64 adjustSize(qint64 nSize);
 #ifdef Q_OS_WIN
@@ -66,9 +64,7 @@ protected:
 private:
     const qint64 N_BUFFER_SIZE=0x1000;
     qint64 g_nPID;
-#ifdef Q_OS_WIN
-    HANDLE g_hProcess;
-#endif
+    void *g_hProcess;
     qint64 g_nAddress;
     qint64 g_nSize;
 };
