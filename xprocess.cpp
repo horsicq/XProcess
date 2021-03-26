@@ -130,6 +130,18 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess, qint64 nAddres
     return result;
 }
 
+bool XProcess::isAddressInMemoryRegion(XProcess::MEMORY_REGION *pMemoryRegion, qint64 nAddress)
+{
+    bool bResult=false;
+
+    if((pMemoryRegion->nAddress<=nAddress)&&(nAddress<(pMemoryRegion->nAddress+pMemoryRegion->nSize)))
+    {
+        bResult=true;
+    }
+
+    return bResult;
+}
+
 XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
 {
     PROCESS_INFO result={0};
