@@ -48,7 +48,7 @@ public:
     virtual bool atEnd() const;
     virtual void close();
     virtual qint64 pos() const;
-    bool openPID(qint64 nPID,qint64 __nAddress, qint64 __nSize,OpenMode mode);
+    bool openPID(qint64 nPID,qint64 nAddress, qint64 nSize,OpenMode mode);
     bool openHandle(void *hProcess, qint64 nAddress, qint64 nSize, OpenMode mode);
 private:
     qint64 adjustSize(qint64 nSize);

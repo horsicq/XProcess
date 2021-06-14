@@ -96,15 +96,15 @@ qint64 XProcessDevice::pos() const
     return QIODevice::pos();
 }
 
-bool XProcessDevice::openPID(qint64 nPID, qint64 __nAddress, qint64 __nSize, QIODevice::OpenMode mode)
+bool XProcessDevice::openPID(qint64 nPID, qint64 nAddress, qint64 nSize, QIODevice::OpenMode mode)
 {
     bool bResult=true;
 
     setOpenMode(mode);
 
     this->g_nPID=nPID;
-    this->g_nAddress=__nAddress;
-    this->g_nSize=__nSize;
+    this->g_nAddress=nAddress;
+    this->g_nSize=nSize;
 
 #ifdef Q_OS_WIN
     quint32 nFlags=0;
