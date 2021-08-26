@@ -640,7 +640,7 @@ qint64 XProcess::getPEBAddress(HANDLE hProcess)
 }
 #endif
 #ifdef Q_OS_WIN
-bool XProcess::setPrivilege(QString sName, bool bEnable)
+bool XProcess::setDebugPrivilege(QString sName, bool bEnable)
 {
     bool bResult=false;
     HANDLE hToken;
