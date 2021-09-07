@@ -118,13 +118,19 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess, qint64 nAddres
 #ifdef Q_OS_WIN
     MEMORY_BASIC_INFORMATION mbi={};
 
-//    nAddress=X_ALIGN_DOWN(nAddress,0x1000);
+    nAddress=X_ALIGN_DOWN(nAddress,0x1000);
 
     if(VirtualQueryEx(hProcess,(LPCVOID)nAddress,&mbi,sizeof(mbi)))
     {
         result.nAddress=(qint64)mbi.BaseAddress;
         result.nSize=(qint64)mbi.RegionSize;
         result.mf=dwordToFlags(mbi.Protect);
+    }
+
+    // TODO Check
+    if(result.nSize>0x10000)
+    {
+        result.nSize=0x10000;
     }
 #endif
     return result;
