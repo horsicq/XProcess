@@ -81,7 +81,7 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
     return listResult;
 }
 #ifdef Q_OS_WIN
-QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLE hProcess, qint64 nAddress, qint32 nSize)
+QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLE hProcess, qint64 nAddress, qint64 nSize)
 {
     QList<XProcess::MEMORY_REGION> listResult;
 
@@ -116,22 +116,27 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess, qint64 nAddres
 {
     MEMORY_REGION result={};
 #ifdef Q_OS_WIN
+//#ifndef Q_OS_WIN64
+//    MEMORY_BASIC_INFORMATION32 mbi={};
+//#else
+//    MEMORY_BASIC_INFORMATION64 mbi={};
+//#endif
     MEMORY_BASIC_INFORMATION mbi={};
 
     nAddress=X_ALIGN_DOWN(nAddress,0x1000);
 
-    if(VirtualQueryEx(hProcess,(LPCVOID)nAddress,&mbi,sizeof(mbi)))
+    if(VirtualQueryEx(hProcess,(LPCVOID)nAddress,(MEMORY_BASIC_INFORMATION *)&mbi,sizeof(mbi))==sizeof(mbi))
     {
         result.nAddress=(qint64)mbi.BaseAddress;
         result.nSize=(qint64)mbi.RegionSize;
         result.mf=dwordToFlags(mbi.Protect);
     }
 
-    // TODO Check
-    if(result.nSize>0x10000)
-    {
-        result.nSize=0x10000;
-    }
+//    // TODO Check
+//    if(result.nSize>0x10000)
+//    {
+//        result.nSize=0x10000;
+//    }
 #endif
     return result;
 }
@@ -317,6 +322,7 @@ XProcess::MEMORY_FLAGS XProcess::dwordToFlags(quint32 nValue)
         result.bWrite=true;
         result.bWrite=true;
     }
+    // TODO more for Windows !
 
     return result;
 }

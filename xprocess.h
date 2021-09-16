@@ -98,6 +98,7 @@ public:
         bool bRead;
         bool bWrite;
         bool bExecute;
+        // TODO more
     };
 
     struct MEMORY_REGION
@@ -140,7 +141,7 @@ public:
     static QByteArray read_array(void *hProcess,qint64 nAddress,qint32 nSize);
     static QString read_ansiString(void *hProcess,qint64 nAddress,qint64 nMaxSize=256);
     static QString read_unicodeString(void *hProcess,qint64 nAddress,qint64 nMaxSize=256); // TODO endian ??
-    static QList<MEMORY_REGION> getMemoryRegionsList(void *hProcess,qint64 nAddress,qint32 nSize);
+    static QList<MEMORY_REGION> getMemoryRegionsList(void *hProcess,qint64 nAddress,qint64 nSize);
     static MEMORY_REGION getMemoryRegion(void *hProcess,qint64 nAddress);
     static bool isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion,qint64 nAddress);
     static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);

@@ -139,6 +139,7 @@ bool XProcessDevice::openHandle(void *hProcess, qint64 nAddress, qint64 nSize, Q
     setOpenMode(mode);
     this->g_hProcess=hProcess;
 
+    // TODO Check
     return true;
 }
 
@@ -168,7 +169,7 @@ void XProcessDevice::checkWindowsLastError()
         size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                                      nullptr, nLastErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, nullptr);
 
-        setErrorString(QString("%1: ").arg(nLastErrorCode,0,16)+QString::fromUtf8((char *)messageBuffer,size));
+        setErrorString(QString("%1: ").arg(nLastErrorCode,0,16)+QString::fromUtf8((char *)messageBuffer,(int)size));
 
         //Free the buffer.
         LocalFree(messageBuffer);
@@ -208,7 +209,7 @@ qint64 XProcessDevice::readData(char *data, qint64 maxSize)
 
 #endif
 #ifdef Q_OS_LINUX
-        break;
+        break; // TODO !!!
 #endif
         _nPos+=nDelta;
         data+=nDelta;
@@ -219,6 +220,15 @@ qint64 XProcessDevice::readData(char *data, qint64 maxSize)
 #ifdef Q_OS_WIN
     checkWindowsLastError();
 #endif
+
+#ifdef QT_DEBUG
+    QString sErrorString=errorString();
+    if(sErrorString!="")
+    {
+        qDebug("%s",sErrorString.toLatin1().data());
+    }
+#endif
+
     return nResult;
 }
 
@@ -266,6 +276,15 @@ qint64 XProcessDevice::writeData(const char *data, qint64 maxSize)
 #ifdef Q_OS_WIN
     checkWindowsLastError();
 #endif
+
+#ifdef QT_DEBUG
+    QString sErrorString=errorString();
+    if(sErrorString!="")
+    {
+        qDebug("%s",sErrorString.toLatin1().data());
+    }
+#endif
+
     return nResult;
 }
 
