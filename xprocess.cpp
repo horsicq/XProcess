@@ -448,45 +448,11 @@ bool XProcess::isProcessReadable(qint64 nProcessID)
     return bResult;
 }
 
-bool XProcess::readData(void *hProcess, qint64 nAddress, char *pBuffer, qint32 nBufferSize)
-{
-    bool bResult=false;
-#ifdef Q_OS_WIN
-    SIZE_T nSize=0;
-
-    if(ReadProcessMemory(hProcess,(LPVOID *)nAddress,pBuffer,(SIZE_T)nBufferSize,&nSize))
-    {
-        if(nSize==(SIZE_T)nBufferSize)
-        {
-            bResult=true;
-        }
-    }
-#endif
-    return bResult;
-}
-
-bool XProcess::writeData(void *hProcess, qint64 nAddress, char *pBuffer, qint32 nBufferSize)
-{
-    bool bResult=false;
-#ifdef Q_OS_WIN
-    SIZE_T nSize=0;
-
-    if(WriteProcessMemory(hProcess,(LPVOID *)nAddress,pBuffer,(SIZE_T)nBufferSize,&nSize))
-    {
-        if(nSize==(SIZE_T)nBufferSize)
-        {
-            bResult=true;
-        }
-    }
-#endif
-    return bResult;
-}
-
 quint8 XProcess::read_uint8(void *hProcess, qint64 nAddress)
 {
     quint8 nResult=0;
 
-    readData(hProcess,nAddress,(char *)&nResult,1);
+    read_array(hProcess,nAddress,(char *)&nResult,1);
 
     return nResult;
 }
@@ -495,7 +461,7 @@ quint16 XProcess::read_uint16(void *hProcess, qint64 nAddress)
 {
     quint16 nResult=0;
 
-    readData(hProcess,nAddress,(char *)&nResult,2);
+    read_array(hProcess,nAddress,(char *)&nResult,2);
 
     return nResult;
 }
@@ -504,7 +470,7 @@ quint32 XProcess::read_uint32(void *hProcess, qint64 nAddress)
 {
     quint32 nResult=0;
 
-    readData(hProcess,nAddress,(char *)&nResult,4);
+    read_array(hProcess,nAddress,(char *)&nResult,4);
 
     return nResult;
 }
@@ -513,29 +479,29 @@ quint64 XProcess::read_uint64(void *hProcess, qint64 nAddress)
 {
     quint64 nResult=0;
 
-    readData(hProcess,nAddress,(char *)&nResult,8);
+    read_array(hProcess,nAddress,(char *)&nResult,8);
 
     return nResult;
 }
 
 void XProcess::write_uint8(void *hProcess, qint64 nAddress, quint8 nValue)
 {
-    writeData(hProcess,nAddress,(char *)&nValue,1);
+    write_array(hProcess,nAddress,(char *)&nValue,1);
 }
 
 void XProcess::write_uint16(void *hProcess, qint64 nAddress, quint16 nValue)
 {
-    writeData(hProcess,nAddress,(char *)&nValue,2);
+    write_array(hProcess,nAddress,(char *)&nValue,2);
 }
 
 void XProcess::write_uint32(void *hProcess, qint64 nAddress, quint32 nValue)
 {
-    writeData(hProcess,nAddress,(char *)&nValue,4);
+    write_array(hProcess,nAddress,(char *)&nValue,4);
 }
 
 void XProcess::write_uint64(void *hProcess, qint64 nAddress, quint64 nValue)
 {
-    writeData(hProcess,nAddress,(char *)&nValue,8);
+    write_array(hProcess,nAddress,(char *)&nValue,8);
 }
 
 qint64 XProcess::read_array(void *hProcess, qint64 nAddress, char *pData, qint64 nSize)
@@ -572,7 +538,7 @@ QByteArray XProcess::read_array(void *hProcess, qint64 nAddress, qint32 nSize)
 
     baResult.resize(nSize);
     // TODO Check if fails
-    readData(hProcess,nAddress,baResult.data(),nSize);
+    read_array(hProcess,nAddress,baResult.data(),nSize);
 
     return baResult;
 }
@@ -585,7 +551,7 @@ QString XProcess::read_ansiString(void *hProcess, qint64 nAddress, qint64 nMaxSi
 
     for(; i<nMaxSize; i++)
     {
-        if(!readData(hProcess,nAddress+i,&(pBuffer[i]),1))
+        if(!read_array(hProcess,nAddress+i,&(pBuffer[i]),1))
         {
             break;
         }
