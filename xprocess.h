@@ -112,7 +112,8 @@ public:
     static QList<PROCESS_INFO> getProcessesList();
 #ifdef Q_OS_WIN
     // TODO HANDLE -> (void *)
-    static bool setDebugPrivilege(QString sName,bool bEnable);
+    static bool setPrivilege(QString sName,bool bEnable);
+    static bool setDebugPrivilege(bool bEnable);
     static qint64 getProcessIDByHandle(HANDLE hProcess);
     static qint64 getThreadIDByHandle(HANDLE hThread);
     static qint64 getRegionAllocationSize(HANDLE hProcess, qint64 nRegionBase);
@@ -126,6 +127,8 @@ public:
     static qint64 getTEBAddress(HANDLE hThread);
     static qint64 getPEBAddress(HANDLE hProcess);
 #endif
+    static void *openProcess(qint64 nProcessID);
+    static void closeProcess(void *hProcess);
     static bool readData(void *hProcess,qint64 nAddress,char *pBuffer,qint32 nBufferSize); // TODO use read_array
     static bool writeData(void *hProcess,qint64 nAddress,char *pBuffer,qint32 nBufferSize); // TODO use write_array
     static quint8 read_uint8(void *hProcess,qint64 nAddress);

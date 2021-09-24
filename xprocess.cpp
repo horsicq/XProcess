@@ -416,6 +416,22 @@ QString XProcess::convertNtToDosPath(QString sNtPath)
 }
 #endif
 
+void *XProcess::openProcess(qint64 nProcessID)
+{
+    void *pResult=0;
+#ifdef Q_OS_WIN
+    pResult=(void *)OpenProcess(PROCESS_ALL_ACCESS,0,nProcessID);
+#endif
+    return pResult;
+}
+
+void XProcess::closeProcess(void *hProcess)
+{
+#ifdef Q_OS_WIN
+    CloseHandle((HANDLE)hProcess);
+#endif
+}
+
 bool XProcess::readData(void *hProcess, qint64 nAddress, char *pBuffer, qint32 nBufferSize)
 {
     bool bResult=false;
@@ -652,7 +668,7 @@ qint64 XProcess::getPEBAddress(HANDLE hProcess)
 }
 #endif
 #ifdef Q_OS_WIN
-bool XProcess::setDebugPrivilege(QString sName, bool bEnable)
+bool XProcess::setPrivilege(QString sName, bool bEnable)
 {
     bool bResult=false;
     HANDLE hToken;
@@ -678,6 +694,12 @@ bool XProcess::setDebugPrivilege(QString sName, bool bEnable)
     }
 
     return bResult;
+}
+#endif
+#ifdef Q_OS_WIN
+bool XProcess::setDebugPrivilege(bool bEnable)
+{
+    return setPrivilege("SeDebugPrivilege",bEnable);
 }
 #endif
 #ifdef Q_OS_WIN
