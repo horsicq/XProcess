@@ -129,6 +129,7 @@ public:
 #endif
     static void *openProcess(qint64 nProcessID);
     static void closeProcess(void *hProcess);
+    static bool isProcessReadable(qint64 nProcessID);
     static bool readData(void *hProcess,qint64 nAddress,char *pBuffer,qint32 nBufferSize); // TODO use read_array
     static bool writeData(void *hProcess,qint64 nAddress,char *pBuffer,qint32 nBufferSize); // TODO use write_array
     static quint8 read_uint8(void *hProcess,qint64 nAddress);

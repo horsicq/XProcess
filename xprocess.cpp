@@ -432,6 +432,22 @@ void XProcess::closeProcess(void *hProcess)
 #endif
 }
 
+bool XProcess::isProcessReadable(qint64 nProcessID)
+{
+    bool bResult=false;
+
+    void *pProcessHandle=openProcess(nProcessID);
+
+    if(pProcessHandle)
+    {
+        bResult=true;
+
+        closeProcess(pProcessHandle);
+    }
+
+    return bResult;
+}
+
 bool XProcess::readData(void *hProcess, qint64 nAddress, char *pBuffer, qint32 nBufferSize)
 {
     bool bResult=false;
