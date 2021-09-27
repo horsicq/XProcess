@@ -174,7 +174,7 @@ void XProcessDevice::checkWindowsLastError()
     if(nLastErrorCode)
     {
         LPSTR messageBuffer=nullptr;
-        size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        size_t size=FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                                      nullptr, nLastErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, nullptr);
 
         setErrorString(QString("%1: ").arg(nLastErrorCode,0,16)+QString::fromUtf8((char *)messageBuffer,(int)size));
@@ -194,6 +194,11 @@ qint64 XProcessDevice::readData(char *pData, qint64 maxSize)
 
     for(qint64 i=0; i<maxSize;)
     {
+    #ifdef QT_DEBUG
+        QString sDebugString=QString("%1").arg(_nPos+g_nAddress,0,16);
+        qDebug("Address: %s",sDebugString.toLatin1().data());
+    #endif
+
         qint64 nDelta=X_ALIGN_UP(_nPos,N_BUFFER_SIZE)-_nPos;
 
         if(nDelta==0)
@@ -202,6 +207,12 @@ qint64 XProcessDevice::readData(char *pData, qint64 maxSize)
         }
 
         nDelta=qMin(nDelta,(qint64)(maxSize-i));
+
+        if(nDelta==0)
+        {
+            break;
+        }
+
 #ifdef Q_OS_WIN
         SIZE_T nSize=0;
 
