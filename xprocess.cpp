@@ -81,7 +81,7 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
     return listResult;
 }
 #ifdef Q_OS_WIN
-QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLE hProcess, qint64 nAddress, qint64 nSize)
+QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess, qint64 nAddress, qint64 nSize)
 {
     QList<XProcess::MEMORY_REGION> listResult;
 
@@ -214,7 +214,7 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
     return result;
 }
 #ifdef Q_OS_WIN
-qint64 XProcess::getRegionAllocationSize(HANDLE hProcess,qint64 nRegionBase)
+qint64 XProcess::getRegionAllocationSize(void *hProcess,qint64 nRegionBase)
 {
     qint64 nResult=0;
 
@@ -244,7 +244,7 @@ qint64 XProcess::getRegionAllocationSize(HANDLE hProcess,qint64 nRegionBase)
 }
 #endif
 #ifdef Q_OS_WIN
-qint64 XProcess::getRegionAllocationBase(HANDLE hProcess, qint64 nAddress)
+qint64 XProcess::getRegionAllocationBase(void *hProcess, qint64 nAddress)
 {
     qint64 nResult=-1;
 
@@ -261,7 +261,7 @@ qint64 XProcess::getRegionAllocationBase(HANDLE hProcess, qint64 nAddress)
 }
 #endif
 #ifdef Q_OS_WIN
-qint64 XProcess::getRegionBase(HANDLE hProcess, qint64 nAddress)
+qint64 XProcess::getRegionBase(void *hProcess, qint64 nAddress)
 {
     qint64 nResult=-1;
 
@@ -278,7 +278,7 @@ qint64 XProcess::getRegionBase(HANDLE hProcess, qint64 nAddress)
 }
 #endif
 #ifdef Q_OS_WIN
-qint64 XProcess::getRegionSize(HANDLE hProcess, qint64 nAddress)
+qint64 XProcess::getRegionSize(void *hProcess, qint64 nAddress)
 {
     qint64 nResult=-1;
 
@@ -328,7 +328,7 @@ XProcess::MEMORY_FLAGS XProcess::dwordToFlags(quint32 nValue)
 }
 #endif
 #ifdef Q_OS_WIN
-XProcess::MEMORY_FLAGS XProcess::getMemoryFlags(HANDLE hProcess, qint64 nAddress)
+XProcess::MEMORY_FLAGS XProcess::getMemoryFlags(void *hProcess, qint64 nAddress)
 {
     MEMORY_FLAGS result={};
     MEMORY_BASIC_INFORMATION mbi={};
@@ -342,7 +342,7 @@ XProcess::MEMORY_FLAGS XProcess::getMemoryFlags(HANDLE hProcess, qint64 nAddress
 }
 #endif
 #ifdef Q_OS_WIN
-QString XProcess::getFileNameByHandle(HANDLE hHandle)
+QString XProcess::getFileNameByHandle(void *hHandle)
 {
     QString sResult;
 
@@ -602,7 +602,7 @@ QString XProcess::read_unicodeString(void *hProcess, qint64 nAddress, qint64 nMa
 }
 
 #ifdef Q_OS_WIN
-qint64 XProcess::getTEBAddress(HANDLE hThread)
+qint64 XProcess::getTEBAddress(void *hThread)
 {
     qint64 nResult=-1;
 
@@ -625,7 +625,24 @@ qint64 XProcess::getTEBAddress(HANDLE hThread)
 }
 #endif
 #ifdef Q_OS_WIN
-qint64 XProcess::getPEBAddress(HANDLE hProcess)
+qint64 XProcess::getPEBAddress(qint64 nProcessID)
+{
+    qint64 nResult=0;
+
+    void *pProcess=openProcess(nProcessID);
+
+    if(pProcess)
+    {
+        nResult=getPEBAddress(pProcess);
+
+        closeProcess(pProcess);
+    }
+
+    return nResult;
+}
+#endif
+#ifdef Q_OS_WIN
+qint64 XProcess::getPEBAddress(void *hProcess)
 {
     qint64 nResult=-1;
 
@@ -685,7 +702,7 @@ bool XProcess::setDebugPrivilege(bool bEnable)
 }
 #endif
 #ifdef Q_OS_WIN
-qint64 XProcess::getProcessIDByHandle(HANDLE hProcess)
+qint64 XProcess::getProcessIDByHandle(void *hProcess)
 {
     qint64 nResult=0;
 
@@ -693,8 +710,9 @@ qint64 XProcess::getProcessIDByHandle(HANDLE hProcess)
 
     return nResult;
 }
-
-qint64 XProcess::getThreadIDByHandle(HANDLE hThread)
+#endif
+#ifdef Q_OS_WIN
+qint64 XProcess::getThreadIDByHandle(void *hThread)
 {
     qint64 nResult=0;
 

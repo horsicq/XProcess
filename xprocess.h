@@ -111,21 +111,21 @@ public:
     explicit XProcess(QObject *parent=nullptr);
     static QList<PROCESS_INFO> getProcessesList();
 #ifdef Q_OS_WIN
-    // TODO HANDLE -> (void *)
     static bool setPrivilege(QString sName,bool bEnable);
     static bool setDebugPrivilege(bool bEnable);
-    static qint64 getProcessIDByHandle(HANDLE hProcess);
-    static qint64 getThreadIDByHandle(HANDLE hThread);
-    static qint64 getRegionAllocationSize(HANDLE hProcess, qint64 nRegionBase);
-    static qint64 getRegionAllocationBase(HANDLE hProcess, qint64 nAddress);
-    static qint64 getRegionBase(HANDLE hProcess, qint64 nAddress);
-    static qint64 getRegionSize(HANDLE hProcess, qint64 nAddress);
+    static qint64 getProcessIDByHandle(void *hProcess);
+    static qint64 getThreadIDByHandle(void *hThread);
+    static qint64 getRegionAllocationSize(void *hProcess, qint64 nRegionBase);
+    static qint64 getRegionAllocationBase(void *hProcess, qint64 nAddress);
+    static qint64 getRegionBase(void *hProcess, qint64 nAddress);
+    static qint64 getRegionSize(void *hProcess, qint64 nAddress);
     static MEMORY_FLAGS dwordToFlags(quint32 nValue);
-    static MEMORY_FLAGS getMemoryFlags(HANDLE hProcess,qint64 nAddress);
-    static QString getFileNameByHandle(HANDLE hHandle);
+    static MEMORY_FLAGS getMemoryFlags(void *hProcess,qint64 nAddress);
+    static QString getFileNameByHandle(void *hHandle);
     static QString convertNtToDosPath(QString sNtPath);
-    static qint64 getTEBAddress(HANDLE hThread);
-    static qint64 getPEBAddress(HANDLE hProcess);
+    static qint64 getTEBAddress(void *hThread);
+    static qint64 getPEBAddress(qint64 nProcessID);
+    static qint64 getPEBAddress(void *hProcess);
 #endif
     static void *openProcess(qint64 nProcessID);
     static void closeProcess(void *hProcess);
