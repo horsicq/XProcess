@@ -123,12 +123,16 @@ public:
     static MEMORY_FLAGS getMemoryFlags(void *hProcess,qint64 nAddress);
     static QString getFileNameByHandle(void *hHandle);
     static QString convertNtToDosPath(QString sNtPath);
+    static qint64 getTEBAddress(qint64 nThreadID);
     static qint64 getTEBAddress(void *hThread);
     static qint64 getPEBAddress(qint64 nProcessID);
     static qint64 getPEBAddress(void *hProcess);
+    static QList<qint64> getTEBAddresses(qint64 nProcessID);
 #endif
     static void *openProcess(qint64 nProcessID);
     static void closeProcess(void *hProcess);
+    static void *openThread(qint64 nThreadID);
+    static void closeThread(void *hThread);
     static bool isProcessReadable(qint64 nProcessID);
     static quint8 read_uint8(void *hProcess,qint64 nAddress);
     static quint16 read_uint16(void *hProcess,qint64 nAddress);
@@ -147,6 +151,7 @@ public:
     static MEMORY_REGION getMemoryRegion(void *hProcess,qint64 nAddress);
     static bool isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion,qint64 nAddress);
     static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
+    static QList<qint64> getThreadIDsList(qint64 nProcessID);
 };
 
 #endif // XPROCESS_H

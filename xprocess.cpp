@@ -163,7 +163,7 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
 
         if(hModule!=INVALID_HANDLE_VALUE)
         {
-            MODULEENTRY32 me32;
+            MODULEENTRY32 me32={};
             me32.dwSize=sizeof(MODULEENTRY32);
 
             if(Module32First(hModule,&me32))
@@ -212,6 +212,37 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
     }
 #endif
     return result;
+}
+QList<qint64> XProcess::getThreadIDsList(qint64 nProcessID)
+{
+    QList<qint64> listResult;
+
+#ifdef Q_OS_WIN
+    HANDLE hThreads=CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD,0);
+
+    if(hThreads!=INVALID_HANDLE_VALUE)
+    {
+        tagTHREADENTRY32 thread={};
+        thread.dwSize=sizeof(tagTHREADENTRY32);
+
+        if(Thread32First(hThreads,&thread))
+        {
+            do
+            {
+                if(thread.th32OwnerProcessID==nProcessID)
+                {
+                    listResult.append(thread.th32ThreadID);
+                }
+            }
+            while(Thread32Next(hThreads,&thread));
+        }
+
+        CloseHandle(hThreads);
+    }
+
+#endif
+
+    return listResult;
 }
 #ifdef Q_OS_WIN
 qint64 XProcess::getRegionAllocationSize(void *hProcess,qint64 nRegionBase)
@@ -432,6 +463,22 @@ void XProcess::closeProcess(void *hProcess)
 #endif
 }
 
+void *XProcess::openThread(qint64 nThreadID)
+{
+    void *pResult=0;
+#ifdef Q_OS_WIN
+    pResult=(void *)OpenThread(THREAD_ALL_ACCESS,0,nThreadID);
+#endif
+    return pResult;
+}
+
+void XProcess::closeThread(void *hThread)
+{
+#ifdef Q_OS_WIN
+    CloseHandle((HANDLE)hThread);
+#endif
+}
+
 bool XProcess::isProcessReadable(qint64 nProcessID)
 {
     bool bResult=false;
@@ -600,7 +647,23 @@ QString XProcess::read_unicodeString(void *hProcess, qint64 nAddress, qint64 nMa
 
     return sResult;
 }
+#ifdef Q_OS_WIN
+qint64 XProcess::getTEBAddress(qint64 nThreadID)
+{
+    qint64 nResult=0;
 
+    void *pThread=openThread(nThreadID);
+
+    if(pThread)
+    {
+        nResult=getTEBAddress(pThread);
+
+        closeProcess(pThread);
+    }
+
+    return nResult;
+}
+#endif
 #ifdef Q_OS_WIN
 qint64 XProcess::getTEBAddress(void *hThread)
 {
@@ -664,6 +727,25 @@ qint64 XProcess::getPEBAddress(void *hProcess)
     }
 
     return nResult;
+}
+#endif
+#ifdef Q_OS_WIN
+QList<qint64> XProcess::getTEBAddresses(qint64 nProcessID)
+{
+    QList<qint64> listResult;
+
+    QList<qint64> listThreadIDs=getThreadIDsList(nProcessID);
+
+    int nNumberOfThreads=listThreadIDs.count();
+
+    for(int i=0;i<nNumberOfThreads;i++)
+    {
+        qint64 nThreadID=getTEBAddress(listThreadIDs.at(i));
+
+        listResult.append(nThreadID);
+    }
+
+    return listResult;
 }
 #endif
 #ifdef Q_OS_WIN
