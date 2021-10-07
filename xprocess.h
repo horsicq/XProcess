@@ -108,6 +108,11 @@ public:
         MEMORY_FLAGS mf;
     };
 
+    struct SYSTEM_INFO
+    {
+        QString sBuild;
+    };
+
     explicit XProcess(QObject *parent=nullptr);
     static QList<PROCESS_INFO> getProcessesList();
 #ifdef Q_OS_WIN
@@ -152,6 +157,7 @@ public:
     static bool isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion,qint64 nAddress);
     static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
     static QList<qint64> getThreadIDsList(qint64 nProcessID);
+    static SYSTEM_INFO getSystemInfo();
 };
 
 #endif // XPROCESS_H

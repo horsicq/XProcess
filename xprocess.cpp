@@ -244,6 +244,7 @@ QList<qint64> XProcess::getThreadIDsList(qint64 nProcessID)
 
     return listResult;
 }
+
 #ifdef Q_OS_WIN
 qint64 XProcess::getRegionAllocationSize(void *hProcess,qint64 nRegionBase)
 {
@@ -803,3 +804,20 @@ qint64 XProcess::getThreadIDByHandle(void *hThread)
     return nResult;
 }
 #endif
+
+XProcess::SYSTEM_INFO XProcess::getSystemInfo()
+{
+    SYSTEM_INFO result={};
+#ifdef Q_OS_WIN
+    OSVERSIONINFOEXA ovi;
+
+    ovi.dwOSVersionInfoSize=sizeof(OSVERSIONINFOEXA);
+
+    GetVersionExA((OSVERSIONINFOA *)&ovi);
+
+    result.sBuild=QString("%1.%2.%3").arg(QString::number(ovi.dwMajorVersion),
+                                          QString::number(ovi.dwMinorVersion),
+                                          QString::number(ovi.dwBuildNumber));
+#endif
+    return result;
+}
