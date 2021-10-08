@@ -805,11 +805,11 @@ qint64 XProcess::getThreadIDByHandle(void *hThread)
 }
 #endif
 
-XProcess::SYSTEM_INFO XProcess::getSystemInfo()
+XProcess::SYSTEMINFO XProcess::getSystemInfo()
 {
-    SYSTEM_INFO result={};
+    SYSTEMINFO result={};
 #ifdef Q_OS_WIN
-    OSVERSIONINFOEXA ovi;
+    OSVERSIONINFOEXA ovi={};
 
     ovi.dwOSVersionInfoSize=sizeof(OSVERSIONINFOEXA);
 
@@ -818,6 +818,17 @@ XProcess::SYSTEM_INFO XProcess::getSystemInfo()
     result.sBuild=QString("%1.%2.%3").arg(QString::number(ovi.dwMajorVersion),
                                           QString::number(ovi.dwMinorVersion),
                                           QString::number(ovi.dwBuildNumber));
+
+    SYSTEM_INFO si={};
+    GetSystemInfo(&si);
+
+    if      (si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_INTEL)       result.sArch="I386";
+    else if (si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_AMD64)       result.sArch="AMD64";
+    else if (si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_IA64)        result.sArch="IA64";
+    else if (si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_ARM)         result.sArch="ARM";
+    else if (si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_ARM64)       result.sArch="ARM64";
+
+    result.bIs64=(sizeof(char *)==8);
 #endif
     return result;
 }
