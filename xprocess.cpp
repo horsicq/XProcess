@@ -597,7 +597,7 @@ QString XProcess::read_ansiString(void *hProcess, qint64 nAddress, qint64 nMaxSi
     QString sResult;
     int i=0;
 
-    for(; i<nMaxSize; i++)
+    for(;i<nMaxSize;i++)
     {
         if(!read_array(hProcess,nAddress+i,&(pBuffer[i]),1))
         {
