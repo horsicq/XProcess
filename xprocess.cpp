@@ -80,6 +80,42 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
 
     return listResult;
 }
+
+bool XProcess::setDebugPrivilege(bool bEnable)
+{
+    return setPrivilege("SeDebugPrivilege",bEnable);
+}
+
+bool XProcess::setPrivilege(QString sName, bool bEnable)
+{
+    bool bResult=true;
+#ifdef Q_OS_WIN
+    bResult=false;
+    HANDLE hToken;
+
+    if(OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES|TOKEN_QUERY,&hToken))
+    {
+        LUID SeValue;
+
+        if(LookupPrivilegeValueA(nullptr,sName.toLatin1().data(),&SeValue))
+        {
+            TOKEN_PRIVILEGES tp;
+
+            tp.PrivilegeCount=1;
+            tp.Privileges[0].Luid=SeValue;
+            tp.Privileges[0].Attributes=bEnable?SE_PRIVILEGE_ENABLED:0;
+
+            AdjustTokenPrivileges(hToken,FALSE,&tp,sizeof(tp),nullptr,nullptr);
+
+            bResult=true;
+        }
+
+        CloseHandle(hToken);
+    }
+#endif
+    return bResult;
+}
+
 #ifdef Q_OS_WIN
 QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess, qint64 nAddress, qint64 nSize)
 {
@@ -747,41 +783,6 @@ QList<qint64> XProcess::getTEBAddresses(qint64 nProcessID)
     }
 
     return listResult;
-}
-#endif
-#ifdef Q_OS_WIN
-bool XProcess::setPrivilege(QString sName, bool bEnable)
-{
-    bool bResult=false;
-    HANDLE hToken;
-
-    if(OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES|TOKEN_QUERY,&hToken))
-    {
-        LUID SeValue;
-
-        if(LookupPrivilegeValueA(nullptr,sName.toLatin1().data(),&SeValue))
-        {
-            TOKEN_PRIVILEGES tp;
-
-            tp.PrivilegeCount=1;
-            tp.Privileges[0].Luid=SeValue;
-            tp.Privileges[0].Attributes=bEnable?SE_PRIVILEGE_ENABLED:0;
-
-            AdjustTokenPrivileges(hToken,FALSE,&tp,sizeof(tp),nullptr,nullptr);
-
-            bResult=true;
-        }
-
-        CloseHandle(hToken);
-    }
-
-    return bResult;
-}
-#endif
-#ifdef Q_OS_WIN
-bool XProcess::setDebugPrivilege(bool bEnable)
-{
-    return setPrivilege("SeDebugPrivilege",bEnable);
 }
 #endif
 #ifdef Q_OS_WIN

@@ -117,9 +117,9 @@ public:
 
     explicit XProcess(QObject *parent=nullptr);
     static QList<PROCESS_INFO> getProcessesList();
-#ifdef Q_OS_WIN
     static bool setPrivilege(QString sName,bool bEnable);
     static bool setDebugPrivilege(bool bEnable);
+#ifdef Q_OS_WIN
     static qint64 getProcessIDByHandle(void *hProcess);
     static qint64 getThreadIDByHandle(void *hThread);
     static qint64 getRegionAllocationSize(void *hProcess, qint64 nRegionBase);
