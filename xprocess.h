@@ -22,6 +22,7 @@
 #define XPROCESS_H
 
 #include <QObject>
+#include <QtEndian>
 #ifdef Q_OS_WIN
 #include <Windows.h>
 #include <winternl.h>
@@ -142,13 +143,13 @@ public:
     static void closeThread(void *hThread);
     static bool isProcessReadable(qint64 nProcessID);
     static quint8 read_uint8(void *hProcess,qint64 nAddress);
-    static quint16 read_uint16(void *hProcess,qint64 nAddress);
-    static quint32 read_uint32(void *hProcess,qint64 nAddress);
-    static quint64 read_uint64(void *hProcess,qint64 nAddress);
+    static quint16 read_uint16(void *hProcess,qint64 nAddress,bool bIsBigEndian=false);
+    static quint32 read_uint32(void *hProcess,qint64 nAddress,bool bIsBigEndian=false);
+    static quint64 read_uint64(void *hProcess,qint64 nAddress,bool bIsBigEndian=false);
     static void write_uint8(void *hProcess,qint64 nAddress,quint8 nValue);
-    static void write_uint16(void *hProcess,qint64 nAddress,quint16 nValue);
-    static void write_uint32(void *hProcess,qint64 nAddress,quint32 nValue);
-    static void write_uint64(void *hProcess,qint64 nAddress,quint64 nValue);
+    static void write_uint16(void *hProcess,qint64 nAddress,quint16 nValue,bool bIsBigEndian=false);
+    static void write_uint32(void *hProcess,qint64 nAddress,quint32 nValue,bool bIsBigEndian=false);
+    static void write_uint64(void *hProcess,qint64 nAddress,quint64 nValue,bool bIsBigEndian=false);
     static qint64 read_array(void *hProcess,qint64 nAddress,char *pData,qint64 nSize);
     static qint64 write_array(void *hProcess,qint64 nAddress,char *pData,qint64 nSize);
     static QByteArray read_array(void *hProcess,qint64 nAddress,qint32 nSize);
@@ -156,6 +157,7 @@ public:
     static QString read_unicodeString(void *hProcess,qint64 nAddress,qint64 nMaxSize=256); // TODO endian ??
     static QList<MEMORY_REGION> getMemoryRegionsList(void *hProcess,qint64 nAddress,qint64 nSize);
     static MEMORY_REGION getMemoryRegion(void *hProcess,qint64 nAddress);
+    static MEMORY_REGION getMemoryRegion(qint64 nProcessID,qint64 nAddress);
     static bool isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion,qint64 nAddress);
     static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
     static QList<qint64> getThreadIDsList(qint64 nProcessID);

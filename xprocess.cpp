@@ -177,6 +177,22 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess, qint64 nAddres
     return result;
 }
 
+XProcess::MEMORY_REGION XProcess::getMemoryRegion(qint64 nProcessID, qint64 nAddress)
+{
+    MEMORY_REGION result={};
+
+    void *pProcess=openProcess(nProcessID);
+
+    if(pProcess)
+    {
+        result=getMemoryRegion(pProcess,nAddress);
+
+        closeProcess(pProcess);
+    }
+
+    return result;
+}
+
 bool XProcess::isAddressInMemoryRegion(XProcess::MEMORY_REGION *pMemoryRegion, qint64 nAddress)
 {
     bool bResult=false;
@@ -545,29 +561,56 @@ quint8 XProcess::read_uint8(void *hProcess, qint64 nAddress)
     return nResult;
 }
 
-quint16 XProcess::read_uint16(void *hProcess, qint64 nAddress)
+quint16 XProcess::read_uint16(void *hProcess, qint64 nAddress, bool bIsBigEndian)
 {
     quint16 nResult=0;
 
     read_array(hProcess,nAddress,(char *)&nResult,2);
 
+    if(bIsBigEndian)
+    {
+        nResult=qFromBigEndian(nResult);
+    }
+    else
+    {
+        nResult=qFromLittleEndian(nResult);
+    }
+
     return nResult;
 }
 
-quint32 XProcess::read_uint32(void *hProcess, qint64 nAddress)
+quint32 XProcess::read_uint32(void *hProcess, qint64 nAddress, bool bIsBigEndian)
 {
     quint32 nResult=0;
 
     read_array(hProcess,nAddress,(char *)&nResult,4);
 
+    if(bIsBigEndian)
+    {
+        nResult=qFromBigEndian(nResult);
+    }
+    else
+    {
+        nResult=qFromLittleEndian(nResult);
+    }
+
     return nResult;
 }
 
-quint64 XProcess::read_uint64(void *hProcess, qint64 nAddress)
+quint64 XProcess::read_uint64(void *hProcess, qint64 nAddress, bool bIsBigEndian)
 {
     quint64 nResult=0;
 
     read_array(hProcess,nAddress,(char *)&nResult,8);
+
+    if(bIsBigEndian)
+    {
+        nResult=qFromBigEndian(nResult);
+    }
+    else
+    {
+        nResult=qFromLittleEndian(nResult);
+    }
 
     return nResult;
 }
@@ -577,18 +620,45 @@ void XProcess::write_uint8(void *hProcess, qint64 nAddress, quint8 nValue)
     write_array(hProcess,nAddress,(char *)&nValue,1);
 }
 
-void XProcess::write_uint16(void *hProcess, qint64 nAddress, quint16 nValue)
+void XProcess::write_uint16(void *hProcess, qint64 nAddress, quint16 nValue, bool bIsBigEndian)
 {
+    if(bIsBigEndian)
+    {
+        nValue=qFromBigEndian(nValue);
+    }
+    else
+    {
+        nValue=qFromLittleEndian(nValue);
+    }
+
     write_array(hProcess,nAddress,(char *)&nValue,2);
 }
 
-void XProcess::write_uint32(void *hProcess, qint64 nAddress, quint32 nValue)
+void XProcess::write_uint32(void *hProcess, qint64 nAddress, quint32 nValue, bool bIsBigEndian)
 {
+    if(bIsBigEndian)
+    {
+        nValue=qFromBigEndian(nValue);
+    }
+    else
+    {
+        nValue=qFromLittleEndian(nValue);
+    }
+
     write_array(hProcess,nAddress,(char *)&nValue,4);
 }
 
-void XProcess::write_uint64(void *hProcess, qint64 nAddress, quint64 nValue)
+void XProcess::write_uint64(void *hProcess, qint64 nAddress, quint64 nValue, bool bIsBigEndian)
 {
+    if(bIsBigEndian)
+    {
+        nValue=qFromBigEndian(nValue);
+    }
+    else
+    {
+        nValue=qFromLittleEndian(nValue);
+    }
+
     write_array(hProcess,nAddress,(char *)&nValue,8);
 }
 
@@ -666,7 +736,7 @@ QString XProcess::read_unicodeString(void *hProcess, qint64 nAddress, qint64 nMa
     {
         quint16 *pBuffer=new quint16[nMaxSize+1];
 
-        for(int i=0; i<nMaxSize; i++)
+        for(int i=0;i<nMaxSize;i++)
         {
             pBuffer[i]=read_uint16(hProcess,nAddress+2*i);
 
