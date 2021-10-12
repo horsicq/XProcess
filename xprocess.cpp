@@ -232,14 +232,18 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
 
             if(list.count())
             {
-                result.sFilePath=list.at(0).data();
+                QString sFilePath=list.at(0).data();
 
-                if(result.sFilePath!="")
+                if(sFilePath!="")
                 {
-                    QFileInfo fi(result.sFilePath);
-                    result.sName=fi.baseName();
+                    QFileInfo fi(sFilePath);
 
-                    result.nID=nProcessID;
+                    if(fi.exists())
+                    {
+                        result.nID=nProcessID;
+                        result.sName=fi.baseName();
+                        result.sFilePath=sFilePath;
+                    }
                 }
             }
 
