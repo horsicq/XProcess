@@ -139,7 +139,7 @@ bool XProcessDevice::openPID(qint64 nPID, qint64 nAddress, qint64 nSize, QIODevi
 
     return bResult;
 }
-#ifdef Q_OS_WIN
+
 bool XProcessDevice::openHandle(void *hProcess, qint64 nAddress, qint64 nSize, QIODevice::OpenMode mode)
 {
     this->g_hProcess=hProcess;
@@ -152,7 +152,7 @@ bool XProcessDevice::openHandle(void *hProcess, qint64 nAddress, qint64 nSize, Q
     // TODO Check
     return true;
 }
-#endif
+
 qint64 XProcessDevice::adjustSize(qint64 nSize)
 {
     qint64 nPos=pos();
