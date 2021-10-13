@@ -194,7 +194,7 @@ qint64 XProcessDevice::readData(char *pData, qint64 maxSize)
 
     maxSize=qMin(maxSize,(qint64)(g_nSize-_nPos));
 
-    for(qint64 i=0; i<maxSize;)
+    for(qint64 i=0;i<maxSize;)
     {
     #ifdef QT_DEBUG
         QString sDebugString=QString("%1").arg(_nPos+g_nAddress,0,16);
@@ -261,7 +261,7 @@ qint64 XProcessDevice::writeData(const char *pData, qint64 maxSize)
 
     maxSize=qMin(maxSize,(qint64)(g_nSize-_nPos));
 
-    for(qint64 i=0; i<maxSize;)
+    for(qint64 i=0;i<maxSize;)
     {
         qint64 nDelta=X_ALIGN_UP(_nPos,N_BUFFER_SIZE)-_nPos;
 
