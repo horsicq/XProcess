@@ -474,7 +474,7 @@ QString XProcess::convertNtToDosPath(QString sNtPath)
 
         nSize=GetLogicalDriveStringsW(nSize,pwszBuffer);
 
-        for(int i=0;i<nSize;)
+        for(qint32 i=0;i<nSize;)
         {
             QString sDisk=QString::fromUtf16((ushort *)(pwszBuffer+i));
             sDisk=sDisk.remove("\\");
