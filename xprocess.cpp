@@ -847,9 +847,9 @@ QList<qint64> XProcess::getTEBAddresses(qint64 nProcessID)
 
     QList<qint64> listThreadIDs=getThreadIDsList(nProcessID);
 
-    int nNumberOfThreads=listThreadIDs.count();
+    qint32 nNumberOfThreads=listThreadIDs.count();
 
-    for(int i=0;i<nNumberOfThreads;i++)
+    for(qint32 i=0;i<nNumberOfThreads;i++)
     {
         qint64 nThreadID=getTEBAddress(listThreadIDs.at(i));
 
