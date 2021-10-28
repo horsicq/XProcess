@@ -736,7 +736,7 @@ QString XProcess::read_unicodeString(void *hProcess, qint64 nAddress, qint64 nMa
     {
         quint16 *pBuffer=new quint16[nMaxSize+1];
 
-        for(int i=0;i<nMaxSize;i++)
+        for(qint32 i=0;i<nMaxSize;i++)
         {
             pBuffer[i]=read_uint16(hProcess,nAddress+2*i);
 
