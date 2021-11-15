@@ -33,8 +33,7 @@
 #include <QDirIterator>
 #endif
 
-#define X_ALIGN_DOWN(x,align)     ((x)&~(align-1))
-#define X_ALIGN_UP(x,align)       (((x)&(align-1))?X_ALIGN_DOWN(x,align)+align:x)
+#include "xbinary.h"
 
 #ifdef Q_OS_WIN
 struct S_CLIENT_ID
@@ -94,28 +93,6 @@ public:
         qint64 nImageSize;
     };
 
-    struct MEMORY_FLAGS
-    {
-        bool bRead;
-        bool bWrite;
-        bool bExecute;
-        // TODO more
-    };
-
-    struct MEMORY_REGION
-    {
-        qint64 nAddress;
-        qint64 nSize;
-        MEMORY_FLAGS mf;
-    };
-
-    struct SYSTEMINFO
-    {
-        QString sBuild;
-        QString sArch;
-        bool bIs64;
-    };
-
     explicit XProcess(QObject *parent=nullptr);
     static QList<PROCESS_INFO> getProcessesList();
     static bool setPrivilege(QString sName,bool bEnable);
@@ -127,8 +104,8 @@ public:
     static qint64 getRegionAllocationBase(void *hProcess, qint64 nAddress);
     static qint64 getRegionBase(void *hProcess, qint64 nAddress);
     static qint64 getRegionSize(void *hProcess, qint64 nAddress);
-    static MEMORY_FLAGS dwordToFlags(quint32 nValue);
-    static MEMORY_FLAGS getMemoryFlags(void *hProcess,qint64 nAddress);
+    static XBinary::MEMORY_FLAGS dwordToFlags(quint32 nValue);
+    static XBinary::MEMORY_FLAGS getMemoryFlags(void *hProcess,qint64 nAddress);
     static QString getFileNameByHandle(void *hHandle);
     static QString convertNtToDosPath(QString sNtPath);
     static qint64 getTEBAddress(qint64 nThreadID);
@@ -155,13 +132,13 @@ public:
     static QByteArray read_array(void *hProcess,qint64 nAddress,qint32 nSize);
     static QString read_ansiString(void *hProcess,qint64 nAddress,qint64 nMaxSize=256);
     static QString read_unicodeString(void *hProcess,qint64 nAddress,qint64 nMaxSize=256); // TODO endian ??
-    static QList<MEMORY_REGION> getMemoryRegionsList(void *hProcess,qint64 nAddress,qint64 nSize);
-    static MEMORY_REGION getMemoryRegion(void *hProcess,qint64 nAddress);
-    static MEMORY_REGION getMemoryRegion(qint64 nProcessID,qint64 nAddress);
-    static bool isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion,qint64 nAddress);
+    static QList<XBinary::MEMORY_REGION> getMemoryRegionsList(void *hProcess,qint64 nAddress,qint64 nSize);
+    static QList<XBinary::MEMORY_REGION> getMemoryRegionsList(qint64 nProcessID,qint64 nAddress,qint64 nSize);
+    static XBinary::MEMORY_REGION getMemoryRegion(void *hProcess,qint64 nAddress);
+    static XBinary::MEMORY_REGION getMemoryRegion(qint64 nProcessID,qint64 nAddress);
     static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
     static QList<qint64> getThreadIDsList(qint64 nProcessID);
-    static SYSTEMINFO getSystemInfo();
+    static XBinary::OSINFO getOsInfo();
 };
 
 #endif // XPROCESS_H

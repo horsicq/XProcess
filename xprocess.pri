@@ -9,6 +9,11 @@ SOURCES += \
     $$PWD/xprocess.cpp \
     $$PWD/xprocessdevice.cpp
 
+!contains(XCONFIG, xbinary) {
+    XCONFIG += xbinary
+    include($$PWD/../Formats/xbinary.pri)
+}
+
 win32-msvc* {
     LIBS += Advapi32.lib
 }
