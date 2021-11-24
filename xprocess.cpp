@@ -208,6 +208,29 @@ XBinary::MEMORY_REGION XProcess::getMemoryRegion(qint64 nProcessID, qint64 nAddr
     return result;
 }
 
+XBinary::MEMORY_REGION XProcess::getMemoryRegion(HANDLEID handleID, qint64 nAddress)
+{
+    XBinary::MEMORY_REGION mrResult={};
+
+    if(handleID.hHandle)
+    {
+        mrResult=getMemoryRegion(handleID.hHandle,nAddress);
+    }
+    else if(handleID.nID)
+    {
+        handleID.hHandle=XProcess::openProcess(handleID.nID);
+
+        if(handleID.hHandle)
+        {
+            mrResult=getMemoryRegion(handleID,nAddress);
+
+            XProcess::closeProcess(handleID.hHandle);
+        }
+    }
+
+    return mrResult;
+}
+
 XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
 {
     PROCESS_INFO result={0};

@@ -83,6 +83,13 @@ class XProcess : public QObject
     Q_OBJECT
 
 public:
+
+    struct HANDLEID
+    {
+        void *hHandle;
+        qint64 nID;
+    };
+
     struct PROCESS_INFO
     {
         QString sName;
@@ -136,6 +143,7 @@ public:
     static QList<XBinary::MEMORY_REGION> getMemoryRegionsList(qint64 nProcessID,qint64 nAddress,qint64 nSize);
     static XBinary::MEMORY_REGION getMemoryRegion(void *hProcess,qint64 nAddress);
     static XBinary::MEMORY_REGION getMemoryRegion(qint64 nProcessID,qint64 nAddress);
+    static XBinary::MEMORY_REGION getMemoryRegion(HANDLEID handleID,qint64 nAddress);
     static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
     static QList<qint64> getThreadIDsList(qint64 nProcessID);
     static XBinary::OSINFO getOsInfo();
