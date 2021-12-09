@@ -490,7 +490,7 @@ QString XProcess::convertNtToDosPath(QString sNtPath)
 {
     QString sResult=sNtPath;
 
-    int nSize=GetLogicalDriveStringsW(0,0);
+    qint32 nSize=GetLogicalDriveStringsW(0,0);
 
     if(nSize)
     {
