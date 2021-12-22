@@ -44,12 +44,12 @@ struct S_CLIENT_ID
 
 struct S_THREAD_BASIC_INFORMATION
 {
-    NTSTATUS                ExitStatus;
-    PVOID                   TebBaseAddress;
-    S_CLIENT_ID             ClientId;
-    KAFFINITY               AffinityMask;
-    LONG                    Priority;
-    LONG                    BasePriority;
+    NTSTATUS ExitStatus;
+    PVOID TebBaseAddress;
+    S_CLIENT_ID ClientId;
+    KAFFINITY AffinityMask;
+    LONG Priority;
+    LONG BasePriority;
 };
 
 struct S_PROCESS_BASIC_INFORMATION
@@ -59,6 +59,23 @@ struct S_PROCESS_BASIC_INFORMATION
     PVOID Reserved2[2];
     ULONG_PTR UniqueProcessId;
     PVOID Reserved3;
+};
+
+struct S_SYSTEM_HANDLE_TABLE_ENTRY_INFO
+{
+    USHORT UniqueProcessId;
+    USHORT CreatorBackTraceIndex;
+    UCHAR ObjectTypeIndex;
+    UCHAR HandleAttributes;
+    USHORT HandleValue;
+    PVOID Object;
+    ULONG GrantedAccess;
+};
+
+struct S_SYSTEM_HANDLE_INFORMATION
+{
+    ULONG NumberOfHandles;
+    S_SYSTEM_HANDLE_TABLE_ENTRY_INFO Handles[1];
 };
 
 typedef NTSTATUS (NTAPI *pfnNtQueryInformationThread)(
@@ -76,6 +93,14 @@ typedef NTSTATUS (NTAPI *pfnNtQueryInformationProcess)(
         ULONG ProcessInformationLength,
         PULONG ReturnLength
         );
+
+typedef NTSTATUS (NTAPI *pfnNtQuerySystemInformation)(
+        SYSTEM_INFORMATION_CLASS SystemInformationClass,
+        PVOID SystemInformation,
+        ULONG SystemInformationLength,
+        PULONG ReturnLength
+        );
+
 #endif
 
 class XProcess : public QObject
@@ -100,6 +125,17 @@ public:
         qint64 nImageSize;
     };
 
+#ifdef Q_OS_WIN
+    struct WINSYSHANDLE
+    {
+        quint16 nHandle;
+        quint8 nObjectTypeNumber;
+        quint8 nFlags;
+        qint64 nObjectAddress;
+        quint32 nAccess;
+    };
+#endif
+
     explicit XProcess(QObject *parent=nullptr);
     static QList<PROCESS_INFO> getProcessesList();
     static bool setPrivilege(QString sName,bool bEnable);
@@ -120,6 +156,7 @@ public:
     static qint64 getPEBAddress(qint64 nProcessID);
     static qint64 getPEBAddress(void *hProcess);
     static QList<qint64> getTEBAddresses(qint64 nProcessID);
+    static QList<WINSYSHANDLE> getOpenHandles(qint64 nProcessID);
 #endif
     static void *openProcess(qint64 nProcessID);
     static void closeProcess(void *hProcess);

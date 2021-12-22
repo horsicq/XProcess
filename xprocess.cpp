@@ -886,6 +886,66 @@ QList<qint64> XProcess::getTEBAddresses(qint64 nProcessID)
 }
 #endif
 #ifdef Q_OS_WIN
+QList<XProcess::WINSYSHANDLE> XProcess::getOpenHandles(qint64 nProcessID)
+{
+    QList<XProcess::WINSYSHANDLE> listResult;
+
+    HMODULE hNtDll=LoadLibrary(TEXT("ntdll.dll"));
+    if(hNtDll)
+    {
+        pfnNtQuerySystemInformation gNtQuerySystemInformation=(pfnNtQuerySystemInformation)GetProcAddress(hNtDll,"NtQuerySystemInformation");
+
+        if(gNtQuerySystemInformation)
+        {
+            qint32 nMemorySize=0x10000;
+            void *pMemory=malloc(nMemorySize);
+
+            NTSTATUS status=ERROR_SUCCESS;
+
+            while(true)
+            {
+                XBinary::_zeroMemory((char *)pMemory,nMemorySize);
+
+                status=gNtQuerySystemInformation((SYSTEM_INFORMATION_CLASS)16,pMemory,nMemorySize,NULL);
+
+                if(status!=0xC0000004) // STATUS_INFO_LENGTH_MISMATCH
+                {
+                    break;
+                }
+
+                nMemorySize*=2;
+                pMemory=realloc(pMemory,nMemorySize);
+            }
+
+            if(status==ERROR_SUCCESS)
+            {
+                S_SYSTEM_HANDLE_INFORMATION *pSHI=(S_SYSTEM_HANDLE_INFORMATION *)pMemory;
+
+                for(qint32 i=0;i<(qint32)(pSHI->NumberOfHandles);i++)
+                {
+                    if(pSHI->Handles[i].UniqueProcessId==nProcessID)
+                    {
+                        WINSYSHANDLE record={};
+
+                        record.nHandle=pSHI->Handles[i].HandleValue;
+                        record.nAccess=pSHI->Handles[i].GrantedAccess;
+                        record.nFlags=pSHI->Handles[i].HandleAttributes;
+                        record.nObjectAddress=(qint64)pSHI->Handles[i].Object;
+                        record.nObjectTypeNumber=pSHI->Handles[i].ObjectTypeIndex;
+
+                        listResult.append(record);
+                    }
+                }
+            }
+
+            free(pMemory);
+        }
+    }
+
+    return listResult;
+}
+#endif
+#ifdef Q_OS_WIN
 qint64 XProcess::getProcessIDByHandle(void *hProcess)
 {
     qint64 nResult=0;
