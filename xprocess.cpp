@@ -163,6 +163,29 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(qint64 nProcessID, 
     return listResult;
 }
 
+QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLEID handleID, qint64 nAddress, qint64 nSize)
+{
+    QList<XBinary::MEMORY_REGION> listResult;
+
+    if(handleID.hHandle)
+    {
+        listResult=getMemoryRegionsList(handleID.hHandle,nAddress,nSize);
+    }
+    else if(handleID.nID)
+    {
+        handleID.hHandle=XProcess::openProcess(handleID.nID);
+
+        if(handleID.hHandle)
+        {
+            listResult=getMemoryRegionsList(handleID,nAddress,nSize);
+
+            XProcess::closeProcess(handleID.hHandle);
+        }
+    }
+
+    return listResult;
+}
+
 XBinary::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess, qint64 nAddress)
 {
     XBinary::MEMORY_REGION result={};

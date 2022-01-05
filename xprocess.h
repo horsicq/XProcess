@@ -178,6 +178,7 @@ public:
     static QString read_unicodeString(void *hProcess,qint64 nAddress,qint64 nMaxSize=256); // TODO endian ??
     static QList<XBinary::MEMORY_REGION> getMemoryRegionsList(void *hProcess,qint64 nAddress,qint64 nSize);
     static QList<XBinary::MEMORY_REGION> getMemoryRegionsList(qint64 nProcessID,qint64 nAddress,qint64 nSize);
+    static QList<XBinary::MEMORY_REGION> getMemoryRegionsList(HANDLEID handleID,qint64 nAddress,qint64 nSize);
     static XBinary::MEMORY_REGION getMemoryRegion(void *hProcess,qint64 nAddress);
     static XBinary::MEMORY_REGION getMemoryRegion(qint64 nProcessID,qint64 nAddress);
     static XBinary::MEMORY_REGION getMemoryRegion(HANDLEID handleID,qint64 nAddress);
