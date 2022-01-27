@@ -969,6 +969,28 @@ QList<XProcess::WINSYSHANDLE> XProcess::getOpenHandles(qint64 nProcessID)
 }
 #endif
 #ifdef Q_OS_WIN
+QString XProcess::getLastErrorAsString()
+{
+    QString sResult;
+
+    quint32 nLastError=GetLastError();
+
+    if(nLastError)
+    {
+        LPWSTR messageBuffer=nullptr;
+
+        size_t size=FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
+                                     NULL,nLastError,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),(LPWSTR)&messageBuffer,0,NULL);
+
+        sResult=QString::fromWCharArray(messageBuffer,size);
+
+        LocalFree(messageBuffer);
+    }
+
+    return sResult;
+}
+#endif
+#ifdef Q_OS_WIN
 qint64 XProcess::getProcessIDByHandle(void *hProcess)
 {
     qint64 nResult=0;

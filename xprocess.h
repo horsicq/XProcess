@@ -157,6 +157,7 @@ public:
     static qint64 getPEBAddress(void *hProcess);
     static QList<qint64> getTEBAddresses(qint64 nProcessID);
     static QList<WINSYSHANDLE> getOpenHandles(qint64 nProcessID);
+    static QString getLastErrorAsString();
 #endif
     static void *openProcess(qint64 nProcessID);
     static void closeProcess(void *hProcess);
