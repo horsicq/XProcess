@@ -151,13 +151,13 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(qint64 nProcessID, 
 {
     QList<XBinary::MEMORY_REGION> listResult;
 
-    void *pProcess=openProcess(nProcessID);
+    void *pProcess=openProcess(nProcessID); // TODO OpenMemoryQuery QFile for linux
 
     if(pProcess)
     {
         listResult=getMemoryRegionsList(pProcess,nAddress,nSize);
 
-        closeProcess(pProcess);
+        closeProcess(pProcess); // TODO CloseMemoryQuery
     }
 
     return listResult;
