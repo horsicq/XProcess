@@ -13,7 +13,7 @@ SOURCES += \
     XCONFIG += xbinary
     include($$PWD/../Formats/xbinary.pri)
 }
-
+# TODO cmake
 win32-msvc* {
     LIBS += Advapi32.lib
 }
