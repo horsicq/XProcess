@@ -946,10 +946,12 @@ QList<XProcess::WINSYSHANDLE> XProcess::getOpenHandles(qint64 nProcessID)
 
                 for(qint32 i=0;i<(qint32)(pSHI->NumberOfHandles);i++)
                 {
-                    if(pSHI->Handles[i].UniqueProcessId==nProcessID)
+                    if((pSHI->Handles[i].UniqueProcessId==nProcessID)||(nProcessID==-1))
                     {
                         WINSYSHANDLE record={};
 
+                        record.nProcessID=pSHI->Handles[i].UniqueProcessId;
+                        record.nCreatorBackTraceIndex=pSHI->Handles[i].CreatorBackTraceIndex;
                         record.nHandle=pSHI->Handles[i].HandleValue;
                         record.nAccess=pSHI->Handles[i].GrantedAccess;
                         record.nFlags=pSHI->Handles[i].HandleAttributes;

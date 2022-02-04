@@ -128,6 +128,8 @@ public:
 #ifdef Q_OS_WIN
     struct WINSYSHANDLE
     {
+        quint16 nProcessID;
+        quint16 nCreatorBackTraceIndex;
         quint16 nHandle;
         quint8 nObjectTypeNumber;
         quint8 nFlags;
@@ -143,10 +145,10 @@ public:
 #ifdef Q_OS_WIN
     static qint64 getProcessIDByHandle(void *hProcess);
     static qint64 getThreadIDByHandle(void *hThread);
-    static qint64 getRegionAllocationSize(void *hProcess, qint64 nRegionBase);
-    static qint64 getRegionAllocationBase(void *hProcess, qint64 nAddress);
-    static qint64 getRegionBase(void *hProcess, qint64 nAddress);
-    static qint64 getRegionSize(void *hProcess, qint64 nAddress);
+    static qint64 getRegionAllocationSize(void *hProcess,qint64 nRegionBase);
+    static qint64 getRegionAllocationBase(void *hProcess,qint64 nAddress);
+    static qint64 getRegionBase(void *hProcess,qint64 nAddress);
+    static qint64 getRegionSize(void *hProcess,qint64 nAddress);
     static XBinary::MEMORY_FLAGS dwordToFlags(quint32 nValue);
     static XBinary::MEMORY_FLAGS getMemoryFlags(void *hProcess,qint64 nAddress);
     static QString getFileNameByHandle(void *hHandle);
@@ -156,7 +158,7 @@ public:
     static qint64 getPEBAddress(qint64 nProcessID);
     static qint64 getPEBAddress(void *hProcess);
     static QList<qint64> getTEBAddresses(qint64 nProcessID);
-    static QList<WINSYSHANDLE> getOpenHandles(qint64 nProcessID);
+    static QList<WINSYSHANDLE> getOpenHandles(qint64 nProcessID=-1);
     static QString getLastErrorAsString();
 #endif
     static void *openProcess(qint64 nProcessID);
