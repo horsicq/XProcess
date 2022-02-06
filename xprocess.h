@@ -162,7 +162,9 @@ public:
     static QString getLastErrorAsString();
 #endif
     static void *openProcess(qint64 nProcessID);
+    static void *openMemoryMapQuery(qint64 nProcessID);
     static void closeProcess(void *hProcess);
+    static void closeMemoryMapQuery(void *hProcess);
     static void *openThread(qint64 nThreadID);
     static void closeThread(void *hThread);
     static bool isProcessReadable(qint64 nProcessID);
@@ -179,9 +181,9 @@ public:
     static QByteArray read_array(void *hProcess,qint64 nAddress,qint32 nSize);
     static QString read_ansiString(void *hProcess,qint64 nAddress,qint64 nMaxSize=256);
     static QString read_unicodeString(void *hProcess,qint64 nAddress,qint64 nMaxSize=256); // TODO endian ??
-    static QList<XBinary::MEMORY_REGION> getMemoryRegionsList(void *hProcess,qint64 nAddress,qint64 nSize);
-    static QList<XBinary::MEMORY_REGION> getMemoryRegionsList(qint64 nProcessID,qint64 nAddress,qint64 nSize);
-    static QList<XBinary::MEMORY_REGION> getMemoryRegionsList(HANDLEID handleID,qint64 nAddress,qint64 nSize);
+    static QList<XBinary::MEMORY_REGION> getMemoryRegionsList(void *hProcess,quint64 nAddress,quint64 nSize);
+    static QList<XBinary::MEMORY_REGION> getMemoryRegionsList(qint64 nProcessID,quint64 nAddress,quint64 nSize);
+    static QList<XBinary::MEMORY_REGION> getMemoryRegionsList(HANDLEID handleID,quint64 nAddress,quint64 nSize);
     static XBinary::MEMORY_REGION getMemoryRegion(void *hProcess,qint64 nAddress);
     static XBinary::MEMORY_REGION getMemoryRegion(qint64 nProcessID,qint64 nAddress);
     static XBinary::MEMORY_REGION getMemoryRegion(HANDLEID handleID,qint64 nAddress);

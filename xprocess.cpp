@@ -86,7 +86,7 @@ bool XProcess::setDebugPrivilege(bool bEnable)
     return setPrivilege("SeDebugPrivilege",bEnable);
 }
 
-bool XProcess::setPrivilege(QString sName, bool bEnable)
+bool XProcess::setPrivilege(QString sName,bool bEnable)
 {
     bool bResult=true;
 #ifdef Q_OS_WIN
@@ -116,7 +116,7 @@ bool XProcess::setPrivilege(QString sName, bool bEnable)
     return bResult;
 }
 
-QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess, qint64 nAddress, qint64 nSize)
+QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess, quint64 nAddress, quint64 nSize)
 {
     QList<XBinary::MEMORY_REGION> listResult;
 #ifdef Q_OS_WIN
@@ -144,26 +144,61 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess, qin
         }
     }
 #endif
+#ifdef Q_OS_LINUX
+    QFile *pFile=static_cast<QFile *>(hProcess);
+
+    if(pFile)
+    {
+        QByteArray baData=pFile->readAll();
+
+        QTextStream inStream(baData,QIODevice::ReadOnly);
+
+        while(!inStream.atEnd())
+        {
+            QString sRecord=inStream.readLine();
+
+            QString sAddress=sRecord.section(" ",0,0);
+            QString sFlags=sRecord.section(" ",1,1);
+            QString sOffset=sRecord.section(" ",2,2);
+            QString sDevice=sRecord.section(" ",3,3);
+            QString sFileNumber=sRecord.section(" ",4,4);
+            QString sFileName=sRecord.section(" ",5,-1).trimmed();
+
+            XBinary::MEMORY_REGION memoryRegion={};
+
+            memoryRegion.nAddress=sAddress.section("-",0,0).toULongLong(0,16);
+            memoryRegion.nSize=sAddress.section("-",1,1).toULongLong(0,16)-memoryRegion.nAddress;
+            memoryRegion.mf.bExecute=sFlags.contains("x");
+            memoryRegion.mf.bRead=sFlags.contains("r");
+            memoryRegion.mf.bWrite=sFlags.contains("w");
+            memoryRegion.mf.bPrivate=sFlags.contains("p");
+            memoryRegion.mf.bShare=sFlags.contains("s");
+
+            listResult.append(memoryRegion);
+        }
+    }
+
+#endif
     return listResult;
 }
 
-QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(qint64 nProcessID, qint64 nAddress, qint64 nSize)
+QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(qint64 nProcessID, quint64 nAddress, quint64 nSize)
 {
     QList<XBinary::MEMORY_REGION> listResult;
 
-    void *pProcess=openProcess(nProcessID); // TODO OpenMemoryQuery QFile for linux
+    void *pProcess=openMemoryMapQuery(nProcessID); // TODO OpenMemoryQuery QFile for linux
 
     if(pProcess)
     {
         listResult=getMemoryRegionsList(pProcess,nAddress,nSize);
 
-        closeProcess(pProcess); // TODO CloseMemoryQuery
+        closeMemoryMapQuery(pProcess); // TODO CloseMemoryQuery
     }
 
     return listResult;
 }
 
-QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLEID handleID, qint64 nAddress, qint64 nSize)
+QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLEID handleID, quint64 nAddress, quint64 nSize)
 {
     QList<XBinary::MEMORY_REGION> listResult;
 
@@ -562,10 +597,43 @@ void *XProcess::openProcess(qint64 nProcessID)
     return pResult;
 }
 
+void *XProcess::openMemoryMapQuery(qint64 nProcessID)
+{
+    void *pResult=0;
+#ifdef Q_OS_WIN
+    pResult=(void *)OpenProcess(PROCESS_ALL_ACCESS,0,nProcessID);
+#endif
+#ifdef Q_OS_LINUX
+    QFile *pFile=new QFile;
+    pFile->setFileName(QString("/proc/%1/maps").arg(nProcessID));
+
+    if(pFile->open(QIODevice::ReadOnly))
+    {
+        pResult=pFile;
+    }
+#endif
+    return pResult;
+}
+
 void XProcess::closeProcess(void *hProcess)
 {
 #ifdef Q_OS_WIN
     CloseHandle((HANDLE)hProcess);
+#endif
+}
+
+void XProcess::closeMemoryMapQuery(void *hProcess)
+{
+#ifdef Q_OS_WIN
+    CloseHandle((HANDLE)hProcess);
+#endif
+#ifdef Q_OS_LINUX
+    QFile *pFile=static_cast<QFile *>(hProcess);
+
+    if(pFile)
+    {
+        pFile->close();
+    }
 #endif
 }
 
