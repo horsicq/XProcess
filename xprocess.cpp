@@ -168,17 +168,21 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess, qui
 
             memoryRegion.nAddress=sAddress.section("-",0,0).toULongLong(0,16);
             memoryRegion.nSize=sAddress.section("-",1,1).toULongLong(0,16)-memoryRegion.nAddress;
-            memoryRegion.mf.bExecute=sFlags.contains("x");
-            memoryRegion.mf.bRead=sFlags.contains("r");
-            memoryRegion.mf.bWrite=sFlags.contains("w");
-            memoryRegion.mf.bPrivate=sFlags.contains("p");
-            memoryRegion.mf.bShare=sFlags.contains("s");
-            memoryRegion.nOffset=sOffset.toLongLong(0,16);
-            memoryRegion.sDevice=sDevice;
-            memoryRegion.nInode=sFileNumber.toLongLong(0,10);
-            memoryRegion.sPathName=sPathName;
 
-            listResult.append(memoryRegion);
+            if((memoryRegion.nAddress>=nAddress)&&(nAddress+nSize>=memoryRegion.nAddress+memoryRegion.nSize))
+            {
+                memoryRegion.mf.bExecute=sFlags.contains("x");
+                memoryRegion.mf.bRead=sFlags.contains("r");
+                memoryRegion.mf.bWrite=sFlags.contains("w");
+                memoryRegion.mf.bPrivate=sFlags.contains("p");
+                memoryRegion.mf.bShare=sFlags.contains("s");
+                memoryRegion.nOffset=sOffset.toLongLong(0,16);
+                memoryRegion.sDevice=sDevice;
+                memoryRegion.nInode=sFileNumber.toLongLong(0,10);
+                memoryRegion.sPathName=sPathName;
+
+                listResult.append(memoryRegion);
+            }
         }
     }
 
@@ -212,13 +216,13 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLEID handleID, 
     }
     else if(handleID.nID)
     {
-        handleID.hHandle=XProcess::openProcess(handleID.nID);
+        handleID.hHandle=XProcess::openMemoryMapQuery(handleID.nID);
 
         if(handleID.hHandle)
         {
             listResult=getMemoryRegionsList(handleID,nAddress,nSize);
 
-            XProcess::closeProcess(handleID.hHandle);
+            XProcess::closeMemoryMapQuery(handleID.hHandle);
         }
     }
 
