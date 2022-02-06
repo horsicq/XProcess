@@ -178,8 +178,8 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess, qui
                 memoryRegion.mf.bShare=sFlags.contains("s");
                 memoryRegion.nOffset=sOffset.toLongLong(0,16);
                 memoryRegion.sDevice=sDevice;
-                memoryRegion.nInode=sFileNumber.toLongLong(0,10);
-                memoryRegion.sPathName=sPathName;
+                memoryRegion.nFile=sFileNumber.toLongLong(0,10);
+                memoryRegion.sFileName=sPathName;
 
                 listResult.append(memoryRegion);
             }
