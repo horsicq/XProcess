@@ -162,7 +162,7 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess, qui
             QString sOffset=sRecord.section(" ",2,2);
             QString sDevice=sRecord.section(" ",3,3);
             QString sFileNumber=sRecord.section(" ",4,4);
-            QString sFileName=sRecord.section(" ",5,-1).trimmed();
+            QString sPathName=sRecord.section(" ",5,-1).trimmed();
 
             XBinary::MEMORY_REGION memoryRegion={};
 
@@ -173,6 +173,10 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess, qui
             memoryRegion.mf.bWrite=sFlags.contains("w");
             memoryRegion.mf.bPrivate=sFlags.contains("p");
             memoryRegion.mf.bShare=sFlags.contains("s");
+            memoryRegion.nOffset=sOffset.toLongLong(0,16);
+            memoryRegion.sDevice=sDevice;
+            memoryRegion.nInode=sFileNumber.toLongLong(0,10);
+            memoryRegion.sPathName=sPathName;
 
             listResult.append(memoryRegion);
         }
