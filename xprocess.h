@@ -149,7 +149,7 @@ public:
     static qint64 getRegionAllocationBase(void *hProcess,qint64 nAddress);
     static qint64 getRegionBase(void *hProcess,qint64 nAddress);
     static qint64 getRegionSize(void *hProcess,qint64 nAddress);
-    static XBinary::MEMORY_FLAGS dwordToFlags(quint32 nValue);
+    static XBinary::MEMORY_FLAGS protectToFlags(quint32 nValue);
     static XBinary::MEMORY_FLAGS getMemoryFlags(void *hProcess,qint64 nAddress);
     static QString getFileNameByHandle(void *hHandle);
     static QString convertNtToDosPath(QString sNtPath);

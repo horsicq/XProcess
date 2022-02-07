@@ -120,7 +120,7 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess, qui
 {
     QList<XBinary::MEMORY_REGION> listResult;
 #ifdef Q_OS_WIN
-    for(qint64 nCurrentAddress=nAddress;nCurrentAddress<nAddress+nSize;)
+    for(quint64 nCurrentAddress=nAddress;nCurrentAddress<nAddress+nSize;)
     {
         nCurrentAddress=S_ALIGN_DOWN(nCurrentAddress,0x1000);
 
@@ -130,13 +130,21 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess, qui
         {
             XBinary::MEMORY_REGION memoryRegion={};
 
-            memoryRegion.nAddress=(qint64)mbi.BaseAddress;
-            memoryRegion.nSize=(qint64)mbi.RegionSize;
-            memoryRegion.mf=dwordToFlags(mbi.Protect);
+            memoryRegion.nType=mbi.Type;
 
-            nCurrentAddress+=memoryRegion.nSize;
+            if(memoryRegion.nType)
+            {
+                memoryRegion.nAddress=(qint64)mbi.BaseAddress;
+                memoryRegion.nSize=(qint64)mbi.RegionSize;
+                memoryRegion.mf=protectToFlags(mbi.Protect);
+                memoryRegion.nAllocationBase=(qint64)mbi.AllocationBase;
+                memoryRegion.mfAllocation=protectToFlags(mbi.AllocationProtect);
+                memoryRegion.nState=mbi.State;
 
-            listResult.append(memoryRegion);
+                listResult.append(memoryRegion);
+            }
+
+            nCurrentAddress+=(quint64)mbi.RegionSize;
         }
         else
         {
@@ -231,6 +239,7 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLEID handleID, 
 
 XBinary::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess, qint64 nAddress)
 {
+    // TODO LINUX
     XBinary::MEMORY_REGION result={};
 #ifdef Q_OS_WIN
 //#ifndef Q_OS_WIN64
@@ -246,7 +255,7 @@ XBinary::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess, qint64 nAddress
     {
         result.nAddress=(qint64)mbi.BaseAddress;
         result.nSize=(qint64)mbi.RegionSize;
-        result.mf=dwordToFlags(mbi.Protect);
+        result.mf=protectToFlags(mbi.Protect);
     }
 
 //    // TODO Check
@@ -474,7 +483,7 @@ qint64 XProcess::getRegionSize(void *hProcess, qint64 nAddress)
     return nResult;
 }
 
-XBinary::MEMORY_FLAGS XProcess::dwordToFlags(quint32 nValue)
+XBinary::MEMORY_FLAGS XProcess::protectToFlags(quint32 nValue)
 {
     XBinary::MEMORY_FLAGS result={};
 
@@ -493,13 +502,13 @@ XBinary::MEMORY_FLAGS XProcess::dwordToFlags(quint32 nValue)
     }
     else if(nValue==PAGE_EXECUTE_READ)
     {
-        result.bRead=true;
         result.bExecute=true;
+        result.bRead=true;
     }
     else if(nValue==PAGE_EXECUTE_READWRITE)
     {
+        result.bExecute=true;
         result.bRead=true;
-        result.bWrite=true;
         result.bWrite=true;
     }
     // TODO more for Windows !
@@ -515,7 +524,7 @@ XBinary::MEMORY_FLAGS XProcess::getMemoryFlags(void *hProcess, qint64 nAddress)
 
     if(VirtualQueryEx(hProcess,(LPCVOID)nAddress,&mbi,sizeof(mbi)))
     {
-        result=dwordToFlags(mbi.Protect);
+        result=protectToFlags(mbi.Protect);
     }
 
     return result;
