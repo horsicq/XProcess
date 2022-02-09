@@ -33,7 +33,7 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
 
     if(hProcesses!=INVALID_HANDLE_VALUE)
     {
-        PROCESSENTRY32W pe32;
+        PROCESSENTRY32W pe32={};
         pe32.dwSize=sizeof(PROCESSENTRY32W);
 
         if(Process32FirstW(hProcesses,&pe32))
@@ -99,7 +99,7 @@ bool XProcess::setPrivilege(QString sName,bool bEnable)
 
         if(LookupPrivilegeValueA(nullptr,sName.toLatin1().data(),&SeValue))
         {
-            TOKEN_PRIVILEGES tp;
+            TOKEN_PRIVILEGES tp={};
 
             tp.PrivilegeCount=1;
             tp.Privileges[0].Luid=SeValue;
@@ -214,7 +214,7 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(qint64 nProcessID, 
     return listResult;
 }
 
-QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLEID handleID, quint64 nAddress, quint64 nSize)
+QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLEID handleID,quint64 nAddress,quint64 nSize)
 {
     QList<XBinary::MEMORY_REGION> listResult;
 
@@ -1136,4 +1136,40 @@ XBinary::OSINFO XProcess::getOsInfo()
     }
 
     return result;
+}
+
+QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID)
+{
+    QList<XProcess::MODULE> listResult;
+
+#ifdef Q_OS_WIN
+    HANDLE hModules=CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,0);
+
+    if(hModules!=INVALID_HANDLE_VALUE)
+    {
+        tagMODULEENTRY32W me32={};
+        me32.dwSize=sizeof(tagMODULEENTRY32W);
+
+        if(Module32FirstW(hModules,&me32))
+        {
+            do
+            {
+                MODULE record={};
+
+                record.nAddress=(qint64)me32.modBaseAddr;
+                record.nSize=(qint64)me32.modBaseSize;
+                record.sName=QString::fromWCharArray(me32.szModule);
+                record.sFileName=QString::fromWCharArray(me32.szExePath);
+
+                listResult.append(record);
+            }
+            while(Module32NextW(hModules,&me32));
+        }
+
+        CloseHandle(hModules);
+    }
+
+#endif
+
+    return listResult;
 }

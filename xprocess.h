@@ -125,6 +125,14 @@ public:
         qint64 nImageSize;
     };
 
+    struct MODULE
+    {
+        qint64 nAddress;
+        qint64 nSize;
+        QString sName;
+        QString sFileName;
+    };
+
 #ifdef Q_OS_WIN
     struct WINSYSHANDLE
     {
@@ -190,6 +198,7 @@ public:
     static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
     static QList<qint64> getThreadIDsList(qint64 nProcessID);
     static XBinary::OSINFO getOsInfo();
+    static QList<MODULE> getModulesList(qint64 nProcessID);
 };
 
 #endif // XPROCESS_H
