@@ -116,7 +116,7 @@ bool XProcess::setPrivilege(QString sName,bool bEnable)
     return bResult;
 }
 
-QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess, quint64 nAddress, quint64 nSize)
+QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess,quint64 nAddress,quint64 nSize)
 {
     QList<XBinary::MEMORY_REGION> listResult;
 #ifdef Q_OS_WIN
