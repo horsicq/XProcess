@@ -632,6 +632,24 @@ void *XProcess::openMemoryMapQuery(qint64 nProcessID)
     return pResult;
 }
 
+void *XProcess::openMemoryIO(qint64 nProcessID)
+{
+    void *pResult=0;
+#ifdef Q_OS_WIN
+    pResult=(void *)OpenProcess(PROCESS_ALL_ACCESS,0,nProcessID);
+#endif
+#ifdef Q_OS_LINUX
+    QFile *pFile=new QFile;
+    pFile->setFileName(QString("/proc/%1/mem").arg(nProcessID));
+
+    if(pFile->open(QIODevice::ReadOnly))
+    {
+        pResult=pFile;
+    }
+#endif
+    return pResult;
+}
+
 void XProcess::closeProcess(void *hProcess)
 {
 #ifdef Q_OS_WIN
@@ -652,6 +670,11 @@ void XProcess::closeMemoryMapQuery(void *hProcess)
         pFile->close();
     }
 #endif
+}
+
+void XProcess::closeMemoryIO(void *hProcess)
+{
+
 }
 
 void *XProcess::openThread(qint64 nThreadID)
