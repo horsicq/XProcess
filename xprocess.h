@@ -78,6 +78,36 @@ struct S_SYSTEM_HANDLE_INFORMATION
     S_SYSTEM_HANDLE_TABLE_ENTRY_INFO Handles[1];
 };
 
+struct my_SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX {
+    UINT_PTR ObjectPointer;
+    UINT_PTR UniqueProcessId;
+    UINT_PTR HandleValue;
+    ULONG GrantedAccess;
+    USHORT CreatorBackTraceIndex;
+    USHORT ObjectTypeIndex;
+    ULONG HandleAttributes;
+    ULONG Reserved;
+};
+
+struct S_SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX
+{
+    PVOID Object;
+    ULONG_PTR UniqueProcessId;
+    ULONG_PTR HandleValue;
+    ULONG GrantedAccess;
+    USHORT CreatorBackTraceIndex;
+    USHORT ObjectTypeIndex;
+    ULONG HandleAttributes;
+    ULONG Reserved;
+};
+
+struct S_SYSTEM_HANDLE_INFORMATION_EX
+{
+    ULONG_PTR NumberOfHandles;
+    ULONG_PTR Reserved;
+    S_SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX Handles[1];
+};
+
 typedef NTSTATUS (NTAPI *pfnNtQueryInformationThread)(
         HANDLE ThreadHandle,
         THREADINFOCLASS ThreadInformationClass,
@@ -141,7 +171,7 @@ public:
         quint16 nHandle;
         quint8 nObjectTypeNumber;
         quint8 nFlags;
-        qint64 nObjectAddress;
+        quint64 nObjectAddress;
         quint32 nAccess;
     };
 #endif
@@ -167,6 +197,8 @@ public:
     static qint64 getPEBAddress(void *hProcess);
     static QList<qint64> getTEBAddresses(qint64 nProcessID);
     static QList<WINSYSHANDLE> getOpenHandles(qint64 nProcessID=-1);
+    static QList<WINSYSHANDLE> getOpenHandlesEx(qint64 nProcessID=-1);
+    static quint64 getSystemEPROCESSAddress();
     static QString getLastErrorAsString();
 #endif
     static void *openProcess(qint64 nProcessID);

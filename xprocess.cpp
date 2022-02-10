@@ -1040,7 +1040,7 @@ QList<XProcess::WINSYSHANDLE> XProcess::getOpenHandles(qint64 nProcessID)
                         record.nHandle=pSHI->Handles[i].HandleValue;
                         record.nAccess=pSHI->Handles[i].GrantedAccess;
                         record.nFlags=pSHI->Handles[i].HandleAttributes;
-                        record.nObjectAddress=(qint64)pSHI->Handles[i].Object;
+                        record.nObjectAddress=(quint64)pSHI->Handles[i].Object;
                         record.nObjectTypeNumber=pSHI->Handles[i].ObjectTypeIndex;
 
                         listResult.append(record);
@@ -1053,6 +1053,90 @@ QList<XProcess::WINSYSHANDLE> XProcess::getOpenHandles(qint64 nProcessID)
     }
 
     return listResult;
+}
+#endif
+#ifdef Q_OS_WIN
+QList<XProcess::WINSYSHANDLE> XProcess::getOpenHandlesEx(qint64 nProcessID)
+{
+    QList<XProcess::WINSYSHANDLE> listResult;
+
+    HMODULE hNtDll=LoadLibrary(TEXT("ntdll.dll"));
+    if(hNtDll)
+    {
+        pfnNtQuerySystemInformation gNtQuerySystemInformation=(pfnNtQuerySystemInformation)GetProcAddress(hNtDll,"NtQuerySystemInformation");
+
+        if(gNtQuerySystemInformation)
+        {
+            qint32 nMemorySize=0x10000;
+            void *pMemory=malloc(nMemorySize);
+
+            NTSTATUS status=ERROR_SUCCESS;
+
+            while(true)
+            {
+                XBinary::_zeroMemory((char *)pMemory,nMemorySize);
+
+                status=gNtQuerySystemInformation((SYSTEM_INFORMATION_CLASS)0x40,pMemory,nMemorySize,NULL);
+
+                if(status!=0xC0000004) // STATUS_INFO_LENGTH_MISMATCH
+                {
+                    break;
+                }
+
+                nMemorySize*=2;
+                pMemory=realloc(pMemory,nMemorySize);
+            }
+
+            if(status==ERROR_SUCCESS)
+            {
+                S_SYSTEM_HANDLE_INFORMATION_EX *pSHI=(S_SYSTEM_HANDLE_INFORMATION_EX *)pMemory;
+
+                for(qint32 i=0;i<(qint32)(pSHI->NumberOfHandles);i++)
+                {
+                    if((pSHI->Handles[i].UniqueProcessId==nProcessID)||(nProcessID==-1))
+                    {
+                        WINSYSHANDLE record={};
+
+                        record.nProcessID=pSHI->Handles[i].UniqueProcessId;
+                        record.nCreatorBackTraceIndex=pSHI->Handles[i].CreatorBackTraceIndex;
+                        record.nHandle=pSHI->Handles[i].HandleValue;
+                        record.nAccess=pSHI->Handles[i].GrantedAccess;
+                        record.nFlags=pSHI->Handles[i].HandleAttributes;
+                        record.nObjectAddress=(quint64)pSHI->Handles[i].Object;
+                        record.nObjectTypeNumber=pSHI->Handles[i].ObjectTypeIndex;
+
+                        listResult.append(record);
+                    }
+                }
+            }
+
+            free(pMemory);
+        }
+    }
+
+    return listResult;
+}
+
+quint64 XProcess::getSystemEPROCESSAddress()
+{
+    quint64 nResult=0;
+
+    QList<XProcess::WINSYSHANDLE> listHandles=getOpenHandlesEx(4);
+
+    qint32 nNumberOfRecords=listHandles.count();
+
+    for(int i=0;i<nNumberOfRecords;i++)
+    {
+        if(listHandles.at(i).nObjectTypeNumber==7)
+        {
+            // Take the first
+            nResult=listHandles.at(i).nObjectAddress;
+
+            break;
+        }
+    }
+
+    return nResult;
 }
 #endif
 #ifdef Q_OS_WIN
@@ -1167,6 +1251,50 @@ QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID)
         }
 
         CloseHandle(hModules);
+    }
+#endif
+#ifdef Q_OS_LINUX
+    QList<XBinary::MEMORY_REGION> listMR=getMemoryRegionsList(nProcessID,0,0xFFFFFFFFFFFFFFFF);
+
+    qint32 nNumberOfRecords=listMR.count();
+
+    QMap<QString,quint64> mapImageBase;
+    QMap<QString,quint64> mapImageSize;
+
+    for(qint32 i=0;i<nNumberOfRecords;i++)
+    {
+        if(listMR.at(i).nFile)
+        {
+            QString sFileName=listMR.at(i).sFileName;
+
+            if(!(mapImageBase.value(sFileName)))
+            {
+                mapImageBase.insert(sFileName,listMR.at(i).nAddress);
+            }
+
+            mapImageSize.insert(sFileName,mapImageSize.value(sFileName)+listMR.at(i).nSize);
+        }
+    }
+
+    QList<quint64> listImageBases=mapImageBase.values();
+
+    std::sort(listImageBases.begin(),listImageBases.end());
+
+    nNumberOfRecords=listImageBases.count();
+
+    for(qint32 i=0;i<nNumberOfRecords;i++)
+    {
+        quint64 nImageBase=listImageBases.at(i);
+        QString sFileName=mapImageBase.key(nImageBase);
+
+        MODULE record={};
+
+        record.nAddress=nImageBase;
+        record.nSize=mapImageSize.value(sFileName);
+        record.sName=QFileInfo(sFileName).fileName();
+        record.sFileName=sFileName;
+
+        listResult.append(record);
     }
 
 #endif
