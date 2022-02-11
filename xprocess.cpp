@@ -271,13 +271,13 @@ XBinary::MEMORY_REGION XProcess::getMemoryRegion(qint64 nProcessID, qint64 nAddr
 {
     XBinary::MEMORY_REGION result={};
 
-    void *pProcess=openProcess(nProcessID);
+    void *pProcess=openMemoryMapQuery(nProcessID);
 
     if(pProcess)
     {
         result=getMemoryRegion(pProcess,nAddress);
 
-        closeProcess(pProcess);
+        closeMemoryMapQuery(pProcess);
     }
 
     return result;
@@ -642,7 +642,7 @@ void *XProcess::openMemoryIO(qint64 nProcessID)
     QFile *pFile=new QFile;
     pFile->setFileName(QString("/proc/%1/mem").arg(nProcessID));
 
-    if(pFile->open(QIODevice::ReadOnly))
+    if(XBinary::tryToOpen(pFile))
     {
         pResult=pFile;
     }
@@ -674,7 +674,17 @@ void XProcess::closeMemoryMapQuery(void *hProcess)
 
 void XProcess::closeMemoryIO(void *hProcess)
 {
+#ifdef Q_OS_WIN
+    CloseHandle((HANDLE)hProcess);
+#endif
+#ifdef Q_OS_LINUX
+    QFile *pFile=static_cast<QFile *>(hProcess);
 
+    if(pFile)
+    {
+        pFile->close();
+    }
+#endif
 }
 
 void *XProcess::openThread(qint64 nThreadID)
@@ -697,13 +707,13 @@ bool XProcess::isProcessReadable(qint64 nProcessID)
 {
     bool bResult=false;
 
-    void *pProcessHandle=openProcess(nProcessID);
+    void *pProcessHandle=openMemoryIO(nProcessID);
 
     if(pProcessHandle)
     {
         bResult=true;
 
-        closeProcess(pProcessHandle);
+        closeMemoryIO(pProcessHandle);
     }
 
     return bResult;
@@ -830,6 +840,15 @@ qint64 XProcess::read_array(void *hProcess, qint64 nAddress, char *pData, qint64
         nResult=(qint64)_nSize;
     }
 #endif
+#ifdef Q_OS_LINUX
+    QFile *pFile=static_cast<QFile *>(hProcess);
+
+    if(pFile)
+    {
+        pFile->seek(nAddress);
+        nResult=pFile->read(pData,nSize);
+    }
+#endif
     return nResult;
 }
 
@@ -842,6 +861,18 @@ qint64 XProcess::write_array(void *hProcess, qint64 nAddress, char *pData, qint6
     if(WriteProcessMemory(hProcess,(LPVOID *)nAddress,pData,(SIZE_T)nSize,&_nSize))
     {
         nResult=(qint64)_nSize;
+    }
+#endif
+#ifdef Q_OS_LINUX
+    QFile *pFile=static_cast<QFile *>(hProcess);
+
+    if(pFile)
+    {
+        if(pFile->isWritable())
+        {
+            pFile->seek(nAddress);
+            nResult=pFile->write(pData,nSize);
+        }
     }
 #endif
     return nResult;

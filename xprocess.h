@@ -201,10 +201,12 @@ public:
     static quint64 getSystemEPROCESSAddress();
     static QString getLastErrorAsString();
 #endif
-    static void *openProcess(qint64 nProcessID);
+    static void *openProcess(qint64 nProcessID); // TODO move to Windows
     static void *openMemoryMapQuery(qint64 nProcessID);
-    static void closeProcess(void *hProcess);
+    static void *openMemoryIO(qint64 nProcessID);
+    static void closeProcess(void *hProcess); // TODO move to Windows
     static void closeMemoryMapQuery(void *hProcess);
+    static void closeMemoryIO(void *hProcess);
     static void *openThread(qint64 nThreadID);
     static void closeThread(void *hThread);
     static bool isProcessReadable(qint64 nProcessID);
