@@ -28,6 +28,9 @@
 #include <winternl.h>
 #include <Tlhelp32.h>
 #endif
+#ifdef Q_OS_LINUX
+#include <QFile>
+#endif
 
 #define X_ALIGN_DOWN(x,align)     ((x)&~(align-1))
 #define X_ALIGN_UP(x,align)       (((x)&(align-1))?X_ALIGN_DOWN(x,align)+align:x)

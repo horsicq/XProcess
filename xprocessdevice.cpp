@@ -81,12 +81,24 @@ bool XProcessDevice::atEnd() const
 void XProcessDevice::close()
 {
     bool bSuccess=true;
-#ifdef Q_OS_WIN
+
     if(g_nPID)
     {
+    #ifdef Q_OS_WIN
         bSuccess=CloseHandle(g_hProcess);
+    #endif
+    #ifdef Q_OS_LINUX
+        QFile *pFile=static_cast<QFile *>(g_hProcess);
+
+        if(pFile)
+        {
+            pFile->close();
+
+            delete pFile;
+        }
+    #endif
     }
-#endif
+
     if(bSuccess)
     {
         setOpenMode(NotOpen);
@@ -116,24 +128,49 @@ bool XProcessDevice::openPID(qint64 nPID, qint64 nAddress, qint64 nSize, QIODevi
     if(bResult)
     {
     #ifdef Q_OS_WIN
-        quint32 nFlags=0;
+        quint32 nFlag=0;
 
         if(mode==ReadOnly)
         {
-            nFlags=PROCESS_VM_READ;
+            nFlag=PROCESS_VM_READ;
         }
         else if(mode==WriteOnly)
         {
-            nFlags=PROCESS_VM_WRITE;
+            nFlag=PROCESS_VM_WRITE;
         }
         else if(mode==ReadWrite)
         {
-            nFlags=PROCESS_ALL_ACCESS;
+            nFlag=PROCESS_ALL_ACCESS;
         }
 
-        g_hProcess=OpenProcess(nFlags,0,(DWORD)nPID);
+        g_hProcess=OpenProcess(nFlag,0,(DWORD)nPID);
 
         bResult=(g_hProcess!=nullptr);
+    #endif
+    #ifdef Q_OS_LINUX
+        QIODevice::OpenModeFlag flag=QIODevice::NotOpen;
+
+        if(mode==ReadOnly)
+        {
+            flag=QIODevice::ReadOnly;
+        }
+        else if(mode==WriteOnly)
+        {
+            flag=QIODevice::WriteOnly;
+        }
+        else if(mode==ReadWrite)
+        {
+            flag=QIODevice::ReadWrite;
+        }
+
+        QFile *pFile=new QFile;
+
+        bResult=pFile->open(flag);
+
+        if(bResult)
+        {
+            g_hProcess=pFile;
+        }
     #endif
     }
 
@@ -227,7 +264,6 @@ qint64 XProcessDevice::readData(char *pData, qint64 maxSize)
         {
             break;
         }
-
 #endif
 #ifdef Q_OS_LINUX
         break; // TODO !!!
@@ -237,6 +273,8 @@ qint64 XProcessDevice::readData(char *pData, qint64 maxSize)
         nResult+=nDelta;
         i+=nDelta;
     }
+
+    seek(_nPos);
 
 #ifdef Q_OS_WIN
     checkWindowsLastError();
