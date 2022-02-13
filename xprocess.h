@@ -30,6 +30,13 @@
 #include <psapi.h>
 #endif
 #ifdef Q_OS_LINUX
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/ptrace.h>
+#include <sys/mman.h>
+#include <sys/wait.h>
+#include <sys/user.h>
+#include <unistd.h>
 #include <QDirIterator>
 #endif
 

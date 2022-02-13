@@ -198,7 +198,7 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess,quin
     return listResult;
 }
 
-QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(qint64 nProcessID, quint64 nAddress, quint64 nSize)
+QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(qint64 nProcessID,quint64 nAddress,quint64 nSize)
 {
     QList<XBinary::MEMORY_REGION> listResult;
 
@@ -872,6 +872,7 @@ qint64 XProcess::write_array(void *hProcess, qint64 nAddress, char *pData, qint6
         {
             pFile->seek(nAddress);
             nResult=pFile->write(pData,nSize);
+            pFile->flush();
         }
     }
 #endif
