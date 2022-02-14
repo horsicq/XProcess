@@ -202,13 +202,13 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(qint64 nProcessID,q
 {
     QList<XBinary::MEMORY_REGION> listResult;
 
-    void *pProcess=openMemoryMapQuery(nProcessID); // TODO OpenMemoryQuery QFile for linux
+    void *pProcess=openMemoryQuery(nProcessID); // TODO OpenMemoryQuery QFile for linux
 
     if(pProcess)
     {
         listResult=getMemoryRegionsList(pProcess,nAddress,nSize);
 
-        closeMemoryMapQuery(pProcess); // TODO CloseMemoryQuery
+        closeMemoryQuery(pProcess); // TODO CloseMemoryQuery
     }
 
     return listResult;
@@ -224,20 +224,20 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLEID handleID,q
     }
     else if(handleID.nID)
     {
-        handleID.hHandle=XProcess::openMemoryMapQuery(handleID.nID);
+        handleID.hHandle=XProcess::openMemoryQuery(handleID.nID);
 
         if(handleID.hHandle)
         {
             listResult=getMemoryRegionsList(handleID,nAddress,nSize);
 
-            XProcess::closeMemoryMapQuery(handleID.hHandle);
+            XProcess::closeMemoryQuery(handleID.hHandle);
         }
     }
 
     return listResult;
 }
 
-XBinary::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess, qint64 nAddress)
+XBinary::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess, quint64 nAddress)
 {
     // TODO LINUX
     XBinary::MEMORY_REGION result={};
@@ -264,26 +264,42 @@ XBinary::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess, qint64 nAddress
 //        result.nSize=0x10000;
 //    }
 #endif
+#ifdef Q_OS_LINUX
+    QList<XBinary::MEMORY_REGION> listRecords=getMemoryRegionsList(hProcess,0,0xFFFFFFFFFFFFFFFF);
+
+    qint32 nNumberOfRecords=listRecords.count();
+
+    for(qint32 i=0;i<nNumberOfRecords;i++)
+    {
+        if((nAddress>=listRecords.at(i).nAddress)&&(nAddress<listRecords.at(i).nAddress+listRecords.at(i).nSize))
+        {
+            result=listRecords.at(i);
+
+            break;
+        }
+    }
+
+#endif
     return result;
 }
 
-XBinary::MEMORY_REGION XProcess::getMemoryRegion(qint64 nProcessID, qint64 nAddress)
+XBinary::MEMORY_REGION XProcess::getMemoryRegion(qint64 nProcessID, quint64 nAddress)
 {
     XBinary::MEMORY_REGION result={};
 
-    void *pProcess=openMemoryMapQuery(nProcessID);
+    void *pProcess=openMemoryQuery(nProcessID);
 
     if(pProcess)
     {
         result=getMemoryRegion(pProcess,nAddress);
 
-        closeMemoryMapQuery(pProcess);
+        closeMemoryQuery(pProcess);
     }
 
     return result;
 }
 
-XBinary::MEMORY_REGION XProcess::getMemoryRegion(HANDLEID handleID, qint64 nAddress)
+XBinary::MEMORY_REGION XProcess::getMemoryRegion(HANDLEID handleID, quint64 nAddress)
 {
     XBinary::MEMORY_REGION mrResult={};
 
@@ -293,13 +309,13 @@ XBinary::MEMORY_REGION XProcess::getMemoryRegion(HANDLEID handleID, qint64 nAddr
     }
     else if(handleID.nID)
     {
-        handleID.hHandle=XProcess::openProcess(handleID.nID);
+        handleID.hHandle=XProcess::openMemoryQuery(handleID.nID);
 
         if(handleID.hHandle)
         {
             mrResult=getMemoryRegion(handleID,nAddress);
 
-            XProcess::closeProcess(handleID.hHandle);
+            XProcess::closeMemoryQuery(handleID.hHandle);
         }
     }
 
@@ -614,7 +630,7 @@ void *XProcess::openProcess(qint64 nProcessID)
     return pResult;
 }
 
-void *XProcess::openMemoryMapQuery(qint64 nProcessID)
+void *XProcess::openMemoryQuery(qint64 nProcessID)
 {
     void *pResult=0;
 #ifdef Q_OS_WIN
@@ -657,7 +673,7 @@ void XProcess::closeProcess(void *hProcess)
 #endif
 }
 
-void XProcess::closeMemoryMapQuery(void *hProcess)
+void XProcess::closeMemoryQuery(void *hProcess)
 {
 #ifdef Q_OS_WIN
     CloseHandle((HANDLE)hProcess);
@@ -1241,7 +1257,6 @@ XBinary::OSINFO XProcess::getOsInfo()
 {
     XBinary::OSINFO result={};
 #ifdef Q_OS_WIN
-
     result.osName=XBinary::OSNAME_WINDOWS;
     // TODO OS Version
 
@@ -1264,7 +1279,10 @@ XBinary::OSINFO XProcess::getOsInfo()
     else if (si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_ARM)         result.sArch="ARM";
     //else if (si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_ARM64)       result.sArch="ARM64"; // TODO Macros
 #endif
-
+#ifdef Q_OS_LINUX
+    result.osName=XBinary::OSNAME_LINUX;
+    result.sArch="AMD64"; // TODO !!!
+#endif
     if(sizeof(char *)==8)
     {
         result.mode=XBinary::MODE_64;

@@ -255,7 +255,7 @@ qint64 XProcessDevice::readData(char *pData, qint64 maxSize)
 #ifdef Q_OS_WIN
         SIZE_T nSize=0;
 
-        if(!ReadProcessMemory(g_hProcess,(LPVOID *)(_nPos+g_nAddress),pData,(SIZE_T)nDelta,&nSize))
+        if(!ReadProcessMemory(g_hProcess,(LPVOID *)(g_nAddress+_nPos),pData,(SIZE_T)nDelta,&nSize))
         {
             break;
         }
@@ -266,7 +266,13 @@ qint64 XProcessDevice::readData(char *pData, qint64 maxSize)
         }
 #endif
 #ifdef Q_OS_LINUX
-        break; // TODO !!!
+        QFile *pFile=static_cast<QFile *>(g_hProcess);
+
+        if(pFile)
+        {
+            pFile->seek(g_nAddress+_nPos);
+            pFile->read(pData,nDelta);
+        }
 #endif
         _nPos+=nDelta;
         pData+=nDelta;
@@ -324,7 +330,13 @@ qint64 XProcessDevice::writeData(const char *pData, qint64 maxSize)
 
 #endif
 #ifdef Q_OS_LINUX
-        break; // TODO !!!
+        QFile *pFile=static_cast<QFile *>(g_hProcess);
+
+        if(pFile)
+        {
+            pFile->seek(g_nAddress+_nPos);
+            pFile->write(pData,maxSize);
+        }
 #endif
         _nPos+=nDelta;
         pData+=nDelta;
