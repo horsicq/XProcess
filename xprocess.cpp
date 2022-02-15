@@ -735,7 +735,7 @@ bool XProcess::isProcessReadable(qint64 nProcessID)
     return bResult;
 }
 
-quint8 XProcess::read_uint8(void *hProcess, qint64 nAddress)
+quint8 XProcess::read_uint8(void *hProcess, quint64 nAddress)
 {
     quint8 nResult=0;
 
@@ -744,7 +744,7 @@ quint8 XProcess::read_uint8(void *hProcess, qint64 nAddress)
     return nResult;
 }
 
-quint16 XProcess::read_uint16(void *hProcess, qint64 nAddress, bool bIsBigEndian)
+quint16 XProcess::read_uint16(void *hProcess, quint64 nAddress, bool bIsBigEndian)
 {
     quint16 nResult=0;
 
@@ -762,7 +762,7 @@ quint16 XProcess::read_uint16(void *hProcess, qint64 nAddress, bool bIsBigEndian
     return nResult;
 }
 
-quint32 XProcess::read_uint32(void *hProcess, qint64 nAddress, bool bIsBigEndian)
+quint32 XProcess::read_uint32(void *hProcess, quint64 nAddress, bool bIsBigEndian)
 {
     quint32 nResult=0;
 
@@ -780,7 +780,7 @@ quint32 XProcess::read_uint32(void *hProcess, qint64 nAddress, bool bIsBigEndian
     return nResult;
 }
 
-quint64 XProcess::read_uint64(void *hProcess, qint64 nAddress, bool bIsBigEndian)
+quint64 XProcess::read_uint64(void *hProcess, quint64 nAddress, bool bIsBigEndian)
 {
     quint64 nResult=0;
 
@@ -798,12 +798,12 @@ quint64 XProcess::read_uint64(void *hProcess, qint64 nAddress, bool bIsBigEndian
     return nResult;
 }
 
-void XProcess::write_uint8(void *hProcess, qint64 nAddress, quint8 nValue)
+void XProcess::write_uint8(void *hProcess, quint64 nAddress, quint8 nValue)
 {
     write_array(hProcess,nAddress,(char *)&nValue,1);
 }
 
-void XProcess::write_uint16(void *hProcess, qint64 nAddress, quint16 nValue, bool bIsBigEndian)
+void XProcess::write_uint16(void *hProcess, quint64 nAddress, quint16 nValue, bool bIsBigEndian)
 {
     if(bIsBigEndian)
     {
@@ -817,7 +817,7 @@ void XProcess::write_uint16(void *hProcess, qint64 nAddress, quint16 nValue, boo
     write_array(hProcess,nAddress,(char *)&nValue,2);
 }
 
-void XProcess::write_uint32(void *hProcess, qint64 nAddress, quint32 nValue, bool bIsBigEndian)
+void XProcess::write_uint32(void *hProcess, quint64 nAddress, quint32 nValue, bool bIsBigEndian)
 {
     if(bIsBigEndian)
     {
@@ -831,7 +831,7 @@ void XProcess::write_uint32(void *hProcess, qint64 nAddress, quint32 nValue, boo
     write_array(hProcess,nAddress,(char *)&nValue,4);
 }
 
-void XProcess::write_uint64(void *hProcess, qint64 nAddress, quint64 nValue, bool bIsBigEndian)
+void XProcess::write_uint64(void *hProcess, quint64 nAddress, quint64 nValue, bool bIsBigEndian)
 {
     if(bIsBigEndian)
     {
@@ -845,7 +845,7 @@ void XProcess::write_uint64(void *hProcess, qint64 nAddress, quint64 nValue, boo
     write_array(hProcess,nAddress,(char *)&nValue,8);
 }
 
-qint64 XProcess::read_array(void *hProcess, qint64 nAddress, char *pData, qint64 nSize)
+qint64 XProcess::read_array(void *hProcess, quint64 nAddress, char *pData, quint64 nSize)
 {
     qint64 nResult=0;
 #ifdef Q_OS_WIN
@@ -868,7 +868,7 @@ qint64 XProcess::read_array(void *hProcess, qint64 nAddress, char *pData, qint64
     return nResult;
 }
 
-qint64 XProcess::write_array(void *hProcess, qint64 nAddress, char *pData, qint64 nSize)
+qint64 XProcess::write_array(void *hProcess, quint64 nAddress, char *pData, quint64 nSize)
 {
     qint64 nResult=0;
 #ifdef Q_OS_WIN
@@ -895,7 +895,7 @@ qint64 XProcess::write_array(void *hProcess, qint64 nAddress, char *pData, qint6
     return nResult;
 }
 
-QByteArray XProcess::read_array(void *hProcess, qint64 nAddress, qint32 nSize)
+QByteArray XProcess::read_array(void *hProcess, quint64 nAddress, quint64 nSize)
 {
     QByteArray baResult;
 
@@ -906,7 +906,7 @@ QByteArray XProcess::read_array(void *hProcess, qint64 nAddress, qint32 nSize)
     return baResult;
 }
 
-QString XProcess::read_ansiString(void *hProcess, qint64 nAddress, qint64 nMaxSize)
+QString XProcess::read_ansiString(void *hProcess, quint64 nAddress, quint64 nMaxSize)
 {
     char *pBuffer=new char[nMaxSize+1];
     QString sResult;
@@ -933,7 +933,7 @@ QString XProcess::read_ansiString(void *hProcess, qint64 nAddress, qint64 nMaxSi
     return sResult;
 }
 
-QString XProcess::read_unicodeString(void *hProcess, qint64 nAddress, qint64 nMaxSize)
+QString XProcess::read_unicodeString(void *hProcess, quint64 nAddress, quint64 nMaxSize)
 {
     QString sResult;
 

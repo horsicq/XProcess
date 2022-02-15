@@ -217,19 +217,19 @@ public:
     static void *openThread(qint64 nThreadID);
     static void closeThread(void *hThread);
     static bool isProcessReadable(qint64 nProcessID);
-    static quint8 read_uint8(void *hProcess,qint64 nAddress);
-    static quint16 read_uint16(void *hProcess,qint64 nAddress,bool bIsBigEndian=false);
-    static quint32 read_uint32(void *hProcess,qint64 nAddress,bool bIsBigEndian=false);
-    static quint64 read_uint64(void *hProcess,qint64 nAddress,bool bIsBigEndian=false);
-    static void write_uint8(void *hProcess,qint64 nAddress,quint8 nValue);
-    static void write_uint16(void *hProcess,qint64 nAddress,quint16 nValue,bool bIsBigEndian=false);
-    static void write_uint32(void *hProcess,qint64 nAddress,quint32 nValue,bool bIsBigEndian=false);
-    static void write_uint64(void *hProcess,qint64 nAddress,quint64 nValue,bool bIsBigEndian=false);
-    static qint64 read_array(void *hProcess,qint64 nAddress,char *pData,qint64 nSize);
-    static qint64 write_array(void *hProcess,qint64 nAddress,char *pData,qint64 nSize);
-    static QByteArray read_array(void *hProcess,qint64 nAddress,qint32 nSize);
-    static QString read_ansiString(void *hProcess,qint64 nAddress,qint64 nMaxSize=256);
-    static QString read_unicodeString(void *hProcess,qint64 nAddress,qint64 nMaxSize=256); // TODO endian ??
+    static quint8 read_uint8(void *hProcess,quint64 nAddress);
+    static quint16 read_uint16(void *hProcess,quint64 nAddress,bool bIsBigEndian=false);
+    static quint32 read_uint32(void *hProcess,quint64 nAddress,bool bIsBigEndian=false);
+    static quint64 read_uint64(void *hProcess,quint64 nAddress,bool bIsBigEndian=false);
+    static void write_uint8(void *hProcess,quint64 nAddress,quint8 nValue);
+    static void write_uint16(void *hProcess,quint64 nAddress,quint16 nValue,bool bIsBigEndian=false);
+    static void write_uint32(void *hProcess,quint64 nAddress,quint32 nValue,bool bIsBigEndian=false);
+    static void write_uint64(void *hProcess,quint64 nAddress,quint64 nValue,bool bIsBigEndian=false);
+    static qint64 read_array(void *hProcess,quint64 nAddress,char *pData,quint64 nSize);
+    static qint64 write_array(void *hProcess,quint64 nAddress,char *pData,quint64 nSize);
+    static QByteArray read_array(void *hProcess,quint64 nAddress,quint64 nSize);
+    static QString read_ansiString(void *hProcess,quint64 nAddress,quint64 nMaxSize=256);
+    static QString read_unicodeString(void *hProcess,quint64 nAddress,quint64 nMaxSize=256); // TODO endian ??
     static QList<XBinary::MEMORY_REGION> getMemoryRegionsList(void *hProcess,quint64 nAddress,quint64 nSize);
     static QList<XBinary::MEMORY_REGION> getMemoryRegionsList(qint64 nProcessID,quint64 nAddress,quint64 nSize);
     static QList<XBinary::MEMORY_REGION> getMemoryRegionsList(HANDLEID handleID,quint64 nAddress,quint64 nSize);

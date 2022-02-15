@@ -280,8 +280,6 @@ qint64 XProcessDevice::readData(char *pData, qint64 maxSize)
         i+=nDelta;
     }
 
-    seek(_nPos);
-
 #ifdef Q_OS_WIN
     checkWindowsLastError();
 #endif
