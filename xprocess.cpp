@@ -20,7 +20,7 @@
  */
 #include "xprocess.h"
 
-XProcess::XProcess(QObject *parent) : QObject(parent)
+XProcess::XProcess(QObject *pParent) : QObject(pParent)
 {
 
 }
@@ -762,7 +762,7 @@ quint16 XProcess::read_uint16(void *hProcess, quint64 nAddress, bool bIsBigEndia
     return nResult;
 }
 
-quint32 XProcess::read_uint32(void *hProcess, quint64 nAddress, bool bIsBigEndian)
+quint32 XProcess::read_uint32(void *hProcess,quint64 nAddress,bool bIsBigEndian)
 {
     quint32 nResult=0;
 

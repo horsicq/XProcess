@@ -183,7 +183,7 @@ public:
     };
 #endif
 
-    explicit XProcess(QObject *parent=nullptr);
+    explicit XProcess(QObject *pParent=nullptr);
     static QList<PROCESS_INFO> getProcessesList();
     static bool setPrivilege(QString sName,bool bEnable);
     static bool setDebugPrivilege(bool bEnable);

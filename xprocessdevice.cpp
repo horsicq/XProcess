@@ -20,8 +20,8 @@
  */
 #include "xprocessdevice.h"
 
-XProcessDevice::XProcessDevice(QObject *parent) :
-    QIODevice(parent)
+XProcessDevice::XProcessDevice(QObject *pParent) :
+    QIODevice(pParent)
 {
 #ifdef Q_OS_WIN
     g_hProcess=nullptr;
