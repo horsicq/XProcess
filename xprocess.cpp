@@ -933,7 +933,7 @@ QString XProcess::read_ansiString(void *hProcess, quint64 nAddress, quint64 nMax
     return sResult;
 }
 
-QString XProcess::read_unicodeString(void *hProcess, quint64 nAddress, quint64 nMaxSize)
+QString XProcess::read_unicodeString(void *hProcess,quint64 nAddress,quint64 nMaxSize)
 {
     QString sResult;
 
