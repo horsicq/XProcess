@@ -286,7 +286,7 @@ qint64 XProcessDevice::readData(char *pData, qint64 maxSize)
 
 #ifdef QT_DEBUG
     QString sErrorString=errorString();
-    if(sErrorString!="")
+    if((sErrorString!="")&&(sErrorString!="Unknown error"))
     {
         qDebug("%s",sErrorString.toLatin1().data());
     }
@@ -348,7 +348,7 @@ qint64 XProcessDevice::writeData(const char *pData, qint64 maxSize)
 
 #ifdef QT_DEBUG
     QString sErrorString=errorString();
-    if(sErrorString!="")
+    if((sErrorString!="")&&(sErrorString!="Unknown error"))
     {
         qDebug("%s",sErrorString.toLatin1().data());
     }

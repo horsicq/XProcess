@@ -39,6 +39,16 @@
 #include <unistd.h>
 #include <QDirIterator>
 #endif
+#ifdef Q_OS_OSX
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/ptrace.h>
+#include <sys/mman.h>
+#include <sys/wait.h>
+#include <sys/user.h>
+#include <unistd.h>
+#include <QDirIterator>
+#endif
 
 #include "xbinary.h"
 
