@@ -533,7 +533,7 @@ XBinary::MEMORY_FLAGS XProcess::protectToFlags(quint32 nValue)
 }
 #endif
 #ifdef Q_OS_WIN
-XBinary::MEMORY_FLAGS XProcess::getMemoryFlags(void *hProcess, qint64 nAddress)
+XBinary::MEMORY_FLAGS XProcess::getMemoryFlags(void *hProcess,qint64 nAddress)
 {
     XBinary::MEMORY_FLAGS result={};
     MEMORY_BASIC_INFORMATION mbi={};
