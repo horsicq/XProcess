@@ -906,7 +906,7 @@ QByteArray XProcess::read_array(void *hProcess, quint64 nAddress, quint64 nSize)
     return baResult;
 }
 
-QString XProcess::read_ansiString(void *hProcess, quint64 nAddress, quint64 nMaxSize)
+QString XProcess::read_ansiString(void *hProcess,quint64 nAddress,quint64 nMaxSize)
 {
     char *pBuffer=new char[nMaxSize+1];
     QString sResult;
