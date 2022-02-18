@@ -110,7 +110,7 @@ qint64 XProcessDevice::pos() const
     return QIODevice::pos();
 }
 
-bool XProcessDevice::openPID(qint64 nPID, qint64 nAddress, qint64 nSize, QIODevice::OpenMode mode)
+bool XProcessDevice::openPID(qint64 nPID, quint64 nAddress, quint64 nSize, QIODevice::OpenMode mode)
 {
     bool bResult=false;
 
@@ -177,7 +177,7 @@ bool XProcessDevice::openPID(qint64 nPID, qint64 nAddress, qint64 nSize, QIODevi
     return bResult;
 }
 
-bool XProcessDevice::openHandle(void *hProcess,qint64 nAddress,qint64 nSize,QIODevice::OpenMode mode)
+bool XProcessDevice::openHandle(void *hProcess, quint64 nAddress, quint64 nSize, QIODevice::OpenMode mode)
 {
     this->g_hProcess=hProcess;
     this->g_nAddress=nAddress;
@@ -190,18 +190,18 @@ bool XProcessDevice::openHandle(void *hProcess,qint64 nAddress,qint64 nSize,QIOD
     return true;
 }
 
-qint64 XProcessDevice::adjustSize(qint64 nSize)
+quint64 XProcessDevice::adjustSize(quint64 nSize)
 {
     qint64 nPos=pos();
-    qint64 _nSize=X_ALIGN_UP(nPos,0x1000)-nPos;
+    quint64 _nSize=X_ALIGN_UP(nPos,0x1000)-nPos;
 
     if(_nSize==0)
     {
         _nSize=0x1000;
     }
 
-    _nSize=qMin(_nSize,(qint64)(g_nSize-nPos));
-    qint64 nResult=qMin(nSize,_nSize);
+    _nSize=qMin(_nSize,(quint64)(g_nSize-nPos));
+    quint64 nResult=qMin(nSize,_nSize);
 
     return nResult;
 }

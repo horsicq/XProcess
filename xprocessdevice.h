@@ -51,10 +51,10 @@ public:
     virtual bool atEnd() const;
     virtual void close();
     virtual qint64 pos() const;
-    bool openPID(qint64 nPID,qint64 nAddress,qint64 nSize,OpenMode mode);
-    bool openHandle(void *hProcess,qint64 nAddress,qint64 nSize,OpenMode mode);
+    bool openPID(qint64 nPID,quint64 nAddress,quint64 nSize,OpenMode mode);
+    bool openHandle(void *hProcess,quint64 nAddress,quint64 nSize,OpenMode mode);
 private:
-    qint64 adjustSize(qint64 nSize);
+    quint64 adjustSize(quint64 nSize);
 #ifdef Q_OS_WIN
     void checkWindowsLastError();
 #endif
@@ -68,8 +68,8 @@ private:
     const qint64 N_BUFFER_SIZE=0x1000;
     qint64 g_nPID;
     void *g_hProcess;
-    qint64 g_nAddress;
-    qint64 g_nSize;
+    quint64 g_nAddress;
+    quint64 g_nSize;
 };
 
 #endif // XPROCESSDEVICE_H

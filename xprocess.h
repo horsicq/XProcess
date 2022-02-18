@@ -168,14 +168,14 @@ public:
         //        qint64 nParentID;
         qint64 nID;
         QString sFilePath;
-        qint64 nImageAddress;
-        qint64 nImageSize;
+        quint64 nImageAddress;
+        quint64 nImageSize;
     };
 
     struct MODULE
     {
-        qint64 nAddress;
-        qint64 nSize;
+        quint64 nAddress;
+        quint64 nSize;
         QString sName;
         QString sFileName;
     };
@@ -250,6 +250,7 @@ public:
     static QList<qint64> getThreadIDsList(qint64 nProcessID);
     static XBinary::OSINFO getOsInfo();
     static QList<MODULE> getModulesList(qint64 nProcessID);
+    static MODULE getModuleByAddress(quint64 nAddress,QList<MODULE> *pListModules);
 };
 
 #endif // XPROCESS_H

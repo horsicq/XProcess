@@ -391,7 +391,7 @@ QList<qint64> XProcess::getThreadIDsList(qint64 nProcessID)
     QList<qint64> listResult;
 
 #ifdef Q_OS_WIN
-    HANDLE hThreads=CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD,0);
+    HANDLE hThreads=CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD,(DWORD)nProcessID);
 
     if(hThreads!=INVALID_HANDLE_VALUE)
     {
@@ -1300,7 +1300,7 @@ QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID)
     QList<XProcess::MODULE> listResult;
 
 #ifdef Q_OS_WIN
-    HANDLE hModules=CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,0);
+    HANDLE hModules=CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,(DWORD)nProcessID);
 
     if(hModules!=INVALID_HANDLE_VALUE)
     {
@@ -1313,8 +1313,8 @@ QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID)
             {
                 MODULE record={};
 
-                record.nAddress=(qint64)me32.modBaseAddr;
-                record.nSize=(qint64)me32.modBaseSize;
+                record.nAddress=(quint64)me32.modBaseAddr;
+                record.nSize=(quint64)me32.modBaseSize;
                 record.sName=QString::fromWCharArray(me32.szModule);
                 record.sFileName=QString::fromWCharArray(me32.szExePath);
 
@@ -1373,4 +1373,23 @@ QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID)
 #endif
 
     return listResult;
+}
+
+XProcess::MODULE XProcess::getModuleByAddress(quint64 nAddress, QList<MODULE> *pListModules)
+{
+    XProcess::MODULE result={};
+
+    qint32 nNumberOfModules=pListModules->count();
+
+    for(qint32 i=0;i<nNumberOfModules;i++)
+    {
+        if((pListModules->at(i).nAddress<=nAddress)&&(nAddress<(pListModules->at(i).nAddress+pListModules->at(i).nSize)))
+        {
+            result=pListModules->at(i);
+
+            break;
+        }
+    }
+
+    return result;
 }
