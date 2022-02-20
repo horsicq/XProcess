@@ -110,7 +110,7 @@ qint64 XProcessDevice::pos() const
     return QIODevice::pos();
 }
 
-bool XProcessDevice::openPID(qint64 nPID, quint64 nAddress, quint64 nSize, QIODevice::OpenMode mode)
+bool XProcessDevice::openPID(qint64 nPID,quint64 nAddress,quint64 nSize,QIODevice::OpenMode mode)
 {
     bool bResult=false;
 
