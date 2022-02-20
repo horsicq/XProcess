@@ -177,7 +177,7 @@ bool XProcessDevice::openPID(qint64 nPID,quint64 nAddress,quint64 nSize,QIODevic
     return bResult;
 }
 
-bool XProcessDevice::openHandle(void *hProcess, quint64 nAddress, quint64 nSize, QIODevice::OpenMode mode)
+bool XProcessDevice::openHandle(void *hProcess,quint64 nAddress,quint64 nSize,QIODevice::OpenMode mode)
 {
     this->g_hProcess=hProcess;
     this->g_nAddress=nAddress;
