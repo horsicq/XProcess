@@ -483,7 +483,7 @@ qint64 XProcess::getRegionBase(void *hProcess, qint64 nAddress)
 }
 #endif
 #ifdef Q_OS_WIN
-qint64 XProcess::getRegionSize(void *hProcess, qint64 nAddress)
+qint64 XProcess::getRegionSize(void *hProcess,qint64 nAddress)
 {
     qint64 nResult=-1;
 
