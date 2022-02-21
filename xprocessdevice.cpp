@@ -233,10 +233,10 @@ qint64 XProcessDevice::readData(char *pData, qint64 maxSize)
 
     for(qint64 i=0;i<maxSize;)
     {
-    #ifdef QT_DEBUG
-        QString sDebugString=QString("%1").arg(_nPos+g_nAddress,0,16);
-        qDebug("Address: %s",sDebugString.toLatin1().data());
-    #endif
+//    #ifdef QT_DEBUG
+//        QString sDebugString=QString("%1").arg(_nPos+g_nAddress,0,16);
+//        qDebug("Address: %s",sDebugString.toLatin1().data());
+//    #endif
 
         qint64 nDelta=X_ALIGN_UP(_nPos,N_BUFFER_SIZE)-_nPos;
 
