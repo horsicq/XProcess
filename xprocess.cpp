@@ -503,29 +503,51 @@ XBinary::MEMORY_FLAGS XProcess::protectToFlags(quint32 nValue)
 {
     XBinary::MEMORY_FLAGS result={};
 
-    if(nValue==PAGE_READONLY)
+    if(nValue&PAGE_GUARD)
+    {
+        result.bGuard=true;
+    }
+
+    if(nValue&PAGE_READONLY)
     {
         result.bRead=true;
     }
-    else if(nValue==PAGE_READWRITE)
+    else if(nValue&PAGE_WRITECOPY)
+    {
+        result.bWrite=true;
+        result.bCopy=true;
+    }
+    else if(nValue&PAGE_READWRITE)
     {
         result.bRead=true;
         result.bWrite=true;
     }
-    else if(nValue==PAGE_EXECUTE)
+    else if(nValue&PAGE_EXECUTE)
     {
         result.bExecute=true;
     }
-    else if(nValue==PAGE_EXECUTE_READ)
+    else if(nValue&PAGE_EXECUTE_READ)
     {
         result.bExecute=true;
         result.bRead=true;
     }
-    else if(nValue==PAGE_EXECUTE_READWRITE)
+    else if(nValue&PAGE_EXECUTE_READWRITE)
     {
         result.bExecute=true;
         result.bRead=true;
         result.bWrite=true;
+    }
+    else if(nValue&PAGE_EXECUTE_WRITECOPY)
+    {
+        result.bExecute=true;
+        result.bWrite=true;
+        result.bCopy=true;
+    }
+    else if(nValue)
+    {
+    #ifdef QT_DEBUG
+        qDebug("Unknown");
+    #endif
     }
     // TODO more for Windows !
 
