@@ -173,6 +173,11 @@ public:
         quint64 nImageSize;
     };
 
+    struct PROCESS_STATE
+    {
+        QList<XBinary::MEMORY_REGION> listMemoryRegions;
+    };
+
     struct MODULE
     {
         quint64 nAddress;
@@ -252,6 +257,7 @@ public:
     static XBinary::OSINFO getOsInfo();
     static QList<MODULE> getModulesList(qint64 nProcessID);
     static MODULE getModuleByAddress(quint64 nAddress,QList<MODULE> *pListModules);
+    static PROCESS_STATE getProcessState(HANDLEID handleID);
 };
 
 #endif // XPROCESS_H

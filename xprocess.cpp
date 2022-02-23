@@ -766,7 +766,7 @@ quint8 XProcess::read_uint8(void *hProcess, quint64 nAddress)
     return nResult;
 }
 
-quint16 XProcess::read_uint16(void *hProcess, quint64 nAddress, bool bIsBigEndian)
+quint16 XProcess::read_uint16(void *hProcess,quint64 nAddress,bool bIsBigEndian)
 {
     quint16 nResult=0;
 
@@ -1410,6 +1410,29 @@ XProcess::MODULE XProcess::getModuleByAddress(quint64 nAddress, QList<MODULE> *p
             result=pListModules->at(i);
 
             break;
+        }
+    }
+
+    return result;
+}
+
+XProcess::PROCESS_STATE XProcess::getProcessState(HANDLEID handleID)
+{
+    PROCESS_STATE result={};
+
+    if(handleID.hHandle)
+    {
+        result.listMemoryRegions=getMemoryRegionsList(handleID.hHandle,0,0xFFFFFFFFFFFFFFFF);
+    }
+    else if(handleID.nID)
+    {
+        handleID.hHandle=XProcess::openMemoryQuery(handleID.nID);
+
+        if(handleID.hHandle)
+        {
+            result.listMemoryRegions=getMemoryRegionsList(handleID.nID,0,0xFFFFFFFFFFFFFFFF);
+
+            XProcess::closeMemoryQuery(handleID.hHandle);
         }
     }
 
