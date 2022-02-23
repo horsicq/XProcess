@@ -23,9 +23,7 @@
 XProcessDevice::XProcessDevice(QObject *pParent) :
     QIODevice(pParent)
 {
-#ifdef Q_OS_WIN
     g_hProcess=nullptr;
-#endif
     g_nPID=0;
     g_nAddress=0;
     g_nSize=0;
@@ -164,6 +162,8 @@ bool XProcessDevice::openPID(qint64 nPID,quint64 nAddress,quint64 nSize,QIODevic
         }
 
         QFile *pFile=new QFile;
+
+        pFile->setFileName(QString("/proc/%1/mem").arg(nPID));
 
         bResult=pFile->open(flag);
 
