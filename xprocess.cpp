@@ -839,7 +839,7 @@ void XProcess::write_uint16(void *hProcess,quint64 nAddress,quint16 nValue,bool 
     write_array(hProcess,nAddress,(char *)&nValue,2);
 }
 
-void XProcess::write_uint32(void *hProcess, quint64 nAddress, quint32 nValue, bool bIsBigEndian)
+void XProcess::write_uint32(void *hProcess,quint64 nAddress,quint32 nValue,bool bIsBigEndian)
 {
     if(bIsBigEndian)
     {
