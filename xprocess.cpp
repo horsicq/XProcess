@@ -802,7 +802,7 @@ quint32 XProcess::read_uint32(void *hProcess,quint64 nAddress,bool bIsBigEndian)
     return nResult;
 }
 
-quint64 XProcess::read_uint64(void *hProcess, quint64 nAddress, bool bIsBigEndian)
+quint64 XProcess::read_uint64(void *hProcess,quint64 nAddress,bool bIsBigEndian)
 {
     quint64 nResult=0;
 
