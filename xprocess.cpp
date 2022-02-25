@@ -820,7 +820,7 @@ quint64 XProcess::read_uint64(void *hProcess,quint64 nAddress,bool bIsBigEndian)
     return nResult;
 }
 
-void XProcess::write_uint8(void *hProcess, quint64 nAddress, quint8 nValue)
+void XProcess::write_uint8(void *hProcess,quint64 nAddress,quint8 nValue)
 {
     write_array(hProcess,nAddress,(char *)&nValue,1);
 }
