@@ -223,7 +223,7 @@ void XProcessDevice::checkWindowsLastError()
     }
 }
 #endif
-qint64 XProcessDevice::readData(char *pData, qint64 maxSize)
+qint64 XProcessDevice::readData(char *pData,qint64 maxSize)
 {
     qint64 nResult=0;
 
