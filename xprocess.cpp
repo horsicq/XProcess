@@ -757,7 +757,7 @@ bool XProcess::isProcessReadable(qint64 nProcessID)
     return bResult;
 }
 
-quint8 XProcess::read_uint8(void *hProcess, quint64 nAddress)
+quint8 XProcess::read_uint8(void *hProcess,quint64 nAddress)
 {
     quint8 nResult=0;
 
