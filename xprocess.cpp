@@ -867,7 +867,7 @@ void XProcess::write_uint64(void *hProcess, quint64 nAddress, quint64 nValue, bo
     write_array(hProcess,nAddress,(char *)&nValue,8);
 }
 
-qint64 XProcess::read_array(void *hProcess, quint64 nAddress, char *pData, quint64 nSize)
+qint64 XProcess::read_array(void *hProcess,quint64 nAddress,char *pData,quint64 nSize)
 {
     qint64 nResult=0;
 #ifdef Q_OS_WIN
@@ -890,7 +890,7 @@ qint64 XProcess::read_array(void *hProcess, quint64 nAddress, char *pData, quint
     return nResult;
 }
 
-qint64 XProcess::write_array(void *hProcess, quint64 nAddress, char *pData, quint64 nSize)
+qint64 XProcess::write_array(void *hProcess,quint64 nAddress,char *pData,quint64 nSize)
 {
     qint64 nResult=0;
 #ifdef Q_OS_WIN
