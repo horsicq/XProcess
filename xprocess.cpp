@@ -917,7 +917,7 @@ qint64 XProcess::write_array(void *hProcess,quint64 nAddress,char *pData,quint64
     return nResult;
 }
 
-QByteArray XProcess::read_array(void *hProcess, quint64 nAddress, quint64 nSize)
+QByteArray XProcess::read_array(void *hProcess,quint64 nAddress,quint64 nSize)
 {
     QByteArray baResult;
 
