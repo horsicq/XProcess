@@ -853,7 +853,7 @@ void XProcess::write_uint32(void *hProcess,quint64 nAddress,quint32 nValue,bool 
     write_array(hProcess,nAddress,(char *)&nValue,4);
 }
 
-void XProcess::write_uint64(void *hProcess, quint64 nAddress, quint64 nValue, bool bIsBigEndian)
+void XProcess::write_uint64(void *hProcess,quint64 nAddress,quint64 nValue,bool bIsBigEndian)
 {
     if(bIsBigEndian)
     {
@@ -932,7 +932,7 @@ QString XProcess::read_ansiString(void *hProcess,quint64 nAddress,quint64 nMaxSi
 {
     char *pBuffer=new char[nMaxSize+1];
     QString sResult;
-    qint32 i=0;
+    quint32 i=0;
 
     for(;i<nMaxSize;i++)
     {
