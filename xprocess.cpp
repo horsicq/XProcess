@@ -237,7 +237,7 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLEID handleID,q
     return listResult;
 }
 
-XBinary::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess, quint64 nAddress)
+XBinary::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess,quint64 nAddress)
 {
     // TODO LINUX
     XBinary::MEMORY_REGION result={};
