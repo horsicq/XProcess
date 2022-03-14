@@ -295,7 +295,7 @@ qint64 XProcessDevice::readData(char *pData,qint64 maxSize)
     return nResult;
 }
 
-qint64 XProcessDevice::writeData(const char *pData, qint64 maxSize)
+qint64 XProcessDevice::writeData(const char *pData,qint64 maxSize)
 {
     qint64 nResult=0;
 
