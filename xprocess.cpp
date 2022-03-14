@@ -283,7 +283,7 @@ XBinary::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess,quint64 nAddress
     return result;
 }
 
-XBinary::MEMORY_REGION XProcess::getMemoryRegion(qint64 nProcessID, quint64 nAddress)
+XBinary::MEMORY_REGION XProcess::getMemoryRegion(qint64 nProcessID,quint64 nAddress)
 {
     XBinary::MEMORY_REGION result={};
 
