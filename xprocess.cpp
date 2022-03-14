@@ -1397,7 +1397,7 @@ QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID)
     return listResult;
 }
 
-XProcess::MODULE XProcess::getModuleByAddress(quint64 nAddress, QList<MODULE> *pListModules)
+XProcess::MODULE XProcess::getModuleByAddress(quint64 nAddress,QList<MODULE> *pListModules)
 {
     XProcess::MODULE result={};
 
