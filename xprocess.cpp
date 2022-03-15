@@ -466,7 +466,7 @@ qint64 XProcess::getRegionAllocationBase(void *hProcess,qint64 nAddress)
 }
 #endif
 #ifdef Q_OS_WIN
-qint64 XProcess::getRegionBase(void *hProcess, qint64 nAddress)
+qint64 XProcess::getRegionBase(void *hProcess,qint64 nAddress)
 {
     qint64 nResult=-1;
 
