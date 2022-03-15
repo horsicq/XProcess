@@ -1218,7 +1218,7 @@ quint64 XProcess::getSystemEPROCESSAddress()
 
     qint32 nNumberOfRecords=listHandles.count();
 
-    for(int i=0;i<nNumberOfRecords;i++)
+    for(qint32 i=0;i<nNumberOfRecords;i++)
     {
         if(listHandles.at(i).nObjectTypeNumber==7)
         {
