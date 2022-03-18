@@ -60,7 +60,7 @@ private:
 #endif
 
 protected:
-    virtual qint64 readData(char *pData, qint64 maxSize);
+    virtual qint64 readData(char *pData,qint64 maxSize);
     virtual qint64 writeData(const char *pData,qint64 maxSize);
     virtual void setErrorString(const QString &str);
 
