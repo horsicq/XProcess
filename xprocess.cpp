@@ -867,15 +867,15 @@ void XProcess::write_uint64(void *hProcess,quint64 nAddress,quint64 nValue,bool 
     write_array(hProcess,nAddress,(char *)&nValue,8);
 }
 
-qint64 XProcess::read_array(void *hProcess,quint64 nAddress,char *pData,quint64 nSize)
+quint64 XProcess::read_array(void *hProcess,quint64 nAddress,char *pData,quint64 nSize)
 {
-    qint64 nResult=0;
+    quint64 nResult=0;
 #ifdef Q_OS_WIN
     SIZE_T _nSize=0;
 
     if(ReadProcessMemory(hProcess,(LPVOID *)nAddress,pData,(SIZE_T)nSize,&_nSize))
     {
-        nResult=(qint64)_nSize;
+        nResult=(quint64)_nSize;
     }
 #endif
 #ifdef Q_OS_LINUX
@@ -890,15 +890,15 @@ qint64 XProcess::read_array(void *hProcess,quint64 nAddress,char *pData,quint64 
     return nResult;
 }
 
-qint64 XProcess::write_array(void *hProcess,quint64 nAddress,char *pData,quint64 nSize)
+quint64 XProcess::write_array(void *hProcess,quint64 nAddress,char *pData,quint64 nSize)
 {
-    qint64 nResult=0;
+    quint64 nResult=0;
 #ifdef Q_OS_WIN
     SIZE_T _nSize=0;
 
     if(WriteProcessMemory(hProcess,(LPVOID *)nAddress,pData,(SIZE_T)nSize,&_nSize))
     {
-        nResult=(qint64)_nSize;
+        nResult=(quint64)_nSize;
     }
 #endif
 #ifdef Q_OS_LINUX

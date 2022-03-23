@@ -241,8 +241,8 @@ public:
     static void write_uint16(void *hProcess,quint64 nAddress,quint16 nValue,bool bIsBigEndian=false);
     static void write_uint32(void *hProcess,quint64 nAddress,quint32 nValue,bool bIsBigEndian=false);
     static void write_uint64(void *hProcess,quint64 nAddress,quint64 nValue,bool bIsBigEndian=false);
-    static qint64 read_array(void *hProcess,quint64 nAddress,char *pData,quint64 nSize);
-    static qint64 write_array(void *hProcess,quint64 nAddress,char *pData,quint64 nSize);
+    static quint64 read_array(void *hProcess,quint64 nAddress,char *pData,quint64 nSize);
+    static quint64 write_array(void *hProcess,quint64 nAddress,char *pData,quint64 nSize);
     static QByteArray read_array(void *hProcess,quint64 nAddress,quint64 nSize);
     static QString read_ansiString(void *hProcess,quint64 nAddress,quint64 nMaxSize=256);
     static QString read_unicodeString(void *hProcess,quint64 nAddress,quint64 nMaxSize=256); // TODO endian ??
