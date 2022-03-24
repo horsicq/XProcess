@@ -20,9 +20,19 @@
  */
 #include "xprocess.h"
 
-XProcess::XProcess(QObject *pParent) : QObject(pParent)
+XProcess::XProcess(QObject *pParent) : XIODevice(pParent)
 {
 
+}
+
+qint64 XProcess::readData(char *pData, qint64 nMaxSize)
+{
+    return 0;
+}
+
+qint64 XProcess::writeData(const char *pData, qint64 nMaxSize)
+{
+    return 0;
 }
 
 QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()

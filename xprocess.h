@@ -21,7 +21,6 @@
 #ifndef XPROCESS_H
 #define XPROCESS_H
 
-#include <QObject>
 #include <QtEndian>
 #ifdef Q_OS_WIN
 #include <Windows.h>
@@ -52,6 +51,7 @@
 #endif
 
 #include "xbinary.h"
+#include "xiodevice.h"
 
 #ifdef Q_OS_WIN
 struct S_CLIENT_ID
@@ -151,7 +151,7 @@ typedef NTSTATUS (NTAPI *pfnNtQuerySystemInformation)(
 
 #endif
 
-class XProcess : public QObject
+class XProcess : public XIODevice
 {
     Q_OBJECT
 
@@ -200,6 +200,12 @@ public:
 #endif
 
     explicit XProcess(QObject *pParent=nullptr);
+
+protected:
+    virtual qint64 readData(char *pData,qint64 nMaxSize);
+    virtual qint64 writeData(const char *pData,qint64 nMaxSize);
+
+public:
     static QList<PROCESS_INFO> getProcessesList();
     static bool setPrivilege(QString sName,bool bEnable);
     static bool setDebugPrivilege(bool bEnable);
