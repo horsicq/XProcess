@@ -74,10 +74,12 @@ void XProcess::close()
 {
     bool bSuccess=false;
 
+#ifdef Q_OS_WIN
     if(g_nProcessID&&g_hProcess)
     {
         bSuccess=CloseHandle(g_hProcess);
     }
+#endif
 
     if(bSuccess)
     {
