@@ -200,6 +200,9 @@ public:
 #endif
 
     explicit XProcess(QObject *pParent=nullptr);
+    XProcess(qint64 nProcessID,quint64 nAddress,quint64 nSize,QObject *pParent=nullptr);
+    virtual bool open(OpenMode mode);
+    virtual void close();
 
 protected:
     virtual qint64 readData(char *pData,qint64 nMaxSize);
@@ -264,6 +267,11 @@ public:
     static QList<MODULE> getModulesList(qint64 nProcessID);
     static MODULE getModuleByAddress(quint64 nAddress,QList<MODULE> *pListModules);
     static PROCESS_STATE getProcessState(HANDLEID handleID);
+
+private:
+    const qint64 N_BUFFER_SIZE=0x1000;
+    qint64 g_nProcessID;
+    void *g_hProcess;
 };
 
 #endif // XPROCESS_H

@@ -22,17 +22,183 @@
 
 XProcess::XProcess(QObject *pParent) : XIODevice(pParent)
 {
+    g_nProcessID=0;
+    g_hProcess=0;
+}
 
+XProcess::XProcess(qint64 nProcessID, quint64 nAddress, quint64 nSize, QObject *pParent) : XProcess(pParent)
+{
+    g_nProcessID=nProcessID;
+
+    setInitOffset(nAddress);
+    setSize(nSize);
+}
+
+bool XProcess::open(OpenMode mode)
+{
+    bool bResult=false;
+
+    if(g_nProcessID&&size()) // TODO more checks
+    {
+    #ifdef Q_OS_WIN
+        quint32 nFlag=0;
+
+        if(mode==ReadOnly)
+        {
+            nFlag=PROCESS_VM_READ;
+        }
+        else if(mode==WriteOnly)
+        {
+            nFlag=PROCESS_VM_WRITE;
+        }
+        else if(mode==ReadWrite)
+        {
+            nFlag=PROCESS_ALL_ACCESS;
+        }
+
+        g_hProcess=OpenProcess(nFlag,0,(DWORD)g_nProcessID);
+
+        bResult=(g_hProcess!=nullptr);
+    #endif
+    }
+
+    if(bResult)
+    {
+        setOpenMode(mode);
+    }
+
+    return bResult;
+}
+
+void XProcess::close()
+{
+    bool bSuccess=false;
+
+    if(g_nProcessID&&g_hProcess)
+    {
+        bSuccess=CloseHandle(g_hProcess);
+    }
+
+    if(bSuccess)
+    {
+        setOpenMode(NotOpen);
+    }
 }
 
 qint64 XProcess::readData(char *pData, qint64 nMaxSize)
 {
-    return 0;
+    qint64 nResult=0;
+
+    qint64 _nPos=pos();
+
+    nMaxSize=qMin(nMaxSize,(qint64)(size()-_nPos));
+
+    for(qint64 i=0;i<nMaxSize;)
+    {
+//    #ifdef QT_DEBUG
+//        QString sDebugString=QString("%1").arg(_nPos+g_nAddress,0,16);
+//        qDebug("Address: %s",sDebugString.toLatin1().data());
+//    #endif
+
+        qint64 nDelta=S_ALIGN_UP(_nPos,N_BUFFER_SIZE)-_nPos;
+
+        if(nDelta==0)
+        {
+            nDelta=N_BUFFER_SIZE;
+        }
+
+        nDelta=qMin(nDelta,(qint64)(nMaxSize-i));
+
+        if(nDelta==0)
+        {
+            break;
+        }
+
+#ifdef Q_OS_WIN
+        SIZE_T nSize=0;
+
+        if(!ReadProcessMemory(g_hProcess,(LPVOID *)(getInitOffset()+_nPos),pData,(SIZE_T)nDelta,&nSize))
+        {
+            break;
+        }
+
+        if(nSize!=(SIZE_T)nDelta)
+        {
+            break;
+        }
+#endif
+        _nPos+=nDelta;
+        pData+=nDelta;
+        nResult+=nDelta;
+        i+=nDelta;
+    }
+
+#ifdef Q_OS_WIN
+    // TODO error string
+#endif
+
+#ifdef QT_DEBUG
+    QString sErrorString=errorString();
+    if((sErrorString!="")&&(sErrorString!="Unknown error"))
+    {
+        qDebug("%s",sErrorString.toLatin1().data());
+    }
+#endif
+
+    return nResult;
 }
 
 qint64 XProcess::writeData(const char *pData, qint64 nMaxSize)
 {
-    return 0;
+    qint64 nResult=0;
+
+    qint64 _nPos=pos();
+
+    nMaxSize=qMin(nMaxSize,(qint64)(size()-_nPos));
+
+    for(qint64 i=0;i<nMaxSize;)
+    {
+        qint64 nDelta=S_ALIGN_UP(_nPos,N_BUFFER_SIZE)-_nPos;
+
+        if(nDelta==0)
+        {
+            nDelta=N_BUFFER_SIZE;
+        }
+
+        nDelta=qMin(nDelta,(qint64)(nMaxSize-i));
+#ifdef Q_OS_WIN
+        SIZE_T nSize=0;
+
+        if(!WriteProcessMemory(g_hProcess,(LPVOID *)(_nPos+getInitOffset()),pData,(SIZE_T)nDelta,&nSize))
+        {
+            break;
+        }
+
+        if(nSize!=(SIZE_T)nDelta)
+        {
+            break;
+        }
+
+#endif
+        _nPos+=nDelta;
+        pData+=nDelta;
+        nResult+=nDelta;
+        i+=nDelta;
+    }
+
+#ifdef Q_OS_WIN
+    // TODO error string
+#endif
+
+#ifdef QT_DEBUG
+    QString sErrorString=errorString();
+    if((sErrorString!="")&&(sErrorString!="Unknown error"))
+    {
+        qDebug("%s",sErrorString.toLatin1().data());
+    }
+#endif
+
+    return nResult;
 }
 
 QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()

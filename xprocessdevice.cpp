@@ -223,15 +223,15 @@ void XProcessDevice::checkWindowsLastError()
     }
 }
 #endif
-qint64 XProcessDevice::readData(char *pData,qint64 maxSize)
+qint64 XProcessDevice::readData(char *pData, qint64 nMaxSize)
 {
     qint64 nResult=0;
 
     qint64 _nPos=pos();
 
-    maxSize=qMin(maxSize,(qint64)(g_nSize-_nPos));
+    nMaxSize=qMin(nMaxSize,(qint64)(g_nSize-_nPos));
 
-    for(qint64 i=0;i<maxSize;)
+    for(qint64 i=0;i<nMaxSize;)
     {
 //    #ifdef QT_DEBUG
 //        QString sDebugString=QString("%1").arg(_nPos+g_nAddress,0,16);
@@ -245,7 +245,7 @@ qint64 XProcessDevice::readData(char *pData,qint64 maxSize)
             nDelta=N_BUFFER_SIZE;
         }
 
-        nDelta=qMin(nDelta,(qint64)(maxSize-i));
+        nDelta=qMin(nDelta,(qint64)(nMaxSize-i));
 
         if(nDelta==0)
         {
@@ -295,15 +295,15 @@ qint64 XProcessDevice::readData(char *pData,qint64 maxSize)
     return nResult;
 }
 
-qint64 XProcessDevice::writeData(const char *pData,qint64 maxSize)
+qint64 XProcessDevice::writeData(const char *pData,qint64 nMaxSize)
 {
     qint64 nResult=0;
 
     qint64 _nPos=pos();
 
-    maxSize=qMin(maxSize,(qint64)(g_nSize-_nPos));
+    nMaxSize=qMin(nMaxSize,(qint64)(g_nSize-_nPos));
 
-    for(qint64 i=0;i<maxSize;)
+    for(qint64 i=0;i<nMaxSize;)
     {
         qint64 nDelta=X_ALIGN_UP(_nPos,N_BUFFER_SIZE)-_nPos;
 
@@ -312,7 +312,7 @@ qint64 XProcessDevice::writeData(const char *pData,qint64 maxSize)
             nDelta=N_BUFFER_SIZE;
         }
 
-        nDelta=qMin(nDelta,(qint64)(maxSize-i));
+        nDelta=qMin(nDelta,(qint64)(nMaxSize-i));
 #ifdef Q_OS_WIN
         SIZE_T nSize=0;
 
