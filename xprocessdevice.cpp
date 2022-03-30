@@ -333,7 +333,7 @@ qint64 XProcessDevice::writeData(const char *pData,qint64 nMaxSize)
         if(pFile)
         {
             pFile->seek(g_nAddress+_nPos);
-            pFile->write(pData,maxSize);
+            pFile->write(pData,nMaxSize);
         }
 #endif
         _nPos+=nDelta;
