@@ -87,7 +87,7 @@ void XProcess::close()
     }
 }
 
-qint64 XProcess::readData(char *pData, qint64 nMaxSize)
+qint64 XProcess::readData(char *pData,qint64 nMaxSize)
 {
     qint64 nResult=0;
 
