@@ -209,7 +209,7 @@ protected:
     virtual qint64 writeData(const char *pData,qint64 nMaxSize);
 
 public:
-    static QList<PROCESS_INFO> getProcessesList();
+    static QList<PROCESS_INFO> getProcessesList(bool bShowAll=false);
     static bool setPrivilege(QString sName,bool bEnable);
     static bool setDebugPrivilege(bool bEnable);
 #ifdef Q_OS_WIN

@@ -203,7 +203,7 @@ qint64 XProcess::writeData(const char *pData,qint64 nMaxSize)
     return nResult;
 }
 
-QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
+QList<XProcess::PROCESS_INFO> XProcess::getProcessesList(bool bShowAll)
 {
     QList<PROCESS_INFO> listResult;
 #ifdef Q_OS_WIN
@@ -220,7 +220,21 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList()
             {
                 PROCESS_INFO processInfo=getInfoByProcessID(pe32.th32ProcessID);
 
+                bool bSuccess=false;
+
                 if(processInfo.nID)
+                {
+                    bSuccess=true;
+                }
+                else if(bShowAll)
+                {
+                    processInfo.nID=pe32.th32ProcessID;
+                    processInfo.sName=QString::fromWCharArray(pe32.szExeFile);
+
+                    bSuccess=true;
+                }
+
+                if(bSuccess)
                 {
                     listResult.append(processInfo);
                 }
