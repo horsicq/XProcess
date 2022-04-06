@@ -163,29 +163,6 @@ public:
         qint64 nID;
     };
 
-    struct PROCESS_INFO
-    {
-        QString sName;
-        //        qint64 nParentID;
-        qint64 nID;
-        QString sFilePath;
-        quint64 nImageAddress;
-        quint64 nImageSize;
-    };
-
-    struct PROCESS_STATE
-    {
-        QList<XBinary::MEMORY_REGION> listMemoryRegions;
-    };
-
-    struct MODULE
-    {
-        quint64 nAddress;
-        quint64 nSize;
-        QString sName;
-        QString sFileName;
-    };
-
 #ifdef Q_OS_WIN
     struct WINSYSHANDLE
     {
@@ -209,7 +186,7 @@ protected:
     virtual qint64 writeData(const char *pData,qint64 nMaxSize);
 
 public:
-    static QList<PROCESS_INFO> getProcessesList(bool bShowAll=false);
+    static QList<XBinary::PROCESS_INFO> getProcessesList(bool bShowAll=false);
     static bool setPrivilege(QString sName,bool bEnable);
     static bool setDebugPrivilege(bool bEnable);
 #ifdef Q_OS_WIN
@@ -261,12 +238,12 @@ public:
     static XBinary::MEMORY_REGION getMemoryRegion(void *hProcess,quint64 nAddress);
     static XBinary::MEMORY_REGION getMemoryRegion(qint64 nProcessID,quint64 nAddress);
     static XBinary::MEMORY_REGION getMemoryRegion(HANDLEID handleID,quint64 nAddress);
-    static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
+    static XBinary::PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
     static QList<qint64> getThreadIDsList(qint64 nProcessID);
     static XBinary::OSINFO getOsInfo();
-    static QList<MODULE> getModulesList(qint64 nProcessID);
-    static MODULE getModuleByAddress(quint64 nAddress,QList<MODULE> *pListModules);
-    static PROCESS_STATE getProcessState(HANDLEID handleID);
+    static QList<XBinary::MODULE> getModulesList(qint64 nProcessID);
+    static XBinary::MODULE getModuleByAddress(quint64 nAddress,QList<XBinary::MODULE> *pListModules); // TODO move to XBinary
+    static XBinary::REGISTERS getRegisters(HANDLEID handleID,XBinary::REG_OPTIONS regOptions);
 
 private:
     const qint64 N_BUFFER_SIZE=0x1000;
