@@ -260,7 +260,7 @@ QList<XBinary::PROCESS_INFO> XProcess::getProcessesList(bool bShowAll)
         {
             qint64 nPID=fi.baseName().toInt();
 
-            PROCESS_INFO processInfo=getInfoByProcessID(nPID);
+            XBinary::PROCESS_INFO processInfo=getInfoByProcessID(nPID);
 
             if(processInfo.nID)
             {
@@ -1574,7 +1574,7 @@ QList<XBinary::MODULE> XProcess::getModulesList(qint64 nProcessID)
         quint64 nImageBase=listImageBases.at(i);
         QString sFileName=mapImageBase.key(nImageBase);
 
-        MODULE record={};
+        XBinary::MODULE record={};
 
         record.nAddress=nImageBase;
         record.nSize=mapImageSize.value(sFileName);
