@@ -243,7 +243,6 @@ public:
     static XBinary::OSINFO getOsInfo();
     static QList<XBinary::MODULE> getModulesList(qint64 nProcessID);
     static XBinary::MODULE getModuleByAddress(quint64 nAddress,QList<XBinary::MODULE> *pListModules); // TODO move to XBinary
-    static XBinary::REGISTERS getRegisters(HANDLEID handleID,XBinary::REG_OPTIONS regOptions);
 
 private:
     const qint64 N_BUFFER_SIZE=0x1000;
