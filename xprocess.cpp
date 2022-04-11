@@ -203,9 +203,9 @@ qint64 XProcess::writeData(const char *pData,qint64 nMaxSize)
     return nResult;
 }
 
-QList<XBinary::PROCESS_INFO> XProcess::getProcessesList(bool bShowAll)
+QList<XProcess::PROCESS_INFO> XProcess::getProcessesList(bool bShowAll)
 {
-    QList<XBinary::PROCESS_INFO> listResult;
+    QList<PROCESS_INFO> listResult;
 #ifdef Q_OS_WIN
     HANDLE hProcesses=CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
 
@@ -218,7 +218,7 @@ QList<XBinary::PROCESS_INFO> XProcess::getProcessesList(bool bShowAll)
         {
             do
             {
-                XBinary::PROCESS_INFO processInfo=getInfoByProcessID(pe32.th32ProcessID);
+                PROCESS_INFO processInfo=getInfoByProcessID(pe32.th32ProcessID);
 
                 bool bSuccess=false;
 
@@ -308,9 +308,9 @@ bool XProcess::setPrivilege(QString sName,bool bEnable)
     return bResult;
 }
 
-QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess,quint64 nAddress,quint64 nSize)
+QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess,quint64 nAddress,quint64 nSize)
 {
-    QList<XBinary::MEMORY_REGION> listResult;
+    QList<MEMORY_REGION> listResult;
 #ifdef Q_OS_WIN
     for(quint64 nCurrentAddress=nAddress;nCurrentAddress<nAddress+nSize;)
     {
@@ -320,7 +320,7 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess,quin
 
         if(VirtualQueryEx(hProcess,(LPCVOID)nCurrentAddress,&mbi,sizeof(mbi))==sizeof(mbi))
         {
-            XBinary::MEMORY_REGION memoryRegion={};
+            MEMORY_REGION memoryRegion={};
 
             memoryRegion.nType=mbi.Type;
 
@@ -390,9 +390,9 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess,quin
     return listResult;
 }
 
-QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(qint64 nProcessID,quint64 nAddress,quint64 nSize)
+QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(qint64 nProcessID,quint64 nAddress,quint64 nSize)
 {
-    QList<XBinary::MEMORY_REGION> listResult;
+    QList<MEMORY_REGION> listResult;
 
     void *pProcess=openMemoryQuery(nProcessID); // TODO OpenMemoryQuery QFile for linux
 
@@ -406,9 +406,9 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(qint64 nProcessID,q
     return listResult;
 }
 
-QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLEID handleID,quint64 nAddress,quint64 nSize)
+QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLEID handleID,quint64 nAddress,quint64 nSize)
 {
-    QList<XBinary::MEMORY_REGION> listResult;
+    QList<MEMORY_REGION> listResult;
 
     if(handleID.hHandle)
     {
@@ -429,10 +429,10 @@ QList<XBinary::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLEID handleID,q
     return listResult;
 }
 
-XBinary::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess,quint64 nAddress)
+XProcess::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess,quint64 nAddress)
 {
     // TODO LINUX
-    XBinary::MEMORY_REGION result={};
+    MEMORY_REGION result={};
 #ifdef Q_OS_WIN
 //#ifndef Q_OS_WIN64
 //    MEMORY_BASIC_INFORMATION32 mbi={};
@@ -475,9 +475,9 @@ XBinary::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess,quint64 nAddress
     return result;
 }
 
-XBinary::MEMORY_REGION XProcess::getMemoryRegion(qint64 nProcessID,quint64 nAddress)
+XProcess::MEMORY_REGION XProcess::getMemoryRegion(qint64 nProcessID,quint64 nAddress)
 {
-    XBinary::MEMORY_REGION result={};
+    MEMORY_REGION result={};
 
     void *pProcess=openMemoryQuery(nProcessID);
 
@@ -491,9 +491,9 @@ XBinary::MEMORY_REGION XProcess::getMemoryRegion(qint64 nProcessID,quint64 nAddr
     return result;
 }
 
-XBinary::MEMORY_REGION XProcess::getMemoryRegion(HANDLEID handleID,quint64 nAddress)
+XProcess::MEMORY_REGION XProcess::getMemoryRegion(HANDLEID handleID,quint64 nAddress)
 {
-    XBinary::MEMORY_REGION mrResult={};
+    MEMORY_REGION mrResult={};
 
     if(handleID.hHandle)
     {
@@ -514,9 +514,9 @@ XBinary::MEMORY_REGION XProcess::getMemoryRegion(HANDLEID handleID,quint64 nAddr
     return mrResult;
 }
 
-XBinary::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
+XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
 {
-    XBinary::PROCESS_INFO result={0};
+    PROCESS_INFO result={0};
 #ifdef Q_OS_WIN
     if(nProcessID)
     {
@@ -691,9 +691,9 @@ qint64 XProcess::getRegionSize(void *hProcess,qint64 nAddress)
     return nResult;
 }
 
-XBinary::MEMORY_FLAGS XProcess::protectToFlags(quint32 nValue)
+XProcess::MEMORY_FLAGS XProcess::protectToFlags(quint32 nValue)
 {
-    XBinary::MEMORY_FLAGS result={};
+    MEMORY_FLAGS result={};
 
     if(nValue&PAGE_GUARD)
     {
@@ -747,9 +747,9 @@ XBinary::MEMORY_FLAGS XProcess::protectToFlags(quint32 nValue)
 }
 #endif
 #ifdef Q_OS_WIN
-XBinary::MEMORY_FLAGS XProcess::getMemoryFlags(void *hProcess,qint64 nAddress)
+XProcess::MEMORY_FLAGS XProcess::getMemoryFlags(void *hProcess,qint64 nAddress)
 {
-    XBinary::MEMORY_FLAGS result={};
+    MEMORY_FLAGS result={};
     MEMORY_BASIC_INFORMATION mbi={};
 
     if(VirtualQueryEx(hProcess,(LPCVOID)nAddress,&mbi,sizeof(mbi)))
@@ -1509,9 +1509,9 @@ XBinary::OSINFO XProcess::getOsInfo()
     return result;
 }
 
-QList<XBinary::MODULE> XProcess::getModulesList(qint64 nProcessID)
+QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID)
 {
-    QList<XBinary::MODULE> listResult;
+    QList<MODULE> listResult;
 
 #ifdef Q_OS_WIN
     HANDLE hModules=CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,(DWORD)nProcessID);
@@ -1525,7 +1525,7 @@ QList<XBinary::MODULE> XProcess::getModulesList(qint64 nProcessID)
         {
             do
             {
-                XBinary::MODULE record={};
+                XProcess::MODULE record={};
 
                 record.nAddress=(quint64)me32.modBaseAddr;
                 record.nSize=(quint64)me32.modBaseSize;
@@ -1589,9 +1589,9 @@ QList<XBinary::MODULE> XProcess::getModulesList(qint64 nProcessID)
     return listResult;
 }
 
-XBinary::MODULE XProcess::getModuleByAddress(quint64 nAddress,QList<XBinary::MODULE> *pListModules)
+XProcess::MODULE XProcess::getModuleByAddress(quint64 nAddress,QList<MODULE> *pListModules)
 {
-    XBinary::MODULE result={};
+    MODULE result={};
 
     qint32 nNumberOfModules=pListModules->count();
 
@@ -1606,4 +1606,54 @@ XBinary::MODULE XProcess::getModuleByAddress(quint64 nAddress,QList<XBinary::MOD
     }
 
     return result;
+}
+
+bool XProcess::isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion, quint64 nAddress)
+{
+    bool bResult=false;
+
+    if((pMemoryRegion->nAddress<=nAddress)&&(nAddress<(pMemoryRegion->nAddress+pMemoryRegion->nSize)))
+    {
+        bResult=true;
+    }
+
+    return bResult;
+}
+
+XProcess::MEMORY_REGION XProcess::getMemoryRegionByAddress(QList<MEMORY_REGION> *pListMemoryRegions, quint64 nAddress)
+{
+    MEMORY_REGION result={};
+
+    qint32 nNumberOfRecords=pListMemoryRegions->count();
+
+    for(qint32 i=0;i<nNumberOfRecords;i++)
+    {
+        MEMORY_REGION memoryRegion=pListMemoryRegions->at(i);
+
+        if(isAddressInMemoryRegion(&memoryRegion,nAddress))
+        {
+            result=pListMemoryRegions->at(i);
+
+            break;
+        }
+    }
+
+    return result;
+}
+
+QString XProcess::memoryFlagsToString(MEMORY_FLAGS mf)
+{
+    QString sResult;
+
+#ifdef Q_OS_WIN
+    if(mf.bGuard)       sResult+="G";
+#endif
+    if(mf.bRead)        sResult+="R";
+    if(mf.bWrite)       sResult+="W";
+    if(mf.bExecute)     sResult+="E";
+#ifdef Q_OS_WIN
+    if(mf.bCopy)        sResult+="C";
+#endif
+
+    return sResult;
 }

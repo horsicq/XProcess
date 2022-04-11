@@ -163,6 +163,58 @@ public:
         qint64 nID;
     };
 
+    struct MEMORY_FLAGS // TODO move to XProcess
+    {
+        bool bRead;
+        bool bWrite;
+        bool bExecute;
+    #ifdef Q_OS_WIN
+        bool bGuard;
+        bool bCopy;
+    #endif
+    #ifdef Q_OS_LINUX
+        bool bShare;
+        bool bPrivate;
+    #endif
+    };
+
+    struct MEMORY_REGION // TODO move to XProcess
+    {
+        quint64 nAddress;
+        quint64 nSize;
+        MEMORY_FLAGS mf;
+    #ifdef Q_OS_WIN
+        quint64 nAllocationBase;
+        MEMORY_FLAGS mfAllocation;
+        quint32 nState;
+        quint32 nType;
+    #endif
+    #ifdef Q_OS_LINUX
+        qint64 nOffset;
+        QString sDevice;
+        qint64 nFile;
+        QString sFileName;
+    #endif
+    };
+
+    struct PROCESS_INFO // TODO move to XProcess
+    {
+        QString sName;
+        //        qint64 nParentID;
+        qint64 nID;
+        QString sFilePath;
+        quint64 nImageAddress;
+        quint64 nImageSize;
+    };
+
+    struct MODULE // TODO move to XProcess
+    {
+        quint64 nAddress;
+        quint64 nSize;
+        QString sName;
+        QString sFileName;
+    };
+
 #ifdef Q_OS_WIN
     struct WINSYSHANDLE
     {
@@ -186,7 +238,7 @@ protected:
     virtual qint64 writeData(const char *pData,qint64 nMaxSize);
 
 public:
-    static QList<XBinary::PROCESS_INFO> getProcessesList(bool bShowAll=false);
+    static QList<PROCESS_INFO> getProcessesList(bool bShowAll=false);
     static bool setPrivilege(QString sName,bool bEnable);
     static bool setDebugPrivilege(bool bEnable);
 #ifdef Q_OS_WIN
@@ -196,8 +248,8 @@ public:
     static qint64 getRegionAllocationBase(void *hProcess,qint64 nAddress);
     static qint64 getRegionBase(void *hProcess,qint64 nAddress);
     static qint64 getRegionSize(void *hProcess,qint64 nAddress);
-    static XBinary::MEMORY_FLAGS protectToFlags(quint32 nValue);
-    static XBinary::MEMORY_FLAGS getMemoryFlags(void *hProcess,qint64 nAddress);
+    static MEMORY_FLAGS protectToFlags(quint32 nValue);
+    static MEMORY_FLAGS getMemoryFlags(void *hProcess,qint64 nAddress);
     static QString getFileNameByHandle(void *hHandle);
     static QString convertNtToDosPath(QString sNtPath);
     static qint64 getTEBAddress(qint64 nThreadID);
@@ -232,17 +284,20 @@ public:
     static QByteArray read_array(void *hProcess,quint64 nAddress,quint64 nSize);
     static QString read_ansiString(void *hProcess,quint64 nAddress,quint64 nMaxSize=256);
     static QString read_unicodeString(void *hProcess,quint64 nAddress,quint64 nMaxSize=256); // TODO endian ??
-    static QList<XBinary::MEMORY_REGION> getMemoryRegionsList(void *hProcess,quint64 nAddress,quint64 nSize);
-    static QList<XBinary::MEMORY_REGION> getMemoryRegionsList(qint64 nProcessID,quint64 nAddress,quint64 nSize);
-    static QList<XBinary::MEMORY_REGION> getMemoryRegionsList(HANDLEID handleID,quint64 nAddress,quint64 nSize);
-    static XBinary::MEMORY_REGION getMemoryRegion(void *hProcess,quint64 nAddress);
-    static XBinary::MEMORY_REGION getMemoryRegion(qint64 nProcessID,quint64 nAddress);
-    static XBinary::MEMORY_REGION getMemoryRegion(HANDLEID handleID,quint64 nAddress);
-    static XBinary::PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
+    static QList<MEMORY_REGION> getMemoryRegionsList(void *hProcess,quint64 nAddress,quint64 nSize);
+    static QList<MEMORY_REGION> getMemoryRegionsList(qint64 nProcessID,quint64 nAddress,quint64 nSize);
+    static QList<MEMORY_REGION> getMemoryRegionsList(HANDLEID handleID,quint64 nAddress,quint64 nSize);
+    static MEMORY_REGION getMemoryRegion(void *hProcess,quint64 nAddress);
+    static MEMORY_REGION getMemoryRegion(qint64 nProcessID,quint64 nAddress);
+    static MEMORY_REGION getMemoryRegion(HANDLEID handleID,quint64 nAddress);
+    static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
     static QList<qint64> getThreadIDsList(qint64 nProcessID);
     static XBinary::OSINFO getOsInfo();
-    static QList<XBinary::MODULE> getModulesList(qint64 nProcessID);
-    static XBinary::MODULE getModuleByAddress(quint64 nAddress,QList<XBinary::MODULE> *pListModules); // TODO move to XBinary
+    static QList<MODULE> getModulesList(qint64 nProcessID);
+    static MODULE getModuleByAddress(quint64 nAddress,QList<MODULE> *pListModules);
+    static bool isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion,quint64 nAddress);
+    static MEMORY_REGION getMemoryRegionByAddress(QList<MEMORY_REGION> *pListMemoryRegions,quint64 nAddress);
+    static QString memoryFlagsToString(MEMORY_FLAGS mf);
 
 private:
     const qint64 N_BUFFER_SIZE=0x1000;
