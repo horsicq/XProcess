@@ -260,7 +260,7 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList(bool bShowAll)
         {
             qint64 nPID=fi.baseName().toInt();
 
-            XBinary::PROCESS_INFO processInfo=getInfoByProcessID(nPID);
+            PROCESS_INFO processInfo=getInfoByProcessID(nPID);
 
             if(processInfo.nID)
             {
@@ -364,7 +364,7 @@ QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess,qui
             QString sFileNumber=sRecord.section(" ",4,4);
             QString sPathName=sRecord.section(" ",5,-1).trimmed();
 
-            XBinary::MEMORY_REGION memoryRegion={};
+            MEMORY_REGION memoryRegion={};
 
             memoryRegion.nAddress=sAddress.section("-",0,0).toULongLong(0,16);
             memoryRegion.nSize=sAddress.section("-",1,1).toULongLong(0,16)-memoryRegion.nAddress;
@@ -457,7 +457,7 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess,quint64 nAddres
 //    }
 #endif
 #ifdef Q_OS_LINUX
-    QList<XBinary::MEMORY_REGION> listRecords=getMemoryRegionsList(hProcess,0,0xFFFFFFFFFFFFFFFF);
+    QList<MEMORY_REGION> listRecords=getMemoryRegionsList(hProcess,0,0xFFFFFFFFFFFFFFFF);
 
     qint32 nNumberOfRecords=listRecords.count();
 
@@ -1541,7 +1541,7 @@ QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID)
     }
 #endif
 #ifdef Q_OS_LINUX
-    QList<XBinary::MEMORY_REGION> listMR=getMemoryRegionsList(nProcessID,0,0xFFFFFFFFFFFFFFFF);
+    QList<MEMORY_REGION> listMR=getMemoryRegionsList(nProcessID,0,0xFFFFFFFFFFFFFFFF);
 
     qint32 nNumberOfRecords=listMR.count();
 
@@ -1574,7 +1574,7 @@ QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID)
         quint64 nImageBase=listImageBases.at(i);
         QString sFileName=mapImageBase.key(nImageBase);
 
-        XBinary::MODULE record={};
+        MODULE record={};
 
         record.nAddress=nImageBase;
         record.nSize=mapImageSize.value(sFileName);
