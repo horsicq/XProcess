@@ -1608,7 +1608,7 @@ XProcess::MODULE XProcess::getModuleByAddress(quint64 nAddress,QList<MODULE> *pL
     return result;
 }
 
-bool XProcess::isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion, quint64 nAddress)
+bool XProcess::isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion,quint64 nAddress)
 {
     bool bResult=false;
 
