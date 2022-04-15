@@ -269,6 +269,69 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList(bool bShowAll)
         }
     }
 #endif
+#ifdef Q_OS_OSX
+    size_t nProcBuffSize=0;
+    int name[4]={CTL_KERN,KERN_PROC,KERN_PROC_ALL,0};
+    int st=sysctl(name,4,NULL,&nProcBuffSize,NULL,0);
+
+    if(nProcBuffSize)
+    {
+        char *pData=new char[nProcBuffSize];
+
+        st=sysctl(name,4,pData,&nProcBuffSize,NULL,0);
+
+        int nNumberOfProcesses=nProcBuffSize/sizeof(kinfo_proc);
+
+        kinfo_proc *pKinfo_proc=(kinfo_proc *)pData;
+
+        for(int i=0;i<nNumberOfProcesses;i++)
+        {
+            qint64 nPID=pKinfo_proc[i].kp_proc.p_pid;
+
+            PROCESS_INFO processInfo=getInfoByProcessID(nPID);
+
+            listResult.append(processInfo);
+        }
+
+        delete [] pData;
+    }
+#endif
+    return listResult;
+}
+
+QList<XProcess::THREAD_INFO> XProcess::getThreadsList(qint64 nProcessID)
+{
+    QList<THREAD_INFO> listResult;
+
+#ifdef Q_OS_WIN
+    HANDLE hThreads=CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD,(DWORD)nProcessID);
+
+    if(hThreads!=INVALID_HANDLE_VALUE)
+    {
+        THREADENTRY32 thread={};
+        thread.dwSize=sizeof(tagTHREADENTRY32);
+
+        if(Thread32First(hThreads,&thread))
+        {
+            do
+            {
+                if(thread.th32OwnerProcessID==nProcessID)
+                {
+                    THREAD_INFO threadInfo={};
+
+                    threadInfo.nID=thread.th32ThreadID;
+                    threadInfo.nProcessID=thread.th32OwnerProcessID;
+
+                    listResult.append(threadInfo);
+                }
+            }
+            while(Thread32Next(hThreads,&thread));
+        }
+
+        CloseHandle(hThreads);
+    }
+
+#endif
 
     return listResult;
 }
@@ -576,8 +639,52 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
         }
     }
 #endif
+#ifdef Q_OS_OSX
+    if(nProcessID)
+    {
+        result.nID=nProcessID;
+
+        char szName[PROC_PIDPATHINFO_MAXSIZE]={};
+        char szPath[PROC_PIDPATHINFO_MAXSIZE]={};
+
+        proc_name(nProcessID,szName,PROC_PIDPATHINFO_MAXSIZE);
+        proc_pidpath(nProcessID,szPath,PROC_PIDPATHINFO_MAXSIZE);
+
+        result.sName=szName;
+        result.sFilePath=szPath;
+    }
+#endif
     return result;
 }
+
+//XProcess::THREAD_INFO XProcess::getInfoByThreadID(qint64 nThreadID)
+//{
+//    THREAD_INFO result={0};
+//#ifdef Q_OS_WIN
+//    if(nThreadID)
+//    {
+//        HANDLE hModule=CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD,(DWORD)nThreadID);
+
+//        if(hModule!=INVALID_HANDLE_VALUE)
+//        {
+//            THREADENTRY32 me32={};
+//            me32.dwSize=sizeof(THREADENTRY32);
+
+//            if(Thread32First(hModule,&me32))
+//            {
+//                result.nID=me32.th32ThreadID;
+//                result.nProcessID=me32.th32OwnerProcessID;
+//            }
+
+//            CloseHandle(hModule);
+//        }
+//    }
+//#endif
+//#ifdef Q_OS_LINUX
+//    // TODO
+//#endif
+//    return result;
+//}
 QList<qint64> XProcess::getThreadIDsList(qint64 nProcessID)
 {
     QList<qint64> listResult;

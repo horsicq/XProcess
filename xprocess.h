@@ -46,6 +46,8 @@
 #include <sys/mman.h>
 #include <sys/wait.h>
 #include <sys/user.h>
+#include <sys/proc_info.h>
+#include <libproc.h>
 #include <unistd.h>
 #include <QDirIterator>
 #endif
@@ -163,7 +165,7 @@ public:
         qint64 nID;
     };
 
-    struct MEMORY_FLAGS // TODO move to XProcess
+    struct MEMORY_FLAGS
     {
         bool bRead;
         bool bWrite;
@@ -178,7 +180,7 @@ public:
     #endif
     };
 
-    struct MEMORY_REGION // TODO move to XProcess
+    struct MEMORY_REGION
     {
         quint64 nAddress;
         quint64 nSize;
@@ -197,7 +199,7 @@ public:
     #endif
     };
 
-    struct PROCESS_INFO // TODO move to XProcess
+    struct PROCESS_INFO
     {
         QString sName;
         //        qint64 nParentID;
@@ -207,7 +209,13 @@ public:
         quint64 nImageSize;
     };
 
-    struct MODULE // TODO move to XProcess
+    struct THREAD_INFO
+    {
+        qint64 nID;
+        qint64 nProcessID;
+    };
+
+    struct MODULE
     {
         quint64 nAddress;
         quint64 nSize;
@@ -239,6 +247,7 @@ protected:
 
 public:
     static QList<PROCESS_INFO> getProcessesList(bool bShowAll=false);
+    static QList<THREAD_INFO> getThreadsList(qint64 nProcessID);
     static bool setPrivilege(QString sName,bool bEnable);
     static bool setDebugPrivilege(bool bEnable);
 #ifdef Q_OS_WIN
@@ -291,6 +300,7 @@ public:
     static MEMORY_REGION getMemoryRegion(qint64 nProcessID,quint64 nAddress);
     static MEMORY_REGION getMemoryRegion(HANDLEID handleID,quint64 nAddress);
     static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
+//    static THREAD_INFO getInfoByThreadID(qint64 nThreadID);
     static QList<qint64> getThreadIDsList(qint64 nProcessID);
     static XBinary::OSINFO getOsInfo();
     static QList<MODULE> getModulesList(qint64 nProcessID);
