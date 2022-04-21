@@ -293,6 +293,7 @@ public:
     static QByteArray read_array(void *hProcess,quint64 nAddress,quint64 nSize);
     static QString read_ansiString(void *hProcess,quint64 nAddress,quint64 nMaxSize=256);
     static QString read_unicodeString(void *hProcess,quint64 nAddress,quint64 nMaxSize=256); // TODO endian ??
+    static QString read_utf8String(void *hProcess,quint64 nAddress,quint64 nMaxSize=256);
     static QList<MEMORY_REGION> getMemoryRegionsList(void *hProcess,quint64 nAddress,quint64 nSize);
     static QList<MEMORY_REGION> getMemoryRegionsList(qint64 nProcessID,quint64 nAddress,quint64 nSize);
     static QList<MEMORY_REGION> getMemoryRegionsList(HANDLEID handleID,quint64 nAddress,quint64 nSize);

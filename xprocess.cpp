@@ -1284,6 +1284,52 @@ QString XProcess::read_unicodeString(void *hProcess,quint64 nAddress,quint64 nMa
 
     return sResult;
 }
+
+QString XProcess::read_utf8String(void *hProcess, quint64 nAddress, quint64 nMaxSize)
+{
+    QString sResult;
+
+    if(nMaxSize)
+    {
+        qint32 nRealSize=0;
+
+        for(qint32 i=0;i<nMaxSize;i++)
+        {
+            quint8 nByte=read_uint8(hProcess,nAddress+nRealSize);
+
+            if(nByte==0)
+            {
+                break;
+            }
+
+            // TODO Check !!!
+            if((nByte>>7)&0x1)
+            {
+                nRealSize++;
+            }
+            else if((nByte>>5)&0x1)
+            {
+                nRealSize+=2;
+            }
+            else if((nByte>>4)&0x1)
+            {
+                nRealSize+=3;
+            }
+            else if((nByte>>3)&0x1)
+            {
+                nRealSize+=4;
+            }
+        }
+
+        if(nRealSize)
+        {
+            QByteArray baString=read_array(hProcess,nAddress,nRealSize);
+            sResult=QString::fromUtf8(baString.data());
+        }
+    }
+
+    return sResult;
+}
 #ifdef Q_OS_WIN
 qint64 XProcess::getTEBAddress(qint64 nThreadID)
 {
