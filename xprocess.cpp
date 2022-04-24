@@ -29,7 +29,42 @@
     }
 #endif
 #ifdef Q_OS_LINUX
+    bool _closeLargeFile(qint32 nFD)
+    {
+        bool bResult=false;
 
+        bResult=(close(nFD)!=-1);
+
+        return bResult;
+    }
+#endif
+
+#ifdef Q_OS_LINUX
+    quint32 _readLargeFile(qint32 nFD,quint64 nOffset,char *pData,quint32 nDataSize)
+    {
+        quint32 nResult=0;
+
+        if(lseek64(nFD,nOffset,SEEK_SET)!=-1)
+        {
+            nResult=pread64(nFD,pData,nDataSize,nOffset);
+        }
+
+        return nResult;
+    }
+#endif
+
+#ifdef Q_OS_LINUX
+    quint32 _writeLargeFile(qint32 nFD,quint64 nOffset,const char *pData,quint32 nDataSize)
+    {
+        quint32 nResult=0;
+
+        if(lseek64(nFD,nOffset,SEEK_SET)!=-1)
+        {
+            nResult=pwrite64(nFD,pData,nDataSize,nOffset);
+        }
+
+        return nResult;
+    }
 #endif
 
 XProcess::XProcess(QObject *pParent) : XIODevice(pParent)
@@ -88,8 +123,8 @@ bool XProcess::open(OpenMode mode)
             nFlag=O_RDWR;
         }
 
-        QString sMapMemory=QString();
-        qint64 nFD=open64(sMapMemory.toLatin1(),nFlag);
+        QString sMapMemory=QString("/proc/%1/mem").arg(g_nProcessID);
+        qint64 nFD=_openLargeFile(sMapMemory,nFlag);
 
         if(nFD!=-1)
         {
@@ -121,7 +156,7 @@ void XProcess::close()
 #ifdef Q_OS_LINUX
     if(g_nProcessID&&g_hProcess)
     {
-//        close((qint64)g_hProcess);
+        bSuccess=_closeLargeFile((qint64)g_hProcess);
     }
 #endif
     if(bSuccess)
@@ -159,7 +194,7 @@ qint64 XProcess::readData(char *pData,qint64 nMaxSize)
             break;
         }
 
-#ifdef Q_OS_WIN
+    #ifdef Q_OS_WIN
         SIZE_T nSize=0;
 
         if(!ReadProcessMemory(g_hProcess,(LPVOID *)(getInitOffset()+_nPos),pData,(SIZE_T)nDelta,&nSize))
@@ -171,7 +206,13 @@ qint64 XProcess::readData(char *pData,qint64 nMaxSize)
         {
             break;
         }
-#endif
+    #endif
+    #ifdef Q_OS_LINUX
+        if(nDelta!=_readLargeFile((qint64)g_hProcess,getInitOffset()+_nPos,pData,nDelta))
+        {
+            break;
+        }
+    #endif
         _nPos+=nDelta;
         pData+=nDelta;
         nResult+=nDelta;
@@ -211,7 +252,7 @@ qint64 XProcess::writeData(const char *pData,qint64 nMaxSize)
         }
 
         nDelta=qMin(nDelta,(qint64)(nMaxSize-i));
-#ifdef Q_OS_WIN
+    #ifdef Q_OS_WIN
         SIZE_T nSize=0;
 
         if(!WriteProcessMemory(g_hProcess,(LPVOID *)(_nPos+getInitOffset()),pData,(SIZE_T)nDelta,&nSize))
@@ -223,8 +264,13 @@ qint64 XProcess::writeData(const char *pData,qint64 nMaxSize)
         {
             break;
         }
-
-#endif
+    #endif
+    #ifdef Q_OS_LINUX
+        if(nDelta!=_writeLargeFile((qint64)g_hProcess,getInitOffset()+_nPos,pData,nDelta))
+        {
+            break;
+        }
+    #endif
         _nPos+=nDelta;
         pData+=nDelta;
         nResult+=nDelta;
