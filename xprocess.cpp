@@ -60,6 +60,9 @@ bool XProcess::open(OpenMode mode)
 
         bResult=(g_hProcess!=nullptr);
     #endif
+    #ifdef Q_OS_LINUX
+        // TODO
+    #endif
     }
 
     if(bResult)
