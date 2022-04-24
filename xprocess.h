@@ -36,6 +36,7 @@
 #include <sys/wait.h>
 #include <sys/user.h>
 #include <syscall.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <QDirIterator>
 #endif

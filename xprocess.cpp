@@ -20,6 +20,18 @@
  */
 #include "xprocess.h"
 
+#ifdef Q_OS_LINUX
+    qint32 _openLargeFile(QString sFileName,qint32 nFlags)
+    {
+        qint32 nResult=open64(sFileName.toLatin1(),nFlags);
+
+        return nResult;
+    }
+#endif
+#ifdef Q_OS_LINUX
+
+#endif
+
 XProcess::XProcess(QObject *pParent) : XIODevice(pParent)
 {
     g_nProcessID=0;
@@ -61,7 +73,30 @@ bool XProcess::open(OpenMode mode)
         bResult=(g_hProcess!=nullptr);
     #endif
     #ifdef Q_OS_LINUX
-        // TODO
+        qint32 nFlag=0;
+
+        if(mode==ReadOnly)
+        {
+            nFlag=O_RDONLY;
+        }
+        else if(mode==WriteOnly)
+        {
+            nFlag=O_WRONLY;
+        }
+        else if(mode==ReadWrite)
+        {
+            nFlag=O_RDWR;
+        }
+
+        QString sMapMemory=QString();
+        qint64 nFD=open64(sMapMemory.toLatin1(),nFlag);
+
+        if(nFD!=-1)
+        {
+            g_hProcess=(void *)nFD;
+
+            bResult=true;
+        }
     #endif
     }
 
@@ -83,7 +118,12 @@ void XProcess::close()
         bSuccess=CloseHandle(g_hProcess);
     }
 #endif
-
+#ifdef Q_OS_LINUX
+    if(g_nProcessID&&g_hProcess)
+    {
+//        close((qint64)g_hProcess);
+    }
+#endif
     if(bSuccess)
     {
         setOpenMode(NotOpen);
