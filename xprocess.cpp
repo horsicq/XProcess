@@ -351,7 +351,21 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList(bool bShowAll)
 
             PROCESS_INFO processInfo=getInfoByProcessID(nPID);
 
+            bool bSuccess=false;
+
             if(processInfo.nID)
+            {
+                bSuccess=true;
+            }
+            else if(bShowAll)
+            {
+                processInfo.nID=nPID;
+                processInfo.sName="";
+
+                bSuccess=true;
+            }
+
+            if(bSuccess)
             {
                 listResult.append(processInfo);
             }
@@ -724,11 +738,12 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
                 {
                     QFileInfo fi(sFilePath);
 
+                    result.sFilePath=sFilePath;
+
                     if(fi.exists())
                     {
                         result.nID=nProcessID;
                         result.sName=fi.baseName();
-                        result.sFilePath=sFilePath;
                     }
                 }
             }
