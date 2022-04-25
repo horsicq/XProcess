@@ -537,6 +537,9 @@ QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess,qui
             }
         }
     }
+#endif
+#ifdef Q_OS_MAC
+    //task_t task=(task_t)hProcess;
 
 #endif
     return listResult;
@@ -622,8 +625,14 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess,quint64 nAddres
             break;
         }
     }
-
 #endif
+#ifdef Q_OS_MAC
+   // task_t task=(task_t)hProcess;
+
+    //mach_vm_region_info_64();
+    // TODO
+#endif
+
     return result;
 }
 
@@ -1055,6 +1064,12 @@ void *XProcess::openMemoryQuery(qint64 nProcessID)
         pResult=pFile;
     }
 #endif
+#ifdef Q_OS_MAC
+    task_t task=0;
+    task_for_pid(mach_task_self(),nProcessID,&task);
+
+    pResult=(void *)task;
+#endif
     return pResult;
 }
 
@@ -1065,6 +1080,7 @@ void *XProcess::openMemoryIO(qint64 nProcessID)
     pResult=(void *)OpenProcess(PROCESS_ALL_ACCESS,0,nProcessID);
 #endif
 #ifdef Q_OS_LINUX
+    // TODO _openLargeFile
     QFile *pFile=new QFile;
     pFile->setFileName(QString("/proc/%1/mem").arg(nProcessID));
 
@@ -1104,6 +1120,7 @@ void XProcess::closeMemoryIO(void *hProcess)
     CloseHandle((HANDLE)hProcess);
 #endif
 #ifdef Q_OS_LINUX
+    // TODO _closeLargeFile
     QFile *pFile=static_cast<QFile *>(hProcess);
 
     if(pFile)

@@ -51,6 +51,8 @@
 #include <libproc.h>
 #include <unistd.h>
 #include <QDirIterator>
+#include <mach-o/dyld_images.h>
+#include <mach/vm_region.h>
 #endif
 
 #include "xbinary.h"
