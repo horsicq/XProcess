@@ -1894,7 +1894,7 @@ bool XProcess::isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion,quint64 nAdd
     return bResult;
 }
 
-XProcess::MEMORY_REGION XProcess::getMemoryRegionByAddress(QList<MEMORY_REGION> *pListMemoryRegions, quint64 nAddress)
+XProcess::MEMORY_REGION XProcess::getMemoryRegionByAddress(QList<MEMORY_REGION> *pListMemoryRegions,quint64 nAddress)
 {
     MEMORY_REGION result={};
 
