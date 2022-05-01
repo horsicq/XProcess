@@ -1406,7 +1406,7 @@ QString XProcess::read_unicodeString(void *hProcess,quint64 nAddress,quint64 nMa
     return sResult;
 }
 
-QString XProcess::read_utf8String(void *hProcess, quint64 nAddress, quint64 nMaxSize)
+QString XProcess::read_utf8String(void *hProcess,quint64 nAddress,quint64 nMaxSize)
 {
     QString sResult;
 
