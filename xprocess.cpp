@@ -1882,6 +1882,25 @@ XProcess::MODULE XProcess::getModuleByAddress(quint64 nAddress,QList<MODULE> *pL
     return result;
 }
 
+XProcess::MODULE XProcess::getModuleByFileName(QString sFileName, QList<MODULE> *pListModules)
+{
+    MODULE result={};
+
+    qint32 nNumberOfModules=pListModules->count();
+
+    for(qint32 i=0;i<nNumberOfModules;i++)
+    {
+        if(pListModules->at(i).sFileName==sFileName)
+        {
+            result=pListModules->at(i);
+
+            break;
+        }
+    }
+
+    return result;
+}
+
 bool XProcess::isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion,quint64 nAddress)
 {
     bool bResult=false;

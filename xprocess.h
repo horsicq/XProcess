@@ -309,6 +309,7 @@ public:
     static XBinary::OSINFO getOsInfo();
     static QList<MODULE> getModulesList(qint64 nProcessID);
     static MODULE getModuleByAddress(quint64 nAddress,QList<MODULE> *pListModules);
+    static MODULE getModuleByFileName(QString sFileName,QList<MODULE> *pListModules);
     static bool isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion,quint64 nAddress);
     static MEMORY_REGION getMemoryRegionByAddress(QList<MEMORY_REGION> *pListMemoryRegions,quint64 nAddress);
     static QString memoryFlagsToString(MEMORY_FLAGS mf);
