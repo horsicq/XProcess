@@ -1863,7 +1863,7 @@ QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID)
     return listResult;
 }
 
-XProcess::MODULE XProcess::getModuleByAddress(quint64 nAddress,QList<MODULE> *pListModules)
+XProcess::MODULE XProcess::getModuleByAddress(QList<MODULE> *pListModules,quint64 nAddress)
 {
     MODULE result={};
 
@@ -1882,7 +1882,7 @@ XProcess::MODULE XProcess::getModuleByAddress(quint64 nAddress,QList<MODULE> *pL
     return result;
 }
 
-XProcess::MODULE XProcess::getModuleByFileName(QString sFileName, QList<MODULE> *pListModules)
+XProcess::MODULE XProcess::getModuleByFileName(QList<MODULE> *pListModules,QString sFileName)
 {
     MODULE result={};
 
