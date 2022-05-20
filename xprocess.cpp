@@ -23,7 +23,7 @@
 #ifdef Q_OS_LINUX
     qint32 _openLargeFile(QString sFileName,qint32 nFlags)
     {
-        qint32 nResult=open64(sFileName.toLatin1(),nFlags);
+        qint32 nResult=open64(sFileName.toUtf8().data(),nFlags);
 
         return nResult;
     }
@@ -76,6 +76,14 @@ XProcess::XProcess(QObject *pParent) : XIODevice(pParent)
 XProcess::XProcess(qint64 nProcessID,quint64 nAddress,quint64 nSize,QObject *pParent) : XProcess(pParent)
 {
     g_nProcessID=nProcessID;
+
+    setInitOffset(nAddress);
+    setSize(nSize);
+}
+
+XProcess::XProcess(void *hProcess, quint64 nAddress, quint64 nSize, QObject *pParent) : XProcess(pParent)
+{
+    g_hProcess=hProcess;
 
     setInitOffset(nAddress);
     setSize(nSize);
@@ -134,6 +142,10 @@ bool XProcess::open(OpenMode mode)
         }
     #endif
     }
+    else if(g_hProcess&&size()) // TODO more checks
+    {
+        bResult=true;
+    }
 
     if(bResult)
     {
@@ -147,18 +159,20 @@ void XProcess::close()
 {
     bool bSuccess=false;
 
-#ifdef Q_OS_WIN
     if(g_nProcessID&&g_hProcess)
     {
+    #ifdef Q_OS_WIN
         bSuccess=CloseHandle(g_hProcess);
-    }
-#endif
-#ifdef Q_OS_LINUX
-    if(g_nProcessID&&g_hProcess)
-    {
+    #endif
+    #ifdef Q_OS_LINUX
         bSuccess=_closeLargeFile((qint64)g_hProcess);
+    #endif
     }
-#endif
+    else if(g_hProcess)
+    {
+        bSuccess=true;
+    }
+
     if(bSuccess)
     {
         setOpenMode(NotOpen);
@@ -1071,13 +1085,16 @@ void *XProcess::openMemoryQuery(qint64 nProcessID)
     pResult=(void *)OpenProcess(PROCESS_ALL_ACCESS,0,nProcessID);
 #endif
 #ifdef Q_OS_LINUX
+
+    // TODO _openLargeFile
     QFile *pFile=new QFile;
     pFile->setFileName(QString("/proc/%1/maps").arg(nProcessID));
 
-    if(pFile->open(QIODevice::ReadOnly))
+    if(XBinary::tryToOpen(pFile))
     {
         pResult=pFile;
     }
+
 #endif
 #ifdef Q_OS_MAC
     task_t task=0;
@@ -1095,13 +1112,12 @@ void *XProcess::openMemoryIO(qint64 nProcessID)
     pResult=(void *)OpenProcess(PROCESS_ALL_ACCESS,0,nProcessID);
 #endif
 #ifdef Q_OS_LINUX
-    // TODO _openLargeFile
-    QFile *pFile=new QFile;
-    pFile->setFileName(QString("/proc/%1/mem").arg(nProcessID));
+    QString sMapMemory=QString("/proc/%1/mem").arg(nProcessID);
+    qint32 nFD=_openLargeFile(sMapMemory,O_RDWR);
 
-    if(XBinary::tryToOpen(pFile))
+    if(nFD!=-1)
     {
-        pResult=pFile;
+        pResult=(void *)nFD;
     }
 #endif
     return pResult;
@@ -1299,13 +1315,9 @@ quint64 XProcess::read_array(void *hProcess,quint64 nAddress,char *pData,quint64
     }
 #endif
 #ifdef Q_OS_LINUX
-    QFile *pFile=static_cast<QFile *>(hProcess);
+    qint32 nFD=(qint32)((qint64)hProcess&0xFFFFFFFF);
 
-    if(pFile)
-    {
-        pFile->seek(nAddress);
-        nResult=pFile->read(pData,nSize);
-    }
+    nResult=_readLargeFile(nFD,nAddress,pData,nSize);
 #endif
     return nResult;
 }
@@ -1322,17 +1334,9 @@ quint64 XProcess::write_array(void *hProcess,quint64 nAddress,char *pData,quint6
     }
 #endif
 #ifdef Q_OS_LINUX
-    QFile *pFile=static_cast<QFile *>(hProcess);
+    qint32 nFD=(qint32)((qint64)hProcess&0xFFFFFFFF);
 
-    if(pFile)
-    {
-        if(pFile->isWritable())
-        {
-            pFile->seek(nAddress);
-            nResult=pFile->write(pData,nSize);
-            pFile->flush();
-        }
-    }
+    nResult=_writeLargeFile(nFD,nAddress,pData,nSize);
 #endif
     return nResult;
 }

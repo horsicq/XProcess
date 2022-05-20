@@ -241,6 +241,7 @@ public:
 
     explicit XProcess(QObject *pParent=nullptr);
     XProcess(qint64 nProcessID,quint64 nAddress,quint64 nSize,QObject *pParent=nullptr);
+    XProcess(void *hProcess,quint64 nAddress,quint64 nSize,QObject *pParent=nullptr);
     virtual bool open(OpenMode mode);
     virtual void close();
 
