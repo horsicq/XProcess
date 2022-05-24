@@ -21,50 +21,50 @@
 #include "xprocess.h"
 
 #ifdef Q_OS_LINUX
-    qint32 _openLargeFile(QString sFileName,qint32 nFlags)
-    {
-        qint32 nResult=open64(sFileName.toUtf8().data(),nFlags);
+qint32 _openLargeFile(QString sFileName,qint32 nFlags)
+{
+    qint32 nResult=open64(sFileName.toUtf8().data(),nFlags);
 
-        return nResult;
-    }
+    return nResult;
+}
 #endif
 #ifdef Q_OS_LINUX
-    bool _closeLargeFile(qint32 nFD)
-    {
-        bool bResult=false;
+bool _closeLargeFile(qint32 nFD)
+{
+    bool bResult=false;
 
-        bResult=(close(nFD)!=-1);
+    bResult=(close(nFD)!=-1);
 
-        return bResult;
-    }
-#endif
-
-#ifdef Q_OS_LINUX
-    quint32 _readLargeFile(qint32 nFD,quint64 nOffset,char *pData,quint32 nDataSize)
-    {
-        quint32 nResult=0;
-
-        if(lseek64(nFD,nOffset,SEEK_SET)!=-1)
-        {
-            nResult=pread64(nFD,pData,nDataSize,nOffset);
-        }
-
-        return nResult;
-    }
+    return bResult;
+}
 #endif
 
 #ifdef Q_OS_LINUX
-    quint32 _writeLargeFile(qint32 nFD,quint64 nOffset,const char *pData,quint32 nDataSize)
+quint32 _readLargeFile(qint32 nFD,quint64 nOffset,char *pData,quint32 nDataSize)
+{
+    quint32 nResult=0;
+
+    if(lseek64(nFD,nOffset,SEEK_SET)!=-1)
     {
-        quint32 nResult=0;
-
-        if(lseek64(nFD,nOffset,SEEK_SET)!=-1)
-        {
-            nResult=pwrite64(nFD,pData,nDataSize,nOffset);
-        }
-
-        return nResult;
+        nResult=pread64(nFD,pData,nDataSize,nOffset);
     }
+
+    return nResult;
+}
+#endif
+
+#ifdef Q_OS_LINUX
+quint32 _writeLargeFile(qint32 nFD,quint64 nOffset,const char *pData,quint32 nDataSize)
+{
+    quint32 nResult=0;
+
+    if(lseek64(nFD,nOffset,SEEK_SET)!=-1)
+    {
+        nResult=pwrite64(nFD,pData,nDataSize,nOffset);
+    }
+
+    return nResult;
+}
 #endif
 
 XProcess::XProcess(QObject *pParent) : XIODevice(pParent)
@@ -81,7 +81,7 @@ XProcess::XProcess(qint64 nProcessID,quint64 nAddress,quint64 nSize,QObject *pPa
     setSize(nSize);
 }
 
-XProcess::XProcess(void *hProcess, quint64 nAddress, quint64 nSize, QObject *pParent) : XProcess(pParent)
+XProcess::XProcess(void *hProcess,quint64 nAddress,quint64 nSize,QObject *pParent) : XProcess(pParent)
 {
     g_hProcess=hProcess;
 
