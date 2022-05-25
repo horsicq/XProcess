@@ -1085,7 +1085,6 @@ void *XProcess::openMemoryQuery(qint64 nProcessID)
     pResult=(void *)OpenProcess(PROCESS_ALL_ACCESS,0,nProcessID);
 #endif
 #ifdef Q_OS_LINUX
-
     // TODO _openLargeFile
     QFile *pFile=new QFile;
     pFile->setFileName(QString("/proc/%1/maps").arg(nProcessID));
@@ -1094,7 +1093,6 @@ void *XProcess::openMemoryQuery(qint64 nProcessID)
     {
         pResult=pFile;
     }
-
 #endif
 #ifdef Q_OS_MAC
     task_t task=0;
@@ -1119,6 +1117,12 @@ void *XProcess::openMemoryIO(qint64 nProcessID)
     {
         pResult=(void *)nFD;
     }
+#endif
+#ifdef Q_OS_MAC
+    task_t task=0;
+    task_for_pid(mach_task_self(),nProcessID,&task);
+
+    pResult=(void *)task;
 #endif
     return pResult;
 }
@@ -1319,6 +1323,16 @@ quint64 XProcess::read_array(void *hProcess,quint64 nAddress,char *pData,quint64
 
     nResult=_readLargeFile(nFD,nAddress,pData,nSize);
 #endif
+#ifdef Q_OS_MAC
+    task_t task=(task_t)((qint64)hProcess&0xFFFFFFFF);
+
+    mach_msg_type_number_t _nSize=0;
+
+    if(mach_vm_read(task,(mach_vm_address_t)nAddress,(mach_vm_size_t)nSize,(vm_offset_t *)pData,&_nSize))
+    {
+        nResult=(quint64)_nSize;
+    }
+#endif
     return nResult;
 }
 
@@ -1337,6 +1351,16 @@ quint64 XProcess::write_array(void *hProcess,quint64 nAddress,char *pData,quint6
     qint32 nFD=(qint32)((qint64)hProcess&0xFFFFFFFF);
 
     nResult=_writeLargeFile(nFD,nAddress,pData,nSize);
+#endif
+#ifdef Q_OS_MAC
+    task_t task=(task_t)((qint64)hProcess&0xFFFFFFFF);
+
+    mach_msg_type_number_t _nSize=nSize;
+
+    if(vm_write(task,(vm_address_t)nAddress,(vm_offset_t)pData,_nSize))
+    {
+        nResult=(quint64)_nSize;
+    }
 #endif
     return nResult;
 }
@@ -1861,7 +1885,19 @@ QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID)
 
         listResult.append(record);
     }
+#endif
+#ifdef Q_OS_MAC
+    task_t task=0;
+    task_for_pid(mach_task_self(),nProcessID,&task);
 
+    task_dyld_info dyld_info={};
+    mach_msg_type_number_t count=TASK_DYLD_INFO_COUNT;
+
+    if(task_info(task,TASK_DYLD_INFO,(task_info_t)&dyld_info,&count)==KERN_SUCCESS)
+    {
+        int z=0;
+        z++;
+    }
 #endif
 
     return listResult;

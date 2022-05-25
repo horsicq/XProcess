@@ -53,6 +53,7 @@
 #include <QDirIterator>
 #include <mach-o/dyld_images.h>
 #include <mach/vm_region.h>
+#include <mach/mach_vm.h>
 #endif
 
 #include "xbinary.h"
