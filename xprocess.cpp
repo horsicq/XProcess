@@ -589,29 +589,6 @@ QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(qint64 nProcessID,
     return listResult;
 }
 
-QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(HANDLEID handleID,quint64 nAddress,quint64 nSize)
-{
-    QList<MEMORY_REGION> listResult;
-
-    if(handleID.hHandle)
-    {
-        listResult=getMemoryRegionsList(handleID.hHandle,nAddress,nSize);
-    }
-    else if(handleID.nID)
-    {
-        handleID.hHandle=XProcess::openMemoryQuery(handleID.nID);
-
-        if(handleID.hHandle)
-        {
-            listResult=getMemoryRegionsList(handleID,nAddress,nSize);
-
-            XProcess::closeMemoryQuery(handleID.hHandle);
-        }
-    }
-
-    return listResult;
-}
-
 XProcess::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess,quint64 nAddress)
 {
     // TODO LINUX
@@ -678,29 +655,6 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegion(qint64 nProcessID,quint64 nAdd
     }
 
     return result;
-}
-
-XProcess::MEMORY_REGION XProcess::getMemoryRegion(HANDLEID handleID,quint64 nAddress)
-{
-    MEMORY_REGION mrResult={};
-
-    if(handleID.hHandle)
-    {
-        mrResult=getMemoryRegion(handleID.hHandle,nAddress);
-    }
-    else if(handleID.nID)
-    {
-        handleID.hHandle=XProcess::openMemoryQuery(handleID.nID);
-
-        if(handleID.hHandle)
-        {
-            mrResult=getMemoryRegion(handleID,nAddress);
-
-            XProcess::closeMemoryQuery(handleID.hHandle);
-        }
-    }
-
-    return mrResult;
 }
 
 XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)

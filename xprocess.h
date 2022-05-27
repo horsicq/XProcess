@@ -66,12 +66,12 @@
 
 #ifdef Q_OS_MACOS
     typedef quint32 X_ID;
-    typedef HANDLE X_HANDLE;
+    typedef void * X_HANDLE;
 #endif
 
 #ifdef Q_OS_LINUX
     typedef quint32 X_ID;
-    typedef HANDLE X_HANDLE;
+    typedef void * X_HANDLE;
 #endif
 
 #ifdef Q_OS_WIN
@@ -177,7 +177,6 @@ class XProcess : public XIODevice
     Q_OBJECT
 
 public:
-
     struct HANDLEID
     {
         X_ID nID;
@@ -316,10 +315,8 @@ public:
     static QString read_utf8String(void *hProcess,quint64 nAddress,quint64 nMaxSize=256);
     static QList<MEMORY_REGION> getMemoryRegionsList(void *hProcess,quint64 nAddress,quint64 nSize);
     static QList<MEMORY_REGION> getMemoryRegionsList(qint64 nProcessID,quint64 nAddress,quint64 nSize);
-    static QList<MEMORY_REGION> getMemoryRegionsList(HANDLEID handleID,quint64 nAddress,quint64 nSize);
     static MEMORY_REGION getMemoryRegion(void *hProcess,quint64 nAddress);
     static MEMORY_REGION getMemoryRegion(qint64 nProcessID,quint64 nAddress);
-    static MEMORY_REGION getMemoryRegion(HANDLEID handleID,quint64 nAddress);
     static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
 //    static THREAD_INFO getInfoByThreadID(qint64 nThreadID);
     static QList<qint64> getThreadIDsList(qint64 nProcessID);
