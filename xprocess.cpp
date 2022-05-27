@@ -73,7 +73,7 @@ XProcess::XProcess(QObject *pParent) : XIODevice(pParent)
     g_hProcess=0;
 }
 
-XProcess::XProcess(qint64 nProcessID,quint64 nAddress,quint64 nSize,QObject *pParent) : XProcess(pParent)
+XProcess::XProcess(X_ID nProcessID, quint64 nAddress, quint64 nSize, QObject *pParent) : XProcess(pParent)
 {
     g_nProcessID=nProcessID;
 
@@ -1069,20 +1069,20 @@ QString XProcess::convertNtToDosPath(QString sNtPath)
 }
 #endif
 
-void *XProcess::openProcess(qint64 nProcessID)
+X_HANDLE XProcess::openProcess(X_ID nProcessID)
 {
-    void *pResult=0;
+    X_HANDLE pResult=0;
 #ifdef Q_OS_WIN
     pResult=(void *)OpenProcess(PROCESS_ALL_ACCESS,0,nProcessID);
 #endif
     return pResult;
 }
 
-void *XProcess::openMemoryQuery(qint64 nProcessID)
+X_HANDLE XProcess::openMemoryQuery(X_ID nProcessID)
 {
-    void *pResult=0;
+    X_HANDLE pResult=0;
 #ifdef Q_OS_WIN
-    pResult=(void *)OpenProcess(PROCESS_ALL_ACCESS,0,nProcessID);
+    pResult=OpenProcess(PROCESS_ALL_ACCESS,0,nProcessID);
 #endif
 #ifdef Q_OS_LINUX
     // TODO _openLargeFile
@@ -1103,11 +1103,11 @@ void *XProcess::openMemoryQuery(qint64 nProcessID)
     return pResult;
 }
 
-void *XProcess::openMemoryIO(qint64 nProcessID)
+X_HANDLE XProcess::openMemoryIO(X_ID nProcessID)
 {
-    void *pResult=0;
+    X_HANDLE pResult=0;
 #ifdef Q_OS_WIN
-    pResult=(void *)OpenProcess(PROCESS_ALL_ACCESS,0,nProcessID);
+    pResult=OpenProcess(PROCESS_ALL_ACCESS,0,nProcessID);
 #endif
 #ifdef Q_OS_LINUX
     QString sMapMemory=QString("/proc/%1/mem").arg(nProcessID);
@@ -1130,7 +1130,7 @@ void *XProcess::openMemoryIO(qint64 nProcessID)
 void XProcess::closeProcess(void *hProcess)
 {
 #ifdef Q_OS_WIN
-    CloseHandle((HANDLE)hProcess);
+    CloseHandle(hProcess);
 #endif
 }
 

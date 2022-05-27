@@ -60,6 +60,21 @@
 #include "xiodevice.h"
 
 #ifdef Q_OS_WIN
+    typedef DWORD X_ID;
+    typedef HANDLE X_HANDLE;
+#endif
+
+#ifdef Q_OS_MACOS
+    typedef quint32 X_ID;
+    typedef HANDLE X_HANDLE;
+#endif
+
+#ifdef Q_OS_LINUX
+    typedef quint32 X_ID;
+    typedef HANDLE X_HANDLE;
+#endif
+
+#ifdef Q_OS_WIN
 struct S_CLIENT_ID
 {
     PVOID UniqueProcess;
@@ -165,8 +180,8 @@ public:
 
     struct HANDLEID
     {
-        void *hHandle;
-        qint64 nID;
+        X_ID nID;
+        X_HANDLE hHandle;
     };
 
     struct MEMORY_FLAGS
@@ -241,7 +256,7 @@ public:
 #endif
 
     explicit XProcess(QObject *pParent=nullptr);
-    XProcess(qint64 nProcessID,quint64 nAddress,quint64 nSize,QObject *pParent=nullptr);
+    XProcess(X_ID nProcessID,quint64 nAddress,quint64 nSize,QObject *pParent=nullptr);
     XProcess(void *hProcess,quint64 nAddress,quint64 nSize,QObject *pParent=nullptr);
     virtual bool open(OpenMode mode);
     virtual void close();
@@ -276,9 +291,9 @@ public:
     static quint64 getSystemEPROCESSAddress();
     static QString getLastErrorAsString();
 #endif
-    static void *openProcess(qint64 nProcessID); // TODO move to Windows
-    static void *openMemoryQuery(qint64 nProcessID);
-    static void *openMemoryIO(qint64 nProcessID);
+    static X_HANDLE openProcess(X_ID nProcessID); // TODO move to Windows
+    static X_HANDLE openMemoryQuery(X_ID nProcessID);
+    static X_HANDLE openMemoryIO(X_ID nProcessID);
     static void closeProcess(void *hProcess); // TODO move to Windows
     static void closeMemoryQuery(void *hProcess);
     static void closeMemoryIO(void *hProcess);
@@ -318,7 +333,7 @@ public:
 
 private:
     const qint64 N_BUFFER_SIZE=0x1000;
-    qint64 g_nProcessID;
+    X_ID g_nProcessID;
     void *g_hProcess;
 };
 
