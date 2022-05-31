@@ -204,7 +204,7 @@ public:
 
     struct MEMORY_REGION
     {
-        quint64 nAddress;
+        XADDR nAddress;
         quint64 nSize;
         MEMORY_FLAGS mf;
     #ifdef Q_OS_WIN
