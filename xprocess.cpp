@@ -73,7 +73,7 @@ XProcess::XProcess(QObject *pParent) : XIODevice(pParent)
     g_hProcess=0;
 }
 
-XProcess::XProcess(X_ID nProcessID, quint64 nAddress, quint64 nSize, QObject *pParent) : XProcess(pParent)
+XProcess::XProcess(X_ID nProcessID,quint64 nAddress,quint64 nSize,QObject *pParent) : XProcess(pParent)
 {
     g_nProcessID=nProcessID;
 
