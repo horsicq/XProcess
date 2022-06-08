@@ -63,12 +63,14 @@
     typedef DWORD X_ID;
     typedef HANDLE X_HANDLE;
     typedef HANDLE X_HANDLE_IO;
-    typedef HANDLE X_HANDLE_MR;
+    typedef HANDLE X_HANDLE_MQ;
 #endif
 
 #ifdef Q_OS_MACOS
     typedef quint32 X_ID;
-    typedef void * X_HANDLE;
+    typedef task_t X_HANDLE;
+    typedef task_t X_HANDLE_IO;
+    typedef task_t X_HANDLE_MQ;
 #endif
 
 #ifdef Q_OS_LINUX
@@ -225,7 +227,7 @@ public:
     {
         QString sName;
         //        qint64 nParentID;
-        qint64 nID;
+        X_ID nID;
         QString sFilePath;
         quint64 nImageAddress;
         quint64 nImageSize;
@@ -295,11 +297,11 @@ public:
     static QString getLastErrorAsString();
 #endif
     static X_HANDLE openProcess(X_ID nProcessID); // TODO move to Windows
-    static X_HANDLE openMemoryQuery(X_ID nProcessID);
-    static X_HANDLE openMemoryIO(X_ID nProcessID);
-    static void closeProcess(void *hProcess); // TODO move to Windows
-    static void closeMemoryQuery(void *hProcess);
-    static void closeMemoryIO(void *hProcess);
+    static X_HANDLE_MQ openMemoryQuery(X_ID nProcessID);
+    static X_HANDLE_IO openMemoryIO(X_ID nProcessID);
+    static void closeProcess(X_HANDLE hProcess); // TODO move to Windows
+    static void closeMemoryQuery(X_HANDLE_MQ hProcess);
+    static void closeMemoryIO(X_HANDLE_IO hProcess);
     static void *openThread(qint64 nThreadID);
     static void closeThread(void *hThread);
     static bool isProcessReadable(qint64 nProcessID);
@@ -317,13 +319,13 @@ public:
     static QString read_ansiString(X_HANDLE_IO hProcess,quint64 nAddress,quint64 nMaxSize=256);
     static QString read_unicodeString(X_HANDLE_IO hProcess,quint64 nAddress,quint64 nMaxSize=256); // TODO endian ??
     static QString read_utf8String(X_HANDLE_IO hProcess,quint64 nAddress,quint64 nMaxSize=256);
-    static QList<MEMORY_REGION> getMemoryRegionsList(void *hProcess,quint64 nAddress,quint64 nSize);
-    static QList<MEMORY_REGION> getMemoryRegionsList(qint64 nProcessID,quint64 nAddress,quint64 nSize);
-    static MEMORY_REGION getMemoryRegion(void *hProcess,quint64 nAddress);
-    static MEMORY_REGION getMemoryRegion(qint64 nProcessID,quint64 nAddress);
-    static PROCESS_INFO getInfoByProcessID(qint64 nProcessID);
+    static QList<MEMORY_REGION> getMemoryRegionsListByHandle(X_HANDLE_MQ hProcess,XADDR nAddress,quint64 nSize);
+    static QList<MEMORY_REGION> getMemoryRegionsListById(X_ID nProcessID,XADDR nAddress,quint64 nSize);
+    static MEMORY_REGION getMemoryRegionByHandle(X_HANDLE_MQ hProcess,XADDR nAddress);
+    static MEMORY_REGION getMemoryRegionById(X_ID nProcessID,XADDR nAddress);
+    static PROCESS_INFO getInfoByProcessID(X_ID nProcessID); // TODO rename to getProcessInfoById
 //    static THREAD_INFO getInfoByThreadID(qint64 nThreadID);
-    static QList<qint64> getThreadIDsList(qint64 nProcessID);
+    static QList<qint64> getThreadIDsList(X_ID nProcessID);
     static XBinary::OSINFO getOsInfo();
     static QList<MODULE> getModulesList(qint64 nProcessID);
     static MODULE getModuleByAddress(QList<MODULE> *pListModules,quint64 nAddress);

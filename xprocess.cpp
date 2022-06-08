@@ -349,7 +349,6 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList(bool bShowAll)
     }
 
 #endif
-    // TODO Check Mac
 #ifdef Q_OS_LINUX
     QDirIterator it("/proc");
 
@@ -488,7 +487,7 @@ bool XProcess::setPrivilege(QString sName,bool bEnable)
     return bResult;
 }
 
-QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess,quint64 nAddress,quint64 nSize)
+QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsListByHandle(X_HANDLE_MQ hProcess,XADDR nAddress,quint64 nSize)
 {
     QList<MEMORY_REGION> listResult;
 #ifdef Q_OS_WIN
@@ -567,21 +566,30 @@ QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(void *hProcess,qui
     }
 #endif
 #ifdef Q_OS_MAC
-    //task_t task=(task_t)hProcess;
+    mach_vm_address_t _nAddress=nAddress;
+    mach_vm_size_t _nSize=nSize;
+    mach_msg_type_number_t count=VM_REGION_BASIC_INFO_COUNT_64;
+    vm_region_basic_info_data_t info={};
+    mach_port_t object_name=0;
+
+    if(mach_vm_region(hProcess,&_nAddress,&_nSize,VM_REGION_BASIC_INFO,(vm_region_info_t)&info,&count,&object_name)==KERN_SUCCESS)
+    {
+
+    }
 
 #endif
     return listResult;
 }
 
-QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(qint64 nProcessID,quint64 nAddress,quint64 nSize)
+QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsListById(X_ID nProcessID,XADDR nAddress,quint64 nSize)
 {
     QList<MEMORY_REGION> listResult;
 
-    void *pProcess=openMemoryQuery(nProcessID); // TODO OpenMemoryQuery QFile for linux
+    X_HANDLE_MQ pProcess=openMemoryQuery(nProcessID); // TODO OpenMemoryQuery QFile for linux
 
     if(pProcess)
     {
-        listResult=getMemoryRegionsList(pProcess,nAddress,nSize);
+        listResult=getMemoryRegionsListByHandle(pProcess,nAddress,nSize);
 
         closeMemoryQuery(pProcess); // TODO CloseMemoryQuery
     }
@@ -589,7 +597,7 @@ QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList(qint64 nProcessID,
     return listResult;
 }
 
-XProcess::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess,quint64 nAddress)
+XProcess::MEMORY_REGION XProcess::getMemoryRegionByHandle(X_HANDLE_MQ hProcess,XADDR nAddress)
 {
     // TODO LINUX
     MEMORY_REGION result={};
@@ -641,15 +649,15 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegion(void *hProcess,quint64 nAddres
     return result;
 }
 
-XProcess::MEMORY_REGION XProcess::getMemoryRegion(qint64 nProcessID,quint64 nAddress)
+XProcess::MEMORY_REGION XProcess::getMemoryRegionById(X_ID nProcessID,XADDR nAddress)
 {
     MEMORY_REGION result={};
 
-    void *pProcess=openMemoryQuery(nProcessID);
+    X_HANDLE_MQ pProcess=openMemoryQuery(nProcessID);
 
     if(pProcess)
     {
-        result=getMemoryRegion(pProcess,nAddress);
+        result=getMemoryRegionByHandle(pProcess,nAddress);
 
         closeMemoryQuery(pProcess);
     }
@@ -657,7 +665,7 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegion(qint64 nProcessID,quint64 nAdd
     return result;
 }
 
-XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
+XProcess::PROCESS_INFO XProcess::getInfoByProcessID(X_ID nProcessID)
 {
     PROCESS_INFO result={0};
 #ifdef Q_OS_WIN
@@ -766,7 +774,7 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(qint64 nProcessID)
 //#endif
 //    return result;
 //}
-QList<qint64> XProcess::getThreadIDsList(qint64 nProcessID)
+QList<qint64> XProcess::getThreadIDsList(X_ID nProcessID)
 {
     QList<qint64> listResult;
 
@@ -1032,9 +1040,9 @@ X_HANDLE XProcess::openProcess(X_ID nProcessID)
     return pResult;
 }
 
-X_HANDLE XProcess::openMemoryQuery(X_ID nProcessID)
+X_HANDLE_MQ XProcess::openMemoryQuery(X_ID nProcessID)
 {
-    X_HANDLE pResult=0;
+    X_HANDLE_MQ pResult=0;
 #ifdef Q_OS_WIN
     pResult=OpenProcess(PROCESS_ALL_ACCESS,0,nProcessID);
 #endif
@@ -1049,17 +1057,14 @@ X_HANDLE XProcess::openMemoryQuery(X_ID nProcessID)
     }
 #endif
 #ifdef Q_OS_MAC
-    task_t task=0;
-    task_for_pid(mach_task_self(),nProcessID,&task);
-
-    pResult=(void *)task;
+    task_for_pid(mach_task_self(),nProcessID,&pResult);
 #endif
     return pResult;
 }
 
-X_HANDLE XProcess::openMemoryIO(X_ID nProcessID)
+X_HANDLE_IO XProcess::openMemoryIO(X_ID nProcessID)
 {
-    X_HANDLE pResult=0;
+    X_HANDLE_IO pResult=0;
 #ifdef Q_OS_WIN
     pResult=OpenProcess(PROCESS_ALL_ACCESS,0,nProcessID);
 #endif
@@ -1073,22 +1078,19 @@ X_HANDLE XProcess::openMemoryIO(X_ID nProcessID)
     }
 #endif
 #ifdef Q_OS_MAC
-    task_t task=0;
-    task_for_pid(mach_task_self(),nProcessID,&task);
-
-    pResult=(void *)task;
+    task_for_pid(mach_task_self(),nProcessID,&pResult);
 #endif
     return pResult;
 }
 
-void XProcess::closeProcess(void *hProcess)
+void XProcess::closeProcess(X_HANDLE hProcess)
 {
 #ifdef Q_OS_WIN
     CloseHandle(hProcess);
 #endif
 }
 
-void XProcess::closeMemoryQuery(void *hProcess)
+void XProcess::closeMemoryQuery(X_HANDLE_MQ hProcess)
 {
 #ifdef Q_OS_WIN
     CloseHandle((HANDLE)hProcess);
@@ -1103,7 +1105,7 @@ void XProcess::closeMemoryQuery(void *hProcess)
 #endif
 }
 
-void XProcess::closeMemoryIO(void *hProcess)
+void XProcess::closeMemoryIO(X_HANDLE_IO hProcess)
 {
 #ifdef Q_OS_WIN
     CloseHandle((HANDLE)hProcess);
@@ -1139,7 +1141,7 @@ bool XProcess::isProcessReadable(qint64 nProcessID)
 {
     bool bResult=false;
 
-    void *pProcessHandle=openMemoryIO(nProcessID);
+    X_HANDLE_IO pProcessHandle=openMemoryIO(nProcessID);
 
     if(pProcessHandle)
     {
