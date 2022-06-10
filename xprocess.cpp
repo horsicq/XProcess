@@ -566,17 +566,37 @@ QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsListByHandle(X_HANDLE_M
     }
 #endif
 #ifdef Q_OS_MAC
-    mach_vm_address_t _nAddress=nAddress;
-    mach_vm_size_t _nSize=nSize;
-    mach_msg_type_number_t count=VM_REGION_BASIC_INFO_COUNT_64;
-    vm_region_basic_info_data_t info={};
-    mach_port_t object_name=0;
-
-    if(mach_vm_region(hProcess,&_nAddress,&_nSize,VM_REGION_BASIC_INFO,(vm_region_info_t)&info,&count,&object_name)==KERN_SUCCESS)
+    for(XADDR nCurrentAddress=nAddress;nCurrentAddress<nAddress+nSize;)
     {
+        mach_vm_address_t _nAddress=nCurrentAddress;
+        mach_vm_size_t _nSize=0;
+        mach_msg_type_number_t count=VM_REGION_BASIC_INFO_COUNT_64;
+        vm_region_basic_info_data_t info={};
+        mach_port_t object_name=0;
 
+        if(mach_vm_region(hProcess,&_nAddress,&_nSize,VM_REGION_BASIC_INFO,(vm_region_info_t)&info,&count,&object_name)==KERN_SUCCESS)
+        {
+            MEMORY_REGION memoryRegion={};
+
+            memoryRegion.nAddress=_nAddress;
+            memoryRegion.nSize=_nSize;
+            memoryRegion.mf.bShare=info.shared;
+            memoryRegion.mf.bReserved=info.reserved;
+
+            listResult.append(memoryRegion);
+
+            if(_nSize==0)
+            {
+                break;
+            }
+
+            nCurrentAddress=_nAddress+_nSize;
+        }
+        else
+        {
+            break;
+        }
     }
-
 #endif
     return listResult;
 }
@@ -1942,6 +1962,14 @@ QString XProcess::memoryFlagsToString(MEMORY_FLAGS mf)
     if(mf.bExecute)     sResult+="E";
 #ifdef Q_OS_WIN
     if(mf.bCopy)        sResult+="C";
+#endif
+#ifdef Q_OS_LINUX
+    if(mf.bShare)       sResult+="S";
+    if(mf.bPrivate)     sResult+="P";
+#endif
+#ifdef Q_OS_MACOS
+    if(mf.bShare)       sResult+="S";
+    if(mf.bReserved)    sResult+="res";
 #endif
 
     return sResult;

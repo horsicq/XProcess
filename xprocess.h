@@ -202,6 +202,10 @@ public:
         bool bShare;
         bool bPrivate;
     #endif
+    #ifdef Q_OS_MACOS
+        bool bShare;
+        bool bReserved;
+    #endif
     };
 
     struct MEMORY_REGION
