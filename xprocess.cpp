@@ -645,7 +645,7 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegionByHandle(X_HANDLE_MQ hProcess,X
 //    }
 #endif
 #ifdef Q_OS_LINUX
-    QList<MEMORY_REGION> listRecords=getMemoryRegionsList(hProcess,0,0xFFFFFFFFFFFFFFFF);
+    QList<MEMORY_REGION> listRecords=getMemoryRegionsListByHandle(hProcess,0,0xFFFFFFFFFFFFFFFF);
 
     qint32 nNumberOfRecords=listRecords.count();
 
@@ -1819,7 +1819,7 @@ QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID)
     }
 #endif
 #ifdef Q_OS_LINUX
-    QList<MEMORY_REGION> listMR=getMemoryRegionsList(nProcessID,0,0xFFFFFFFFFFFFFFFF);
+    QList<MEMORY_REGION> listMR=getMemoryRegionsListById(nProcessID,0,0xFFFFFFFFFFFFFFFF);
 
     qint32 nNumberOfRecords=listMR.count();
 
