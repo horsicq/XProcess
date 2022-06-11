@@ -81,7 +81,7 @@ XProcess::XProcess(X_ID nProcessID, XADDR nAddress, quint64 nSize, QObject *pPar
     setSize(nSize);
 }
 
-XProcess::XProcess(void *hProcess, XADDR nAddress, quint64 nSize, QObject *pParent) : XProcess(pParent)
+XProcess::XProcess(void *hProcess,XADDR nAddress,quint64 nSize,QObject *pParent) : XProcess(pParent)
 {
     g_hProcess=hProcess;
 
