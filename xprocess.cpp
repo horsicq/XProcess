@@ -1387,7 +1387,7 @@ QString XProcess::read_unicodeString(X_HANDLE_IO hProcess, quint64 nAddress, qui
     {
         quint16 *pBuffer=new quint16[nMaxSize+1];
 
-        for(qint32 i=0;i<nMaxSize;i++)
+        for(qint32 i=0;i<(qint32)nMaxSize;i++)
         {
             pBuffer[i]=read_uint16(hProcess,nAddress+2*i);
 
@@ -1396,7 +1396,7 @@ QString XProcess::read_unicodeString(X_HANDLE_IO hProcess, quint64 nAddress, qui
                 break;
             }
 
-            if(i==nMaxSize-1)
+            if(i==(qint32)(nMaxSize-1))
             {
                 pBuffer[nMaxSize]=0;
             }
@@ -1418,7 +1418,7 @@ QString XProcess::read_utf8String(X_HANDLE_IO hProcess, quint64 nAddress, quint6
     {
         qint32 nRealSize=0;
 
-        for(qint32 i=0;i<nMaxSize;i++)
+        for(qint32 i=0;i<(qint32)nMaxSize;i++)
         {
             quint8 nByte=read_uint8(hProcess,nAddress+nRealSize);
 
