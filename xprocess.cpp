@@ -1244,7 +1244,7 @@ void XProcess::write_uint8(X_HANDLE_IO hProcess,quint64 nAddress,quint8 nValue)
     write_array(hProcess,nAddress,(char *)&nValue,1);
 }
 
-void XProcess::write_uint16(X_HANDLE_IO hProcess, quint64 nAddress, quint16 nValue, bool bIsBigEndian)
+void XProcess::write_uint16(X_HANDLE_IO hProcess,quint64 nAddress,quint16 nValue,bool bIsBigEndian)
 {
     if(bIsBigEndian)
     {
