@@ -1057,6 +1057,9 @@ X_HANDLE XProcess::openProcess(X_ID nProcessID)
 #ifdef Q_OS_WIN
     pResult=(void *)OpenProcess(PROCESS_ALL_ACCESS,0,nProcessID);
 #endif
+#ifdef Q_OS_MAC
+    task_for_pid(mach_task_self(),nProcessID,&pResult);
+#endif
     return pResult;
 }
 
@@ -1917,7 +1920,7 @@ XProcess::MODULE XProcess::getModuleByFileName(QList<MODULE> *pListModules,QStri
     return result;
 }
 
-bool XProcess::isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion,quint64 nAddress)
+bool XProcess::isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion, XADDR nAddress)
 {
     bool bResult=false;
 
