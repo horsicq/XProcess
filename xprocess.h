@@ -266,7 +266,7 @@ public:
 
     explicit XProcess(QObject *pParent=nullptr);
     XProcess(X_ID nProcessID,XADDR nAddress,quint64 nSize,QObject *pParent=nullptr);
-    XProcess(void *hProcess,XADDR nAddress,quint64 nSize,QObject *pParent=nullptr);
+    XProcess(XADDR nAddress,quint64 nSize,X_HANDLE hHandle,QObject *pParent=nullptr);
     virtual bool open(OpenMode mode);
     virtual void close();
 
@@ -341,7 +341,7 @@ public:
 private:
     const qint64 N_BUFFER_SIZE=0x1000;
     X_ID g_nProcessID;
-    void *g_hProcess;
+    X_HANDLE g_hProcess;
 };
 
 #endif // XPROCESS_H

@@ -81,9 +81,9 @@ XProcess::XProcess(X_ID nProcessID, XADDR nAddress, quint64 nSize, QObject *pPar
     setSize(nSize);
 }
 
-XProcess::XProcess(void *hProcess,XADDR nAddress,quint64 nSize,QObject *pParent) : XProcess(pParent)
+XProcess::XProcess(XADDR nAddress, quint64 nSize, X_HANDLE hHandle, QObject *pParent) : XProcess(pParent)
 {
-    g_hProcess=hProcess;
+    g_hProcess=hHandle;
 
     setInitOffset(nAddress);
     setSize(nSize);
@@ -111,7 +111,7 @@ bool XProcess::open(OpenMode mode)
             nFlag=PROCESS_ALL_ACCESS;
         }
 
-        g_hProcess=OpenProcess(nFlag,0,(DWORD)g_nProcessID);
+        g_hProcess=OpenProcess(nFlag,0,(DWORD)g_nProcessID); // TODO Errors
 
         bResult=(g_hProcess!=nullptr);
     #endif
@@ -138,6 +138,16 @@ bool XProcess::open(OpenMode mode)
         {
             g_hProcess=(void *)nFD;
 
+            bResult=true;
+        }
+    #endif
+    #ifdef Q_OS_MACOS
+        mach_port_name_t task=0;
+        kern_return_t error=task_for_pid(mach_task_self(),g_nProcessID,&task);
+
+        if(error!=KERN_SUCCESS)
+        {
+            g_hProcess=task;
             bResult=true;
         }
     #endif
@@ -1058,7 +1068,13 @@ X_HANDLE XProcess::openProcess(X_ID nProcessID)
     pResult=(void *)OpenProcess(PROCESS_ALL_ACCESS,0,nProcessID);
 #endif
 #ifdef Q_OS_MAC
-    task_for_pid(mach_task_self(),nProcessID,&pResult);
+    kern_return_t error=task_for_pid(mach_task_self(),nProcessID,&pResult);
+#ifdef QT_DEBUG
+    if(error!=KERN_SUCCESS)
+    {
+        qDebug("%s",mach_error_string(error));
+    }
+#endif
 #endif
     return pResult;
 }
