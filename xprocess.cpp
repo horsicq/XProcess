@@ -81,7 +81,7 @@ XProcess::XProcess(X_ID nProcessID, XADDR nAddress, quint64 nSize, QObject *pPar
     setSize(nSize);
 }
 
-XProcess::XProcess(XADDR nAddress, quint64 nSize, X_HANDLE hHandle, QObject *pParent) : XProcess(pParent)
+XProcess::XProcess(XADDR nAddress,quint64 nSize,X_HANDLE hHandle,QObject *pParent) : XProcess(pParent)
 {
     g_hProcess=hHandle;
 
@@ -467,6 +467,53 @@ bool XProcess::setDebugPrivilege(bool bEnable)
     return setPrivilege("SeDebugPrivilege",bEnable);
 }
 
+bool XProcess::isRoot()
+{
+    bool bResult=false;
+
+#ifdef Q_OS_WIN
+    HANDLE hToken=NULL;
+
+    if(OpenProcessToken(GetCurrentProcess(),TOKEN_QUERY,&hToken))
+    {
+        TOKEN_ELEVATION elevation={};
+        DWORD dwSize=0;
+
+        if (GetTokenInformation(hToken,TokenElevation,&elevation,sizeof(elevation),&dwSize))
+        {
+            if(elevation.TokenIsElevated)
+            {
+                bResult=true;
+            }
+        }
+
+        CloseHandle(hToken);
+    }
+#endif
+
+#ifdef Q_OS_LINUX
+    if(geteuid()==0)
+    {
+        bResult=true;
+    }
+#endif
+
+    return bResult;
+}
+#ifdef QT_GUI_LIB
+bool XProcess::isRoot(QWidget *pWidget)
+{
+    bool bResult=isRoot();
+
+    if(!bResult)
+    {
+        QMessageBox::critical(pWidget,tr("Error"),tr("Please run the program as an administrator"));
+        // QMessageBox::critical(pWidget,tr("Error"),tr("please run this program as root"));
+    }
+
+    return bResult;
+}
+#endif
 bool XProcess::setPrivilege(QString sName,bool bEnable)
 {
     bool bResult=true;

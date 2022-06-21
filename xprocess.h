@@ -55,6 +55,9 @@
 #include <mach/vm_region.h>
 #include <mach/mach_vm.h>
 #endif
+#ifdef QT_GUI_LIB
+#include <QMessageBox>
+#endif
 
 #include "xbinary.h"
 #include "xiodevice.h"
@@ -279,6 +282,10 @@ public:
     static QList<THREAD_INFO> getThreadsList(qint64 nProcessID);
     static bool setPrivilege(QString sName,bool bEnable);
     static bool setDebugPrivilege(bool bEnable);
+    static bool isRoot();
+#ifdef QT_GUI_LIB
+    static bool isRoot(QWidget *pWidget);
+#endif
 #ifdef Q_OS_WIN
     static qint64 getProcessIDByHandle(void *hProcess);
     static qint64 getThreadIDByHandle(void *hThread);
