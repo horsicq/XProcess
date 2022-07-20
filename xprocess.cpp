@@ -395,7 +395,7 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList(bool bShowAll)
         }
     }
 #endif
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MACOS
     size_t nProcBuffSize=0;
     int name[4]={CTL_KERN,KERN_PROC,KERN_PROC_ALL,0};
     int st=sysctl(name,4,NULL,&nProcBuffSize,NULL,0);
@@ -805,7 +805,7 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(X_ID nProcessID)
         }
     }
 #endif
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MACOS
     if(nProcessID)
     {
         result.nID=nProcessID;

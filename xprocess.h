@@ -40,7 +40,7 @@
 #include <unistd.h>
 #include <QDirIterator>
 #endif
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MACOS
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/ptrace.h>
