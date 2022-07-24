@@ -585,6 +585,7 @@ QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsListByHandle(X_HANDLE_M
 
     if(pFile)
     {
+        pFile->seek(0);
         QByteArray baData=pFile->readAll();
 
         QTextStream inStream(baData,QIODevice::ReadOnly);
