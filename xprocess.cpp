@@ -1379,7 +1379,7 @@ quint64 XProcess::read_array(X_HANDLE_IO hProcess, quint64 nAddress, char *pData
     return nResult;
 }
 
-quint64 XProcess::write_array(X_HANDLE_IO hProcess, quint64 nAddress, char *pData, quint64 nSize)
+quint64 XProcess::write_array(X_HANDLE_IO hProcess,quint64 nAddress,char *pData,quint64 nSize)
 {
     quint64 nResult=0;
 #ifdef Q_OS_WIN
