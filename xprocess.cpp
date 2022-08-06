@@ -1446,7 +1446,7 @@ QString XProcess::read_ansiString(X_HANDLE_IO hProcess, quint64 nAddress, quint6
     return sResult;
 }
 
-QString XProcess::read_unicodeString(X_HANDLE_IO hProcess, quint64 nAddress, quint64 nMaxSize)
+QString XProcess::read_unicodeString(X_HANDLE_IO hProcess,quint64 nAddress,quint64 nMaxSize)
 {
     QString sResult;
 
