@@ -1419,7 +1419,7 @@ QByteArray XProcess::read_array(X_HANDLE_IO hProcess,quint64 nAddress,quint64 nS
     return baResult;
 }
 
-QString XProcess::read_ansiString(X_HANDLE_IO hProcess, quint64 nAddress, quint64 nMaxSize)
+QString XProcess::read_ansiString(X_HANDLE_IO hProcess,quint64 nAddress,quint64 nMaxSize)
 {
     char *pBuffer=new char[nMaxSize+1];
     QString sResult;
