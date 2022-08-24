@@ -1984,7 +1984,7 @@ XProcess::MODULE XProcess::getModuleByFileName(QList<MODULE> *pListModules,QStri
     return result;
 }
 
-bool XProcess::isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion, XADDR nAddress)
+bool XProcess::isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion,XADDR nAddress)
 {
     bool bResult=false;
 
