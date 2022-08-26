@@ -1285,7 +1285,7 @@ quint32 XProcess::read_uint32(X_HANDLE_IO hProcess,quint64 nAddress,bool bIsBigE
     return nResult;
 }
 
-quint64 XProcess::read_uint64(X_HANDLE_IO hProcess, quint64 nAddress, bool bIsBigEndian)
+quint64 XProcess::read_uint64(X_HANDLE_IO hProcess,quint64 nAddress,bool bIsBigEndian)
 {
     quint64 nResult=0;
 
