@@ -21,6 +21,7 @@
 #ifndef XPROCESS_H
 #define XPROCESS_H
 
+#include <limits> // Ubuntu 22.04
 #include <QtEndian>
 #ifdef Q_OS_WIN
 #include <Windows.h>
