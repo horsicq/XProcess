@@ -544,7 +544,7 @@ bool XProcess::setPrivilege(QString sName,bool bEnable)
     return bResult;
 }
 
-QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsListByHandle(X_HANDLE_MQ hProcess,XADDR nAddress,quint64 nSize)
+QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList_Handle(X_HANDLE_MQ hProcess,XADDR nAddress,quint64 nSize)
 {
     QList<MEMORY_REGION> listResult;
 #ifdef Q_OS_WIN
@@ -659,7 +659,7 @@ QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsListByHandle(X_HANDLE_M
     return listResult;
 }
 
-QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsListById(X_ID nProcessID,XADDR nAddress,quint64 nSize)
+QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList_Id(X_ID nProcessID,XADDR nAddress,quint64 nSize)
 {
     QList<MEMORY_REGION> listResult;
 
@@ -667,7 +667,7 @@ QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsListById(X_ID nProcessI
 
     if(pProcess)
     {
-        listResult=getMemoryRegionsListByHandle(pProcess,nAddress,nSize);
+        listResult=getMemoryRegionsList_Handle(pProcess,nAddress,nSize);
 
         closeMemoryQuery(pProcess); // TODO CloseMemoryQuery
     }
@@ -675,7 +675,7 @@ QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsListById(X_ID nProcessI
     return listResult;
 }
 
-XProcess::MEMORY_REGION XProcess::getMemoryRegionByHandle(X_HANDLE_MQ hProcess,XADDR nAddress)
+XProcess::MEMORY_REGION XProcess::getMemoryRegion_Handle(X_HANDLE_MQ hProcess,XADDR nAddress)
 {
     // TODO LINUX
     MEMORY_REGION result={};
@@ -703,7 +703,7 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegionByHandle(X_HANDLE_MQ hProcess,X
 //    }
 #endif
 #ifdef Q_OS_LINUX
-    QList<MEMORY_REGION> listRecords=getMemoryRegionsListByHandle(hProcess,0,0xFFFFFFFFFFFFFFFF);
+    QList<MEMORY_REGION> listRecords=getMemoryRegionsList_Handle(hProcess,0,0xFFFFFFFFFFFFFFFF);
 
     qint32 nNumberOfRecords=listRecords.count();
 
@@ -727,7 +727,7 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegionByHandle(X_HANDLE_MQ hProcess,X
     return result;
 }
 
-XProcess::MEMORY_REGION XProcess::getMemoryRegionById(X_ID nProcessID,XADDR nAddress)
+XProcess::MEMORY_REGION XProcess::getMemoryRegion_Id(X_ID nProcessID,XADDR nAddress)
 {
     MEMORY_REGION result={};
 
@@ -735,7 +735,7 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegionById(X_ID nProcessID,XADDR nAdd
 
     if(pProcess)
     {
-        result=getMemoryRegionByHandle(pProcess,nAddress);
+        result=getMemoryRegion_Handle(pProcess,nAddress);
 
         closeMemoryQuery(pProcess);
     }
@@ -1886,7 +1886,7 @@ QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID)
     }
 #endif
 #ifdef Q_OS_LINUX
-    QList<MEMORY_REGION> listMR=getMemoryRegionsListById(nProcessID,0,0xFFFFFFFFFFFFFFFF);
+    QList<MEMORY_REGION> listMR=getMemoryRegionsList_Id(nProcessID,0,0xFFFFFFFFFFFFFFFF);
 
     qint32 nNumberOfRecords=listMR.count();
 

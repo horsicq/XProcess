@@ -331,10 +331,10 @@ public:
     static QString read_ansiString(X_HANDLE_IO hProcess,quint64 nAddress,quint64 nMaxSize=256);
     static QString read_unicodeString(X_HANDLE_IO hProcess,quint64 nAddress,quint64 nMaxSize=256); // TODO endian ??
     static QString read_utf8String(X_HANDLE_IO hProcess,quint64 nAddress,quint64 nMaxSize=256);
-    static QList<MEMORY_REGION> getMemoryRegionsListByHandle(X_HANDLE_MQ hProcess,XADDR nAddress,quint64 nSize);
-    static QList<MEMORY_REGION> getMemoryRegionsListById(X_ID nProcessID,XADDR nAddress,quint64 nSize);
-    static MEMORY_REGION getMemoryRegionByHandle(X_HANDLE_MQ hProcess,XADDR nAddress);
-    static MEMORY_REGION getMemoryRegionById(X_ID nProcessID,XADDR nAddress);
+    static QList<MEMORY_REGION> getMemoryRegionsList_Handle(X_HANDLE_MQ hProcess,XADDR nAddress,quint64 nSize);
+    static QList<MEMORY_REGION> getMemoryRegionsList_Id(X_ID nProcessID,XADDR nAddress,quint64 nSize);
+    static MEMORY_REGION getMemoryRegion_Handle(X_HANDLE_MQ hProcess,XADDR nAddress);
+    static MEMORY_REGION getMemoryRegion_Id(X_ID nProcessID,XADDR nAddress);
     static PROCESS_INFO getInfoByProcessID(X_ID nProcessID); // TODO rename to getProcessInfoById
 //    static THREAD_INFO getInfoByThreadID(qint64 nThreadID);
     static QList<qint64> getThreadIDsList(X_ID nProcessID);
