@@ -410,7 +410,7 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList(bool bShowAll)
 
         kinfo_proc *pKinfo_proc=(kinfo_proc *)pData;
 
-        for(int i=0;i<nNumberOfProcesses;i++)
+        for(qint32 i=0;i<nNumberOfProcesses;i++)
         {
             qint64 nPID=pKinfo_proc[i].kp_proc.p_pid;
 
