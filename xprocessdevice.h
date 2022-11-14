@@ -21,26 +21,25 @@
 #ifndef XPROCESSDEVICE_H
 #define XPROCESSDEVICE_H
 
-#include <QObject>
 #include <QIODevice>
+#include <QObject>
 #ifdef Q_OS_WIN
+#include <Tlhelp32.h>
 #include <Windows.h>
 #include <winternl.h>
-#include <Tlhelp32.h>
 #endif
 #ifdef Q_OS_LINUX
 #include <QFile>
 #endif
 
-#define X_ALIGN_DOWN(x,align)     ((x)&~(align-1))
-#define X_ALIGN_UP(x,align)       (((x)&(align-1))?X_ALIGN_DOWN(x,align)+align:x)
+#define X_ALIGN_DOWN(x, align) ((x) & ~(align - 1))
+#define X_ALIGN_UP(x, align) (((x) & (align - 1)) ? X_ALIGN_DOWN(x, align) + align : x)
 
-class XProcessDevice : public QIODevice
-{
+class XProcessDevice : public QIODevice {
     Q_OBJECT
 
 public:
-    explicit XProcessDevice(QObject *pParent=nullptr);
+    explicit XProcessDevice(QObject *pParent = nullptr);
     ~XProcessDevice();
 
     virtual qint64 size() const;
@@ -51,8 +50,9 @@ public:
     virtual bool atEnd() const;
     virtual void close();
     virtual qint64 pos() const;
-    bool openPID(qint64 nPID,quint64 nAddress,quint64 nSize,OpenMode mode);
-    bool openHandle(void *hProcess,quint64 nAddress,quint64 nSize,OpenMode mode);
+    bool openPID(qint64 nPID, quint64 nAddress, quint64 nSize, OpenMode mode);
+    bool openHandle(void *hProcess, quint64 nAddress, quint64 nSize, OpenMode mode);
+
 private:
     quint64 adjustSize(quint64 nSize);
 #ifdef Q_OS_WIN
@@ -60,16 +60,16 @@ private:
 #endif
 
 protected:
-    virtual qint64 readData(char *pData,qint64 nMaxSize);
-    virtual qint64 writeData(const char *pData,qint64 nMaxSize);
+    virtual qint64 readData(char *pData, qint64 nMaxSize);
+    virtual qint64 writeData(const char *pData, qint64 nMaxSize);
     virtual void setErrorString(const QString &str);
 
 private:
-    const qint64 N_BUFFER_SIZE=0x1000;
+    const qint64 N_BUFFER_SIZE = 0x1000;
     qint64 g_nPID;
     void *g_hProcess;
     quint64 g_nAddress;
     quint64 g_nSize;
 };
 
-#endif // XPROCESSDEVICE_H
+#endif  // XPROCESSDEVICE_H
