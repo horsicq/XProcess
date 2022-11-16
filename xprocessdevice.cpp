@@ -20,28 +20,33 @@
  */
 #include "xprocessdevice.h"
 
-XProcessDevice::XProcessDevice(QObject *pParent) : QIODevice(pParent) {
+XProcessDevice::XProcessDevice(QObject *pParent) : QIODevice(pParent)
+{
     g_hProcess = nullptr;
     g_nPID = 0;
     g_nAddress = 0;
     g_nSize = 0;
 }
 
-XProcessDevice::~XProcessDevice() {
+XProcessDevice::~XProcessDevice()
+{
     if (isOpen()) {
         XProcessDevice::close();
     }
 }
 
-qint64 XProcessDevice::size() const {
+qint64 XProcessDevice::size() const
+{
     return g_nSize;
 }
 
-bool XProcessDevice::isSequential() const {
+bool XProcessDevice::isSequential() const
+{
     return false;
 }
 
-bool XProcessDevice::seek(qint64 pos) {
+bool XProcessDevice::seek(qint64 pos)
+{
     bool bResult = false;
 
     if ((pos < (qint64)g_nSize) && (pos >= 0)) {
@@ -51,21 +56,25 @@ bool XProcessDevice::seek(qint64 pos) {
     return bResult;
 }
 
-bool XProcessDevice::reset() {
+bool XProcessDevice::reset()
+{
     return seek(0);
 }
 
-bool XProcessDevice::open(QIODevice::OpenMode mode) {
+bool XProcessDevice::open(QIODevice::OpenMode mode)
+{
     Q_UNUSED(mode)
 
     return false;  // Use openPId or OpenHandle
 }
 
-bool XProcessDevice::atEnd() const {
+bool XProcessDevice::atEnd() const
+{
     return (bytesAvailable() == 0);
 }
 
-void XProcessDevice::close() {
+void XProcessDevice::close()
+{
     bool bSuccess = true;
 
     if (g_nPID) {
@@ -88,11 +97,13 @@ void XProcessDevice::close() {
     }
 }
 
-qint64 XProcessDevice::pos() const {
+qint64 XProcessDevice::pos() const
+{
     return QIODevice::pos();
 }
 
-bool XProcessDevice::openPID(qint64 nPID, quint64 nAddress, quint64 nSize, QIODevice::OpenMode mode) {
+bool XProcessDevice::openPID(qint64 nPID, quint64 nAddress, quint64 nSize, QIODevice::OpenMode mode)
+{
     bool bResult = false;
 
     setOpenMode(mode);
@@ -148,7 +159,8 @@ bool XProcessDevice::openPID(qint64 nPID, quint64 nAddress, quint64 nSize, QIODe
     return bResult;
 }
 
-bool XProcessDevice::openHandle(void *hProcess, quint64 nAddress, quint64 nSize, QIODevice::OpenMode mode) {
+bool XProcessDevice::openHandle(void *hProcess, quint64 nAddress, quint64 nSize, QIODevice::OpenMode mode)
+{
     this->g_hProcess = hProcess;
     this->g_nAddress = nAddress;
     this->g_nSize = nSize;
@@ -160,7 +172,8 @@ bool XProcessDevice::openHandle(void *hProcess, quint64 nAddress, quint64 nSize,
     return true;
 }
 
-quint64 XProcessDevice::adjustSize(quint64 nSize) {
+quint64 XProcessDevice::adjustSize(quint64 nSize)
+{
     qint64 nPos = pos();
     quint64 _nSize = X_ALIGN_UP(nPos, 0x1000) - nPos;
 
@@ -174,7 +187,8 @@ quint64 XProcessDevice::adjustSize(quint64 nSize) {
     return nResult;
 }
 #ifdef Q_OS_WIN
-void XProcessDevice::checkWindowsLastError() {
+void XProcessDevice::checkWindowsLastError()
+{
     quint32 nLastErrorCode = GetLastError();
 
     if (nLastErrorCode) {
@@ -189,7 +203,8 @@ void XProcessDevice::checkWindowsLastError() {
     }
 }
 #endif
-qint64 XProcessDevice::readData(char *pData, qint64 nMaxSize) {
+qint64 XProcessDevice::readData(char *pData, qint64 nMaxSize)
+{
     qint64 nResult = 0;
 
     qint64 _nPos = pos();
@@ -253,7 +268,8 @@ qint64 XProcessDevice::readData(char *pData, qint64 nMaxSize) {
     return nResult;
 }
 
-qint64 XProcessDevice::writeData(const char *pData, qint64 nMaxSize) {
+qint64 XProcessDevice::writeData(const char *pData, qint64 nMaxSize)
+{
     qint64 nResult = 0;
 
     qint64 _nPos = pos();
@@ -308,6 +324,7 @@ qint64 XProcessDevice::writeData(const char *pData, qint64 nMaxSize) {
     return nResult;
 }
 
-void XProcessDevice::setErrorString(const QString &str) {
+void XProcessDevice::setErrorString(const QString &str)
+{
     QIODevice::setErrorString(str);
 }
