@@ -152,11 +152,9 @@ struct S_SYSTEM_HANDLE_INFORMATION_EX {
     S_SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX Handles[1];
 };
 
-typedef NTSTATUS(NTAPI *pfnNtQueryInformationThread)(HANDLE ThreadHandle, THREADINFOCLASS ThreadInformationClass, PVOID ThreadInformation, ULONG ThreadInformationLength,
-                                                     PULONG ReturnLength);
+typedef NTSTATUS(NTAPI *pfnNtQueryInformationThread)(HANDLE ThreadHandle, THREADINFOCLASS ThreadInformationClass, PVOID ThreadInformation, ULONG ThreadInformationLength, PULONG ReturnLength);
 
-typedef NTSTATUS(NTAPI *pfnNtQueryInformationProcess)(HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength,
-                                                      PULONG ReturnLength);
+typedef NTSTATUS(NTAPI *pfnNtQueryInformationProcess)(HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength);
 
 typedef NTSTATUS(NTAPI *pfnNtQuerySystemInformation)(SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength);
 

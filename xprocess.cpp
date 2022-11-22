@@ -65,15 +65,13 @@ quint32 _writeLargeFile(qint32 nFD, quint64 nOffset, const char *pData, quint32 
 }
 #endif
 
-XProcess::XProcess(QObject *pParent)
-    : XIODevice(pParent)
+XProcess::XProcess(QObject *pParent) : XIODevice(pParent)
 {
     g_nProcessID = 0;
     g_hProcess = 0;
 }
 
-XProcess::XProcess(X_ID nProcessID, XADDR nAddress, quint64 nSize, QObject *pParent)
-    : XProcess(pParent)
+XProcess::XProcess(X_ID nProcessID, XADDR nAddress, quint64 nSize, QObject *pParent) : XProcess(pParent)
 {
     g_nProcessID = nProcessID;
 
@@ -81,8 +79,7 @@ XProcess::XProcess(X_ID nProcessID, XADDR nAddress, quint64 nSize, QObject *pPar
     setSize(nSize);
 }
 
-XProcess::XProcess(XADDR nAddress, quint64 nSize, X_HANDLE hHandle, QObject *pParent)
-    : XProcess(pParent)
+XProcess::XProcess(XADDR nAddress, quint64 nSize, X_HANDLE hHandle, QObject *pParent) : XProcess(pParent)
 {
     g_hProcess = hHandle;
 
@@ -1588,8 +1585,8 @@ QString XProcess::getLastErrorAsString()
     if (nLastError) {
         LPWSTR messageBuffer = nullptr;
 
-        size_t size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, nLastError,
-                                     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
+        size_t size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, nLastError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                                     (LPWSTR)&messageBuffer, 0, NULL);
 
         sResult = QString::fromWCharArray(messageBuffer, (qint32)size);
 
