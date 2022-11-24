@@ -1585,8 +1585,8 @@ QString XProcess::getLastErrorAsString()
     if (nLastError) {
         LPWSTR messageBuffer = nullptr;
 
-        size_t size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, nLastError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                                     (LPWSTR)&messageBuffer, 0, NULL);
+        size_t size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, nLastError,
+                                     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
 
         sResult = QString::fromWCharArray(messageBuffer, (qint32)size);
 
