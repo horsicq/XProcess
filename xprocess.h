@@ -158,7 +158,8 @@ typedef NTSTATUS(NTAPI *pfnNtQueryInformationThread)(HANDLE ThreadHandle, THREAD
 typedef NTSTATUS(NTAPI *pfnNtQueryInformationProcess)(HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength,
                                                       PULONG ReturnLength);
 
-typedef NTSTATUS(NTAPI *pfnNtQuerySystemInformation)(SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength);
+typedef NTSTATUS(NTAPI *pfnNtQuerySystemInformation)(SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength,
+                                                     PULONG ReturnLength);
 
 #endif
 
