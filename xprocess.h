@@ -24,10 +24,10 @@
 #include <QtEndian>
 #include <limits>  // Ubuntu 22.04
 #ifdef Q_OS_WIN
-#include <Tlhelp32.h>
 #include <Windows.h>
 #include <psapi.h>
 #include <winternl.h>
+#include <Tlhelp32.h>
 #endif
 #ifdef Q_OS_LINUX
 #include <fcntl.h>

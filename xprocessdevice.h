@@ -24,9 +24,9 @@
 #include <QIODevice>
 #include <QObject>
 #ifdef Q_OS_WIN
-#include <Tlhelp32.h>
 #include <Windows.h>
 #include <winternl.h>
+#include <Tlhelp32.h>
 #endif
 #ifdef Q_OS_LINUX
 #include <QFile>
