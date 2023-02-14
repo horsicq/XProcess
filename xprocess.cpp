@@ -173,7 +173,9 @@ qint64 XProcess::readData(char *pData, qint64 nMaxSize)
 {
     qint64 nResult = 0;
 
+    char *_pData = pData;
     qint64 _nPos = pos();
+    quint64 nStartOffset = getInitOffset() + _nPos;
 
     nMaxSize = qMin(nMaxSize, (qint64)(size() - _nPos));
 
@@ -198,7 +200,7 @@ qint64 XProcess::readData(char *pData, qint64 nMaxSize)
 #ifdef Q_OS_WIN
         SIZE_T nSize = 0;
 
-        if (!ReadProcessMemory(g_hProcess, (LPVOID *)(getInitOffset() + _nPos), pData, (SIZE_T)nDelta, &nSize)) {
+        if (!ReadProcessMemory(g_hProcess, (LPVOID *)(getInitOffset() + _nPos), _pData, (SIZE_T)nDelta, &nSize)) {
             break;
         }
 
@@ -207,15 +209,17 @@ qint64 XProcess::readData(char *pData, qint64 nMaxSize)
         }
 #endif
 #ifdef Q_OS_LINUX
-        if (nDelta != _readLargeFile((qint64)g_hProcess, getInitOffset() + _nPos, pData, nDelta)) {
+        if (nDelta != _readLargeFile((qint64)g_hProcess, getInitOffset() + _nPos, _pData, nDelta)) {
             break;
         }
 #endif
         _nPos += nDelta;
-        pData += nDelta;
+        _pData += nDelta;
         nResult += nDelta;
         i += nDelta;
     }
+
+    emit readDataSignal(nStartOffset, pData, nMaxSize);
 
 #ifdef Q_OS_WIN
     // TODO error string
@@ -236,8 +240,15 @@ qint64 XProcess::writeData(const char *pData, qint64 nMaxSize)
     qint64 nResult = 0;
 
     qint64 _nPos = pos();
+    quint64 nStartOffset = getInitOffset() + _nPos;
 
     nMaxSize = qMin(nMaxSize, (qint64)(size() - _nPos));
+
+    char *_pData = new char[nMaxSize];
+
+    XBinary::_copyMemory(_pData, (char *)pData, nMaxSize);
+
+    emit writeDataSignal(nStartOffset, _pData, nMaxSize);
 
     for (qint64 i = 0; i < nMaxSize;) {
         qint64 nDelta = S_ALIGN_UP(_nPos, N_BUFFER_SIZE) - _nPos;
@@ -250,7 +261,7 @@ qint64 XProcess::writeData(const char *pData, qint64 nMaxSize)
 #ifdef Q_OS_WIN
         SIZE_T nSize = 0;
 
-        if (!WriteProcessMemory(g_hProcess, (LPVOID *)(_nPos + getInitOffset()), pData, (SIZE_T)nDelta, &nSize)) {
+        if (!WriteProcessMemory(g_hProcess, (LPVOID *)(_nPos + getInitOffset()), _pData, (SIZE_T)nDelta, &nSize)) {
             break;
         }
 
@@ -259,15 +270,17 @@ qint64 XProcess::writeData(const char *pData, qint64 nMaxSize)
         }
 #endif
 #ifdef Q_OS_LINUX
-        if (nDelta != _writeLargeFile((qint64)g_hProcess, getInitOffset() + _nPos, pData, nDelta)) {
+        if (nDelta != _writeLargeFile((qint64)g_hProcess, getInitOffset() + _nPos, _pData, nDelta)) {
             break;
         }
 #endif
         _nPos += nDelta;
-        pData += nDelta;
+        _pData += nDelta;
         nResult += nDelta;
         i += nDelta;
     }
+
+    delete [] _pData;
 
 #ifdef Q_OS_WIN
     // TODO error string
