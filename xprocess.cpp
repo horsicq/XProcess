@@ -280,7 +280,7 @@ qint64 XProcess::writeData(const char *pData, qint64 nMaxSize)
         i += nDelta;
     }
 
-    delete [] _pData;
+    delete[] _pData;
 
 #ifdef Q_OS_WIN
     // TODO error string
@@ -618,11 +618,11 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegion_Handle(X_HANDLE_MQ hProcess, X
     // TODO LINUX
     MEMORY_REGION result = {};
 #ifdef Q_OS_WIN
-    //#ifndef Q_OS_WIN64
-    //    MEMORY_BASIC_INFORMATION32 mbi={};
-    //#else
-    //    MEMORY_BASIC_INFORMATION64 mbi={};
-    //#endif
+    // #ifndef Q_OS_WIN64
+    //     MEMORY_BASIC_INFORMATION32 mbi={};
+    // #else
+    //     MEMORY_BASIC_INFORMATION64 mbi={};
+    // #endif
     MEMORY_BASIC_INFORMATION mbi = {};
 
     nAddress = S_ALIGN_DOWN(nAddress, 0x1000);
@@ -751,7 +751,7 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(X_ID nProcessID)
 // XProcess::THREAD_INFO XProcess::getInfoByThreadID(qint64 nThreadID)
 //{
 //     THREAD_INFO result={0};
-//#ifdef Q_OS_WIN
+// #ifdef Q_OS_WIN
 //     if(nThreadID)
 //     {
 //         HANDLE hModule=CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD,(DWORD)nThreadID);
@@ -770,10 +770,10 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(X_ID nProcessID)
 //            CloseHandle(hModule);
 //        }
 //    }
-//#endif
-//#ifdef Q_OS_LINUX
+// #endif
+// #ifdef Q_OS_LINUX
 //    // TODO
-//#endif
+// #endif
 //    return result;
 //}
 QList<qint64> XProcess::getThreadIDsList(X_ID nProcessID)
