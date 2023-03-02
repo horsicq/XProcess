@@ -244,11 +244,13 @@ qint64 XProcess::writeData(const char *pData, qint64 nMaxSize)
 
     nMaxSize = qMin(nMaxSize, (qint64)(size() - _nPos));
 
-    char *_pData = new char[nMaxSize];
+    char *_pDataOrig = new char[nMaxSize];
 
-    XBinary::_copyMemory(_pData, (char *)pData, nMaxSize);
+    XBinary::_copyMemory(_pDataOrig, (char *)pData, nMaxSize);
 
-    emit writeDataSignal(nStartOffset, _pData, nMaxSize);
+    emit writeDataSignal(nStartOffset, _pDataOrig, nMaxSize);
+
+    char *_pData = _pDataOrig;
 
     for (qint64 i = 0; i < nMaxSize;) {
         qint64 nDelta = S_ALIGN_UP(_nPos, N_BUFFER_SIZE) - _nPos;
@@ -280,7 +282,7 @@ qint64 XProcess::writeData(const char *pData, qint64 nMaxSize)
         i += nDelta;
     }
 
-    delete[] _pData;
+    delete[] _pDataOrig;
 
 #ifdef Q_OS_WIN
     // TODO error string
@@ -452,6 +454,7 @@ bool XProcess::isRoot()
         bResult = true;
     }
 #endif
+    // TODO Check macOS
 
     return bResult;
 }
