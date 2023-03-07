@@ -807,7 +807,7 @@ QList<qint64> XProcess::getThreadIDsList(X_ID nProcessID)
 }
 
 #ifdef Q_OS_WIN
-qint64 XProcess::getRegionAllocationSize(void *hProcess, qint64 nRegionBase)
+qint64 XProcess::getRegionAllocationSize(X_HANDLE hProcess, qint64 nRegionBase)
 {
     qint64 nResult = 0;
 
@@ -832,7 +832,7 @@ qint64 XProcess::getRegionAllocationSize(void *hProcess, qint64 nRegionBase)
 }
 #endif
 #ifdef Q_OS_WIN
-qint64 XProcess::getRegionAllocationBase(void *hProcess, qint64 nAddress)
+qint64 XProcess::getRegionAllocationBase(X_HANDLE hProcess, qint64 nAddress)
 {
     qint64 nResult = -1;
 
@@ -848,7 +848,7 @@ qint64 XProcess::getRegionAllocationBase(void *hProcess, qint64 nAddress)
 }
 #endif
 #ifdef Q_OS_WIN
-qint64 XProcess::getRegionBase(void *hProcess, qint64 nAddress)
+qint64 XProcess::getRegionBase(X_HANDLE hProcess, qint64 nAddress)
 {
     qint64 nResult = -1;
 
@@ -864,7 +864,7 @@ qint64 XProcess::getRegionBase(void *hProcess, qint64 nAddress)
 }
 #endif
 #ifdef Q_OS_WIN
-qint64 XProcess::getRegionSize(void *hProcess, qint64 nAddress)
+qint64 XProcess::getRegionSize(X_HANDLE hProcess, qint64 nAddress)
 {
     qint64 nResult = -1;
 
@@ -919,7 +919,7 @@ XProcess::MEMORY_FLAGS XProcess::protectToFlags(quint32 nValue)
 }
 #endif
 #ifdef Q_OS_WIN
-XProcess::MEMORY_FLAGS XProcess::getMemoryFlags(void *hProcess, qint64 nAddress)
+XProcess::MEMORY_FLAGS XProcess::getMemoryFlags(X_HANDLE hProcess, qint64 nAddress)
 {
     MEMORY_FLAGS result = {};
     MEMORY_BASIC_INFORMATION mbi = {};
@@ -932,7 +932,7 @@ XProcess::MEMORY_FLAGS XProcess::getMemoryFlags(void *hProcess, qint64 nAddress)
 }
 #endif
 #ifdef Q_OS_WIN
-QString XProcess::getFileNameByHandle(void *hHandle)
+QString XProcess::getFileNameByHandle(X_HANDLE hHandle)
 {
     QString sResult;
 
@@ -1383,7 +1383,7 @@ qint64 XProcess::getTEBAddress(qint64 nThreadID)
 }
 #endif
 #ifdef Q_OS_WIN
-qint64 XProcess::getTEBAddress(void *hThread)
+qint64 XProcess::getTEBAddress(X_HANDLE hThread)
 {
     qint64 nResult = -1;
 
@@ -1420,7 +1420,7 @@ qint64 XProcess::getPEBAddress(qint64 nProcessID)
 }
 #endif
 #ifdef Q_OS_WIN
-qint64 XProcess::getPEBAddress(void *hProcess)
+qint64 XProcess::getPEBAddress(X_HANDLE hProcess)
 {
     qint64 nResult = -1;
 
@@ -1613,7 +1613,72 @@ QString XProcess::getLastErrorAsString()
 }
 #endif
 #ifdef Q_OS_WIN
-qint64 XProcess::getProcessIDByHandle(void *hProcess)
+void XProcess::getCallStack(X_HANDLE hProcess, X_HANDLE hThread)
+{
+    // mb TODO suspend
+    CONTEXT context;
+    memset(&context, 0, sizeof(CONTEXT));
+
+    context.ContextFlags = CONTEXT_CONTROL | CONTEXT_INTEGER;
+
+    if (GetThreadContext(hThread, &context)) {
+        STACKFRAME64 frame;
+        ZeroMemory(&frame, sizeof(STACKFRAME64));
+
+#ifdef Q_PROCESSOR_X86_32
+        DWORD machineType = IMAGE_FILE_MACHINE_I386;
+        frame.AddrPC.Offset = context.Eip;
+        frame.AddrPC.Mode = AddrModeFlat;
+        frame.AddrFrame.Offset = context.Ebp;
+        frame.AddrFrame.Mode = AddrModeFlat;
+        frame.AddrStack.Offset = context.Esp;
+        frame.AddrStack.Mode = AddrModeFlat;
+#endif
+#ifdef Q_PROCESSOR_X86_64
+        DWORD machineType = IMAGE_FILE_MACHINE_AMD64;
+        frame.AddrPC.Offset = context.Rip;
+        frame.AddrPC.Mode = AddrModeFlat;
+        frame.AddrFrame.Offset = context.Rbp;
+        frame.AddrFrame.Mode = AddrModeFlat;
+        frame.AddrStack.Offset = context.Rsp;
+        frame.AddrStack.Mode = AddrModeFlat;
+#endif
+        for(qint32 i = 0; i < 100; i++) {
+            if(!StackWalk64(
+                        machineType,
+                        hProcess,
+                        hThread,
+                        &frame,
+                        &context,
+                        NULL,
+                        NULL,
+                        NULL,
+                        NULL))
+            {
+                break;
+            }
+
+            if(frame.AddrPC.Offset != 0)
+            {
+#ifdef QT_DEBUG
+                qDebug("Frame: %s", XBinary::valueToHexEx(frame.AddrFrame.Offset).toLatin1().data());
+                qDebug("PC: %s", XBinary::valueToHexEx(frame.AddrPC.Offset).toLatin1().data());
+                qDebug("Return: %s", XBinary::valueToHexEx(frame.AddrReturn.Offset).toLatin1().data());
+                qDebug("Stack: %s", XBinary::valueToHexEx(frame.AddrStack.Offset).toLatin1().data());
+#endif
+                // TODO
+            }
+            else
+            {
+                // END
+                break;
+            }
+        }
+    }
+}
+#endif
+#ifdef Q_OS_WIN
+qint64 XProcess::getProcessIDByHandle(X_HANDLE hProcess)
 {
     qint64 nResult = 0;
 
@@ -1623,7 +1688,7 @@ qint64 XProcess::getProcessIDByHandle(void *hProcess)
 }
 #endif
 #ifdef Q_OS_WIN
-qint64 XProcess::getThreadIDByHandle(void *hThread)
+qint64 XProcess::getThreadIDByHandle(X_HANDLE hThread)
 {
     qint64 nResult = 0;
 

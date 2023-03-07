@@ -28,6 +28,7 @@
 #include <psapi.h>
 #include <winternl.h>
 #include <Tlhelp32.h>
+#include <DbgHelp.h>
 #endif
 #ifdef Q_OS_LINUX
 #include <fcntl.h>
@@ -261,25 +262,26 @@ public:
     static bool isRoot(QWidget *pWidget);
 #endif
 #ifdef Q_OS_WIN
-    static qint64 getProcessIDByHandle(void *hProcess);
-    static qint64 getThreadIDByHandle(void *hThread);
-    static qint64 getRegionAllocationSize(void *hProcess, qint64 nRegionBase);
-    static qint64 getRegionAllocationBase(void *hProcess, qint64 nAddress);
-    static qint64 getRegionBase(void *hProcess, qint64 nAddress);
-    static qint64 getRegionSize(void *hProcess, qint64 nAddress);
+    static qint64 getProcessIDByHandle(X_HANDLE hProcess);
+    static qint64 getThreadIDByHandle(X_HANDLE hThread);
+    static qint64 getRegionAllocationSize(X_HANDLE hProcess, qint64 nRegionBase);
+    static qint64 getRegionAllocationBase(X_HANDLE hProcess, qint64 nAddress);
+    static qint64 getRegionBase(X_HANDLE hProcess, qint64 nAddress);
+    static qint64 getRegionSize(X_HANDLE hProcess, qint64 nAddress);
     static MEMORY_FLAGS protectToFlags(quint32 nValue);
-    static MEMORY_FLAGS getMemoryFlags(void *hProcess, qint64 nAddress);
-    static QString getFileNameByHandle(void *hHandle);
+    static MEMORY_FLAGS getMemoryFlags(X_HANDLE hProcess, qint64 nAddress);
+    static QString getFileNameByHandle(X_HANDLE hHandle);
     static QString convertNtToDosPath(QString sNtPath);
     static qint64 getTEBAddress(qint64 nThreadID);
-    static qint64 getTEBAddress(void *hThread);
+    static qint64 getTEBAddress(X_HANDLE hThread);
     static qint64 getPEBAddress(qint64 nProcessID);
-    static qint64 getPEBAddress(void *hProcess);
+    static qint64 getPEBAddress(X_HANDLE hProcess);
     static QList<qint64> getTEBAddresses(qint64 nProcessID);
     static QList<WINSYSHANDLE> getOpenHandles(qint64 nProcessID = -1);
     static QList<WINSYSHANDLE> getOpenHandlesEx(qint64 nProcessID = -1);
     static quint64 getSystemEPROCESSAddress();
     static QString getLastErrorAsString();
+    static void getCallStack(X_HANDLE hProcess, X_HANDLE hThread);
 #endif
     static X_HANDLE openProcess(X_ID nProcessID);  // TODO move to Windows
     static X_HANDLE_MQ openMemoryQuery(X_ID nProcessID);

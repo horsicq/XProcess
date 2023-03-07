@@ -16,6 +16,7 @@ SOURCES += \
 # TODO cmake !!!
 win32-msvc* {
     LIBS += Advapi32.lib
+    LIBS += DbgHelp.lib
 }
 
 win32-g++ {
