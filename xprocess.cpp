@@ -1728,7 +1728,12 @@ XBinary::OSINFO XProcess::getOsInfo()
 #endif
 #ifdef Q_OS_LINUX
     result.osName = XBinary::OSNAME_LINUX;
-    result.sArch = "AMD64";  // TODO !!!
+#ifdef Q_PROCESSOR_X86_32
+    result.sArch = "I386";
+#endif
+#ifdef Q_PROCESSOR_X86_64
+    result.sArch = "AMD64";
+#endif
 #endif
     if (sizeof(char *) == 8) {
         result.mode = XBinary::MODE_64;
@@ -1909,4 +1914,34 @@ QString XProcess::memoryFlagsToString(MEMORY_FLAGS mf)
 #endif
 
     return sResult;
+}
+
+quint32 XProcess::getMemoryRegionsListHash(X_ID nProcessID)
+{
+    qint32 nResult = 0;
+#ifdef Q_OS_LINUX
+    nResult = XBinary::_getCRC32(QString("/proc/%1/maps").arg(nProcessID));
+#endif
+    return 0;
+}
+
+quint32 XProcess::getModulesListHash(X_ID nProcessID)
+{
+    qint32 nResult = 0;
+#ifdef Q_OS_LINUX
+    nResult = XBinary::_getCRC32(QString("/proc/%1/maps").arg(nProcessID));
+#endif
+    return 0;
+}
+
+quint32 XProcess::getThreadListHash(X_ID nProcessID)
+{
+    // TODO
+    return 0;
+}
+
+quint32 XProcess::getProcessesListHash()
+{
+    // TODO
+    return 0;
 }

@@ -321,6 +321,10 @@ public:
     static MEMORY_REGION getMemoryRegionByAddress(QList<MEMORY_REGION> *pListMemoryRegions, quint64 nAddress);
     static QString memoryFlagsToString(MEMORY_FLAGS mf);
 
+    static quint32 getMemoryRegionsListHash(X_ID nProcessID);
+    static quint32 getModulesListHash(X_ID nProcessID);
+    static quint32 getThreadListHash(X_ID nProcessID);
+    static quint32 getProcessesListHash();
 private:
     const qint64 N_BUFFER_SIZE = 0x1000;
     X_ID g_nProcessID;
