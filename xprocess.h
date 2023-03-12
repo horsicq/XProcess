@@ -325,6 +325,7 @@ public:
     static quint32 getModulesListHash(X_ID nProcessID);
     static quint32 getThreadListHash(X_ID nProcessID);
     static quint32 getProcessesListHash();
+
 private:
     const qint64 N_BUFFER_SIZE = 0x1000;
     X_ID g_nProcessID;

@@ -1643,23 +1643,12 @@ void XProcess::getCallStack(X_HANDLE hProcess, X_HANDLE hThread)
         frame.AddrStack.Offset = context.Rsp;
         frame.AddrStack.Mode = AddrModeFlat;
 #endif
-        for(qint32 i = 0; i < 100; i++) {
-            if(!StackWalk64(
-                        machineType,
-                        hProcess,
-                        hThread,
-                        &frame,
-                        &context,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL))
-            {
+        for (qint32 i = 0; i < 100; i++) {
+            if (!StackWalk64(machineType, hProcess, hThread, &frame, &context, NULL, NULL, NULL, NULL)) {
                 break;
             }
 
-            if(frame.AddrPC.Offset != 0)
-            {
+            if (frame.AddrPC.Offset != 0) {
 #ifdef QT_DEBUG
                 qDebug("Frame: %s", XBinary::valueToHexEx(frame.AddrFrame.Offset).toLatin1().data());
                 qDebug("PC: %s", XBinary::valueToHexEx(frame.AddrPC.Offset).toLatin1().data());
@@ -1667,9 +1656,7 @@ void XProcess::getCallStack(X_HANDLE hProcess, X_HANDLE hThread)
                 qDebug("Stack: %s", XBinary::valueToHexEx(frame.AddrStack.Offset).toLatin1().data());
 #endif
                 // TODO
-            }
-            else
-            {
+            } else {
                 // END
                 break;
             }
