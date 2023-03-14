@@ -321,7 +321,8 @@ public:
     static MEMORY_REGION getMemoryRegionByAddress(QList<MEMORY_REGION> *pListMemoryRegions, quint64 nAddress);
     static QString memoryFlagsToString(MEMORY_FLAGS mf);
 
-    static quint32 getMemoryRegionsListHash(X_ID nProcessID);
+    static quint32 getMemoryRegionsListHash_Id(X_ID nProcessID);
+    static quint32 getMemoryRegionsListHash_Handle(X_HANDLE_MQ hProcess);
     static quint32 getModulesListHash(X_ID nProcessID);
     static quint32 getThreadListHash(X_ID nProcessID);
     static quint32 getProcessesListHash();

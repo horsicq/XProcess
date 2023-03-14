@@ -524,7 +524,7 @@ QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList_Handle(X_HANDLE_MQ
                 listResult.append(memoryRegion);
             }
 
-            nCurrentAddress += (quint64)mbi.RegionSize;
+            nCurrentAddress += (XADDR)mbi.RegionSize;
         } else {
             break;
         }
@@ -1903,28 +1903,64 @@ QString XProcess::memoryFlagsToString(MEMORY_FLAGS mf)
     return sResult;
 }
 
-quint32 XProcess::getMemoryRegionsListHash(X_ID nProcessID)
+quint32 XProcess::getMemoryRegionsListHash_Handle(X_HANDLE_MQ hProcess)
 {
     qint32 nResult = 0;
+#ifdef Q_OS_WIN
+    XADDR nCurrentAddress = 0;
+    while (true) {
+        nCurrentAddress = S_ALIGN_DOWN(nCurrentAddress, 0x1000);
+
+        MEMORY_BASIC_INFORMATION mbi = {};
+
+        if (VirtualQueryEx(hProcess, (LPCVOID)nCurrentAddress, &mbi, sizeof(mbi)) == sizeof(mbi)) {
+            // TODO
+
+            nCurrentAddress += (XADDR)mbi.RegionSize;
+        } else {
+            break;
+        }
+    }
+#endif
+    // TODO
+
+    return nResult;
+}
+
+quint32 XProcess::getMemoryRegionsListHash_Id(X_ID nProcessID)
+{
+    qint32 nResult = 0;
+#ifdef Q_OS_WIN
+    Q_UNUSED(nProcessID)
+#endif
 #ifdef Q_OS_LINUX
     nResult = XBinary::_getCRC32(QString("/proc/%1/maps").arg(nProcessID));
 #endif
-    return 0;
+    return nResult;
 }
 
 quint32 XProcess::getModulesListHash(X_ID nProcessID)
 {
     qint32 nResult = 0;
+#ifdef Q_OS_WIN
+    Q_UNUSED(nProcessID)
+#endif
 #ifdef Q_OS_LINUX
     nResult = XBinary::_getCRC32(QString("/proc/%1/maps").arg(nProcessID));
 #endif
-    return 0;
+    return nResult;
 }
 
 quint32 XProcess::getThreadListHash(X_ID nProcessID)
 {
-    // TODO
-    return 0;
+    qint32 nResult = 0;
+#ifdef Q_OS_WIN
+    Q_UNUSED(nProcessID)
+#endif
+#ifdef Q_OS_LINUX
+    Q_UNUSED(nProcessID)
+#endif
+    return nResult;
 }
 
 quint32 XProcess::getProcessesListHash()
