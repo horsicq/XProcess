@@ -1908,13 +1908,16 @@ quint32 XProcess::getMemoryRegionsListHash_Handle(X_HANDLE_MQ hProcess)
     qint32 nResult = 0;
 #ifdef Q_OS_WIN
     XADDR nCurrentAddress = 0;
+    quint32 crcTable[256];
+    XBinary::_createCRC32Table(crcTable); // TODO const
+
     while (true) {
         nCurrentAddress = S_ALIGN_DOWN(nCurrentAddress, 0x1000);
 
         MEMORY_BASIC_INFORMATION mbi = {};
 
         if (VirtualQueryEx(hProcess, (LPCVOID)nCurrentAddress, &mbi, sizeof(mbi)) == sizeof(mbi)) {
-            // TODO
+            nResult = XBinary::_getCRC32((char *)&mbi, sizeof(mbi), nResult, crcTable);
 
             nCurrentAddress += (XADDR)mbi.RegionSize;
         } else {
@@ -1922,14 +1925,13 @@ quint32 XProcess::getMemoryRegionsListHash_Handle(X_HANDLE_MQ hProcess)
         }
     }
 #endif
-    // TODO
 
     return nResult;
 }
 
 quint32 XProcess::getMemoryRegionsListHash_Id(X_ID nProcessID)
 {
-    qint32 nResult = 0;
+    quint32 nResult = 0;
 #ifdef Q_OS_WIN
     Q_UNUSED(nProcessID)
 #endif
@@ -1941,9 +1943,25 @@ quint32 XProcess::getMemoryRegionsListHash_Id(X_ID nProcessID)
 
 quint32 XProcess::getModulesListHash(X_ID nProcessID)
 {
-    qint32 nResult = 0;
+    quint32 nResult = 0;
 #ifdef Q_OS_WIN
-    Q_UNUSED(nProcessID)
+    quint32 crcTable[256];
+    XBinary::_createCRC32Table(crcTable); // TODO const
+
+    HANDLE hModules = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, (DWORD)nProcessID);
+
+    if (hModules != INVALID_HANDLE_VALUE) {
+        tagMODULEENTRY32W me32 = {};
+        me32.dwSize = sizeof(tagMODULEENTRY32W);
+
+        if (Module32FirstW(hModules, &me32)) {
+            do {
+                nResult = XBinary::_getCRC32((char *)&me32, sizeof(me32), nResult, crcTable);
+            } while (Module32NextW(hModules, &me32));
+        }
+
+        CloseHandle(hModules);
+    }
 #endif
 #ifdef Q_OS_LINUX
     nResult = XBinary::_getCRC32(QString("/proc/%1/maps").arg(nProcessID));
