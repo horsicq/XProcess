@@ -1909,7 +1909,7 @@ quint32 XProcess::getMemoryRegionsListHash_Handle(X_HANDLE_MQ hProcess)
 #ifdef Q_OS_WIN
     XADDR nCurrentAddress = 0;
     quint32 crcTable[256];
-    XBinary::_createCRC32Table(crcTable); // TODO const
+    XBinary::_createCRC32Table(crcTable);  // TODO const
 
     while (true) {
         nCurrentAddress = S_ALIGN_DOWN(nCurrentAddress, 0x1000);
@@ -1946,7 +1946,7 @@ quint32 XProcess::getModulesListHash(X_ID nProcessID)
     quint32 nResult = 0;
 #ifdef Q_OS_WIN
     quint32 crcTable[256];
-    XBinary::_createCRC32Table(crcTable); // TODO const
+    XBinary::_createCRC32Table(crcTable);  // TODO const
 
     HANDLE hModules = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, (DWORD)nProcessID);
 
