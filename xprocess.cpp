@@ -1986,3 +1986,12 @@ quint32 XProcess::getProcessesListHash()
     // TODO
     return 0;
 }
+
+QString XProcess::memoryRegionToString(MEMORY_REGION memoryRegion)
+{
+    QString sResult;
+
+    sResult = QString("%1 - %2").arg(XBinary::valueToHexEx(memoryRegion.nAddress), XBinary::valueToHexEx(memoryRegion.nAddress + memoryRegion.nSize));
+
+    return sResult;
+}

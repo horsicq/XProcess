@@ -327,6 +327,8 @@ public:
     static quint32 getThreadListHash(X_ID nProcessID);
     static quint32 getProcessesListHash();
 
+    static QString memoryRegionToString(MEMORY_REGION memoryRegion);
+
 private:
     const qint64 N_BUFFER_SIZE = 0x1000;
     X_ID g_nProcessID;
