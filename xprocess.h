@@ -324,7 +324,7 @@ public:
     static quint32 getMemoryRegionsListHash_Id(X_ID nProcessID);
     static quint32 getMemoryRegionsListHash_Handle(X_HANDLE_MQ hProcess);
     static quint32 getModulesListHash(X_ID nProcessID);
-    static quint32 getThreadListHash(X_ID nProcessID);
+    static quint32 getThreadsListHash(X_ID nProcessID);
     static quint32 getProcessesListHash();
 
     static QString memoryRegionToString(MEMORY_REGION memoryRegion);

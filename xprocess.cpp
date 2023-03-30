@@ -417,7 +417,28 @@ QList<XProcess::THREAD_INFO> XProcess::getThreadsList(qint64 nProcessID)
 
         CloseHandle(hThreads);
     }
+#endif
+#ifdef Q_OS_LINUX
+    QDirIterator it(QString("/proc/%1/task").arg(nProcessID));
 
+    while (it.hasNext()) {
+        QString sRecord = it.next();
+
+        QFileInfo fi(sRecord);
+
+        if (fi.isDir()) {
+            qint64 nID = fi.baseName().toLongLong();
+
+            if (nID > 0) {
+                THREAD_INFO threadInfo = {};
+
+                threadInfo.nID = nID;
+                threadInfo.nProcessID = nProcessID;
+
+                listResult.append(threadInfo);
+            }
+        }
+    }
 #endif
 
     return listResult;
@@ -1934,7 +1955,7 @@ quint32 XProcess::getMemoryRegionsListHash_Id(X_ID nProcessID)
     Q_UNUSED(nProcessID)
 #endif
 #ifdef Q_OS_LINUX
-    nResult = XBinary::_getCRC32(QString("/proc/%1/maps").arg(nProcessID));
+    nResult = XBinary::_getCRC32ByFileContent(QString("/proc/%1/maps").arg(nProcessID));
 #endif
     return nResult;
 }
@@ -1959,19 +1980,32 @@ quint32 XProcess::getModulesListHash(X_ID nProcessID)
     }
 #endif
 #ifdef Q_OS_LINUX
-    nResult = XBinary::_getCRC32(QString("/proc/%1/maps").arg(nProcessID));
+    nResult = XBinary::_getCRC32ByFileContent(QString("/proc/%1/maps").arg(nProcessID));
 #endif
     return nResult;
 }
 
-quint32 XProcess::getThreadListHash(X_ID nProcessID)
+quint32 XProcess::getThreadsListHash(X_ID nProcessID)
 {
     qint32 nResult = 0;
 #ifdef Q_OS_WIN
-    Q_UNUSED(nProcessID)
+    HANDLE hThreads = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, (DWORD)nProcessID);
+
+    if (hThreads != INVALID_HANDLE_VALUE) {
+        THREADENTRY32 thread = {};
+        thread.dwSize = sizeof(tagTHREADENTRY32);
+
+        if (Thread32First(hThreads, &thread)) {
+            do {
+                nResult = XBinary::_getCRC32((char *)&thread, sizeof(thread), nResult, XBinary::_getCRC32Table_EDB88320());
+            } while (Thread32Next(hThreads, &thread));
+        }
+
+        CloseHandle(hThreads);
+    }
 #endif
 #ifdef Q_OS_LINUX
-    Q_UNUSED(nProcessID)
+    nResult = XBinary::_getCRC32ByDirectory(QString("/proc/%1/task").arg(nProcessID), false);
 #endif
     return nResult;
 }
