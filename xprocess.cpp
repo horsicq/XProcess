@@ -75,7 +75,7 @@ XProcess::XProcess(X_ID nProcessID, XADDR nAddress, quint64 nSize, QObject *pPar
 {
     g_nProcessID = nProcessID;
 
-    setInitOffset(nAddress);
+    setInitLocation(nAddress);
     setSize(nSize);
 }
 
@@ -83,7 +83,7 @@ XProcess::XProcess(XADDR nAddress, quint64 nSize, X_HANDLE hHandle, QObject *pPa
 {
     g_hProcess = hHandle;
 
-    setInitOffset(nAddress);
+    setInitLocation(nAddress);
     setSize(nSize);
 }
 
@@ -175,7 +175,7 @@ qint64 XProcess::readData(char *pData, qint64 nMaxSize)
 
     char *_pData = pData;
     qint64 _nPos = pos();
-    quint64 nStartOffset = getInitOffset() + _nPos;
+    quint64 nStartOffset = getInitLocation() + _nPos;
 
     nMaxSize = qMin(nMaxSize, (qint64)(size() - _nPos));
 
@@ -200,7 +200,7 @@ qint64 XProcess::readData(char *pData, qint64 nMaxSize)
 #ifdef Q_OS_WIN
         SIZE_T nSize = 0;
 
-        if (!ReadProcessMemory(g_hProcess, (LPVOID *)(getInitOffset() + _nPos), _pData, (SIZE_T)nDelta, &nSize)) {
+        if (!ReadProcessMemory(g_hProcess, (LPVOID *)(getInitLocation() + _nPos), _pData, (SIZE_T)nDelta, &nSize)) {
             break;
         }
 
@@ -209,7 +209,7 @@ qint64 XProcess::readData(char *pData, qint64 nMaxSize)
         }
 #endif
 #ifdef Q_OS_LINUX
-        if (nDelta != _readLargeFile((qint64)g_hProcess, getInitOffset() + _nPos, _pData, nDelta)) {
+        if (nDelta != _readLargeFile((qint64)g_hProcess, getInitLocation() + _nPos, _pData, nDelta)) {
             break;
         }
 #endif
@@ -240,7 +240,7 @@ qint64 XProcess::writeData(const char *pData, qint64 nMaxSize)
     qint64 nResult = 0;
 
     qint64 _nPos = pos();
-    quint64 nStartOffset = getInitOffset() + _nPos;
+    quint64 nStartOffset = getInitLocation() + _nPos;
 
     nMaxSize = qMin(nMaxSize, (qint64)(size() - _nPos));
 
@@ -263,7 +263,7 @@ qint64 XProcess::writeData(const char *pData, qint64 nMaxSize)
 #ifdef Q_OS_WIN
         SIZE_T nSize = 0;
 
-        if (!WriteProcessMemory(g_hProcess, (LPVOID *)(_nPos + getInitOffset()), _pData, (SIZE_T)nDelta, &nSize)) {
+        if (!WriteProcessMemory(g_hProcess, (LPVOID *)(_nPos + getInitLocation()), _pData, (SIZE_T)nDelta, &nSize)) {
             break;
         }
 
@@ -272,7 +272,7 @@ qint64 XProcess::writeData(const char *pData, qint64 nMaxSize)
         }
 #endif
 #ifdef Q_OS_LINUX
-        if (nDelta != _writeLargeFile((qint64)g_hProcess, getInitOffset() + _nPos, _pData, nDelta)) {
+        if (nDelta != _writeLargeFile((qint64)g_hProcess, getInitLocation() + _nPos, _pData, nDelta)) {
             break;
         }
 #endif
