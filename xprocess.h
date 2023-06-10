@@ -255,7 +255,7 @@ protected:
 public:
     static QList<PROCESS_INFO> getProcessesList(bool bShowAll = false);
     static QList<THREAD_INFO> getThreadsList(qint64 nProcessID);
-    static bool setPrivilege(QString sName, bool bEnable);
+    static bool setPrivilege(const QString &sName, bool bEnable);
     static bool setDebugPrivilege(bool bEnable);
     static bool isRoot();
 #ifdef QT_GUI_LIB

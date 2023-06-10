@@ -492,7 +492,7 @@ bool XProcess::isRoot(QWidget *pWidget)
     return bResult;
 }
 #endif
-bool XProcess::setPrivilege(QString sName, bool bEnable)
+bool XProcess::setPrivilege(const QString &sName, bool bEnable)
 {
     bool bResult = true;
 #ifdef Q_OS_WIN
