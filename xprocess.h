@@ -271,7 +271,7 @@ public:
     static MEMORY_FLAGS protectToFlags(quint32 nValue);
     static MEMORY_FLAGS getMemoryFlags(X_HANDLE hProcess, qint64 nAddress);
     static QString getFileNameByHandle(X_HANDLE hHandle);
-    static QString convertNtToDosPath(QString sNtPath);
+    static QString convertNtToDosPath(const QString &sNtPath);
     static qint64 getTEBAddress(qint64 nThreadID);
     static qint64 getTEBAddress(X_HANDLE hThread);
     static qint64 getPEBAddress(qint64 nProcessID);

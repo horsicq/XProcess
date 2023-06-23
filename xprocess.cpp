@@ -980,7 +980,7 @@ QString XProcess::getFileNameByHandle(X_HANDLE hHandle)
 }
 #endif
 #ifdef Q_OS_WIN
-QString XProcess::convertNtToDosPath(QString sNtPath)
+QString XProcess::convertNtToDosPath(const QString &sNtPath)
 {
     QString sResult = sNtPath;
 
