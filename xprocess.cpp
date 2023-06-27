@@ -1724,14 +1724,10 @@ XBinary::OSINFO XProcess::getOsInfo()
     SYSTEM_INFO si = {};
     GetSystemInfo(&si);
 
-    if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
-        result.sArch = "I386";
-    else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
-        result.sArch = "AMD64";
-    else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64)
-        result.sArch = "IA64";
-    else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_ARM)
-        result.sArch = "ARM";
+    if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL) result.sArch = "I386";
+    else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64) result.sArch = "AMD64";
+    else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64) result.sArch = "IA64";
+    else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_ARM) result.sArch = "ARM";
         // else if (si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_ARM64)       result.sArch="ARM64"; // TODO Macros
 #endif
 #ifdef Q_OS_LINUX
