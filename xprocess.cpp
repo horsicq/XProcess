@@ -1848,7 +1848,7 @@ XProcess::MODULE XProcess::getModuleByAddress(QList<MODULE> *pListModules, quint
     return result;
 }
 
-XProcess::MODULE XProcess::getModuleByFileName(QList<MODULE> *pListModules, QString sFileName)
+XProcess::MODULE XProcess::getModuleByFileName(QList<MODULE> *pListModules, const QString &sFileName)
 {
     MODULE result = {};
 
