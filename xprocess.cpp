@@ -21,9 +21,9 @@
 #include "xprocess.h"
 
 #ifdef Q_OS_LINUX
-qint32 _openLargeFile(QString sFileName, qint32 nFlags)
+qint64 _openLargeFile(QString sFileName, qint32 nFlags)
 {
-    qint32 nResult = open64(sFileName.toUtf8().data(), nFlags);
+    qint64 nResult = open64(sFileName.toUtf8().data(), nFlags);
 
     return nResult;
 }
@@ -516,6 +516,9 @@ bool XProcess::setPrivilege(const QString &sName, bool bEnable)
 
         CloseHandle(hToken);
     }
+#else
+    Q_UNUSED(sName)
+    Q_UNUSED(bEnable)
 #endif
     return bResult;
 }
@@ -821,7 +824,8 @@ QList<qint64> XProcess::getThreadIDsList(X_ID nProcessID)
 
         CloseHandle(hThreads);
     }
-
+#else
+    Q_UNUSED(nProcessID)
 #endif
 
     return listResult;
@@ -1034,6 +1038,9 @@ X_HANDLE XProcess::openProcess(X_ID nProcessID)
     }
 #endif
 #endif
+#ifdef Q_OS_LINUX
+    Q_UNUSED(nProcessID)
+#endif
     return pResult;
 }
 
@@ -1066,10 +1073,10 @@ X_HANDLE_IO XProcess::openMemoryIO(X_ID nProcessID)
 #endif
 #ifdef Q_OS_LINUX
     QString sMapMemory = QString("/proc/%1/mem").arg(nProcessID);
-    qint32 nFD = _openLargeFile(sMapMemory, O_RDWR);
+    qint64 nFD = _openLargeFile(sMapMemory, O_RDWR);
 
     if (nFD != -1) {
-        pResult = (void *)nFD;
+        pResult = (X_HANDLE_IO)nFD;
     }
 #endif
 #ifdef Q_OS_MAC
@@ -1082,6 +1089,8 @@ void XProcess::closeProcess(X_HANDLE hProcess)
 {
 #ifdef Q_OS_WIN
     CloseHandle(hProcess);
+#else
+    Q_UNUSED(hProcess)
 #endif
 }
 
@@ -1119,6 +1128,8 @@ void *XProcess::openThread(qint64 nThreadID)
     void *pResult = 0;
 #ifdef Q_OS_WIN
     pResult = (void *)OpenThread(THREAD_ALL_ACCESS, 0, nThreadID);
+#else
+    Q_UNUSED(nThreadID)
 #endif
     return pResult;
 }
@@ -1127,6 +1138,8 @@ void XProcess::closeThread(void *hThread)
 {
 #ifdef Q_OS_WIN
     CloseHandle((HANDLE)hThread);
+#else
+    Q_UNUSED(hThread)
 #endif
 }
 
@@ -1939,6 +1952,8 @@ quint32 XProcess::getMemoryRegionsListHash_Handle(X_HANDLE_MQ hProcess)
             break;
         }
     }
+#else
+    Q_UNUSED(hProcess)
 #endif
 
     return nResult;
