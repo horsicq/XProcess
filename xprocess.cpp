@@ -2035,3 +2035,59 @@ QString XProcess::memoryRegionToString(MEMORY_REGION memoryRegion)
 
     return sResult;
 }
+
+XBinary::_MEMORY_MAP XProcess::getMemoryMapByHandle(X_HANDLE_MQ hProcess)
+{
+    XBinary::_MEMORY_MAP result = {};
+    _setMemoryMapHeader(&result);
+
+    QList<MEMORY_REGION> listMemoryRegions = getMemoryRegionsList_Handle(hProcess, 0, 0xFFFFFFFFFFFFFFFF);
+    result.listRecords = convertMemoryRegionsToMemoryRecords(&listMemoryRegions);
+
+    return result;
+}
+
+XBinary::_MEMORY_MAP XProcess::getMemoryMapById(X_ID nProcessID)
+{
+    XBinary::_MEMORY_MAP result = {};
+    _setMemoryMapHeader(&result);
+
+    QList<MEMORY_REGION> listMemoryRegions = getMemoryRegionsList_Id(nProcessID, 0, 0xFFFFFFFFFFFFFFFF);
+    result.listRecords = convertMemoryRegionsToMemoryRecords(&listMemoryRegions);
+
+    return result;
+}
+
+QList<XBinary::_MEMORY_RECORD> XProcess::convertMemoryRegionsToMemoryRecords(QList<MEMORY_REGION> *pListMemoryRegions)
+{
+    QList<XBinary::_MEMORY_RECORD> listResult;
+
+    qint32 nNumberOfRecords = pListMemoryRegions->count();
+
+    for (qint32 i = 0; i < nNumberOfRecords; i++) {
+        XBinary::_MEMORY_RECORD record = {};
+        record.bIsVirtual = true;
+        record.nOffset = -1;
+        record.nAddress = pListMemoryRegions->at(i).nAddress;
+        record.nSize = pListMemoryRegions->at(i).nSize;
+        record.nIndex = i;
+        record.type = XBinary::MMT_LOADSEGMENT;
+
+        listResult.append(record);
+    }
+
+    return listResult;
+}
+
+void XProcess::_setMemoryMapHeader(XBinary::_MEMORY_MAP *pMemoryMap)
+{
+    pMemoryMap->fileType = XBinary::FT_PROCESS;
+    pMemoryMap->bIsBigEndian = false; // TODO
+    if (sizeof(void *) == 8) {
+        pMemoryMap->mode = XBinary::MODE_64;
+    } else {
+        pMemoryMap->mode = XBinary::MODE_32;
+    }
+    pMemoryMap->nModuleAddress = 0;
+    pMemoryMap->sArch = "X86"; // TODO !!!
+}

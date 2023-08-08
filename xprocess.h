@@ -328,6 +328,11 @@ public:
     static quint32 getProcessesListHash();
 
     static QString memoryRegionToString(MEMORY_REGION memoryRegion);
+    static XBinary::_MEMORY_MAP getMemoryMapByHandle(X_HANDLE_MQ hProcess);
+    static XBinary::_MEMORY_MAP getMemoryMapById(X_ID nProcessID);
+    static QList<XBinary::_MEMORY_RECORD> convertMemoryRegionsToMemoryRecords(QList<MEMORY_REGION> *pListMemoryRegions);
+private:
+    static void _setMemoryMapHeader(XBinary::_MEMORY_MAP *pMemoryMap);
 
 private:
     const qint64 N_BUFFER_SIZE = 0x1000;
