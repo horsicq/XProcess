@@ -331,6 +331,7 @@ public:
     static XBinary::_MEMORY_MAP getMemoryMapByHandle(X_HANDLE_MQ hProcess);
     static XBinary::_MEMORY_MAP getMemoryMapById(X_ID nProcessID);
     static QList<XBinary::_MEMORY_RECORD> convertMemoryRegionsToMemoryRecords(QList<MEMORY_REGION> *pListMemoryRegions);
+
 private:
     static void _setMemoryMapHeader(XBinary::_MEMORY_MAP *pMemoryMap);
 

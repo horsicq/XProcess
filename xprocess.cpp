@@ -2082,12 +2082,12 @@ QList<XBinary::_MEMORY_RECORD> XProcess::convertMemoryRegionsToMemoryRecords(QLi
 void XProcess::_setMemoryMapHeader(XBinary::_MEMORY_MAP *pMemoryMap)
 {
     pMemoryMap->fileType = XBinary::FT_PROCESS;
-    pMemoryMap->bIsBigEndian = false; // TODO
+    pMemoryMap->bIsBigEndian = false;  // TODO
     if (sizeof(void *) == 8) {
         pMemoryMap->mode = XBinary::MODE_64;
     } else {
         pMemoryMap->mode = XBinary::MODE_32;
     }
     pMemoryMap->nModuleAddress = 0;
-    pMemoryMap->sArch = "X86"; // TODO !!!
+    pMemoryMap->sArch = "X86";  // TODO !!!
 }
