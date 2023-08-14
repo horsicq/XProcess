@@ -373,7 +373,7 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList(bool bShowAll)
 
         st = sysctl(name, 4, pData, &nProcBuffSize, NULL, 0);
 
-        int nNumberOfProcesses = nProcBuffSize / sizeof(kinfo_proc);
+        qint32 nNumberOfProcesses = nProcBuffSize / sizeof(kinfo_proc);
 
         kinfo_proc *pKinfo_proc = (kinfo_proc *)pData;
 
