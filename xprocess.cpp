@@ -1836,8 +1836,7 @@ QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID)
     mach_msg_type_number_t count = TASK_DYLD_INFO_COUNT;
 
     if (task_info(task, TASK_DYLD_INFO, (task_info_t)&dyld_info, &count) == KERN_SUCCESS) {
-        int z = 0;
-        z++;
+        // TODO
     }
 #endif
 
