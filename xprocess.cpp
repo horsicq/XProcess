@@ -935,7 +935,7 @@ XProcess::MEMORY_FLAGS XProcess::protectToFlags(quint32 nValue)
         result.bCopy = true;
     } else if (nValue) {
 #ifdef QT_DEBUG
-        qDebug("Unknown");
+        qDebug("Unknown protectToFlags");
 #endif
     }
     // TODO more for Windows !
