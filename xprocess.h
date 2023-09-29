@@ -40,6 +40,7 @@
 #include <sys/wait.h>
 #include <syscall.h>
 #include <unistd.h>
+#include <elf.h>
 
 #include <QDirIterator>
 #endif
