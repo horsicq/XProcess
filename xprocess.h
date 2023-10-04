@@ -165,6 +165,35 @@ typedef NTSTATUS(NTAPI *pfnNtQuerySystemInformation)(SYSTEM_INFORMATION_CLASS Sy
 
 #endif
 
+#ifdef Q_OS_LINUX
+#ifdef Q_PROCESSOR_X86
+struct S_X86XState {
+    quint16 cwd;
+    quint16 swd;
+    quint16 twd;
+    quint16 fop;
+    quint32 fioff;
+    quint32 fiseg;
+    quint32 fooff;
+    quint32 foseg;
+    quint32 mxcsr;
+    quint32 mxcsr_mask;
+    quint8 st_space[16 * 8];
+    quint8 xmm_space[16 * 16];
+    quint8 padding[48];
+    union {
+        quint64 xcr0;
+        quint8 sw_usable_bytes[48];
+    };
+    union {
+        quint64 xstate_bv;
+        quint8 xstate_hdr_bytes[64];
+    };
+    quint8 ymmh_space[16 * 16];
+};
+#endif
+#endif
+
 class XProcess : public XIODevice {
     Q_OBJECT
 
