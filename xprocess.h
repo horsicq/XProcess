@@ -167,6 +167,11 @@ typedef NTSTATUS(NTAPI *pfnNtQuerySystemInformation)(SYSTEM_INFORMATION_CLASS Sy
 
 #ifdef Q_OS_LINUX
 #ifdef Q_PROCESSOR_X86
+struct S_128 {
+    quint64 Low;
+    quint64 High;
+};
+
 struct S_X86XState {
     quint16 cwd;
     quint16 swd;
@@ -178,8 +183,8 @@ struct S_X86XState {
     quint32 foseg;
     quint32 mxcsr;
     quint32 mxcsr_mask;
-    quint8 st_space[16 * 8];
-    quint8 xmm_space[16 * 16];
+    S_128 st_space[8];
+    S_128 xmm_space[16];
     quint8 padding[48];
     union {
         quint64 xcr0;
@@ -189,7 +194,7 @@ struct S_X86XState {
         quint64 xstate_bv;
         quint8 xstate_hdr_bytes[64];
     };
-    quint8 ymmh_space[16 * 16];
+    S_128 ymmh_space[16];
 };
 #endif
 #endif
