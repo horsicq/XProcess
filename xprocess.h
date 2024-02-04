@@ -41,6 +41,7 @@
 #include <syscall.h>
 #include <unistd.h>
 #include <elf.h>
+#include <signal.h>
 
 #include <QDirIterator>
 #endif

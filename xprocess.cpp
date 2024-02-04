@@ -314,12 +314,12 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList(bool bShowAll)
 
                 bool bSuccess = false;
 
-                if (processInfo.nID) {
-                    bSuccess = true;
-                } else if (bShowAll) {
+                if ((processInfo.nID == 0) && (bShowAll)) {
                     processInfo.nID = pe32.th32ProcessID;
                     processInfo.sName = QString::fromWCharArray(pe32.szExeFile);
+                }
 
+                if ((processInfo.nID) || (bShowAll)) {
                     bSuccess = true;
                 }
 
@@ -712,10 +712,10 @@ XProcess::PROCESS_INFO XProcess::getInfoByProcessID(X_ID nProcessID)
         HANDLE hModule = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, (DWORD)nProcessID);
 
         if (hModule != INVALID_HANDLE_VALUE) {
-            MODULEENTRY32 me32 = {};
-            me32.dwSize = sizeof(MODULEENTRY32);
+            MODULEENTRY32W me32 = {};
+            me32.dwSize = sizeof(MODULEENTRY32W);
 
-            if (Module32First(hModule, &me32)) {
+            if (Module32FirstW(hModule, &me32)) {
                 if ((qint64)me32.modBaseAddr) {
                     result.nID = nProcessID;
                     result.nImageAddress = (qint64)me32.modBaseAddr;
@@ -1650,52 +1650,52 @@ QString XProcess::getLastErrorAsString()
 void XProcess::getCallStack(X_HANDLE hProcess, X_HANDLE hThread)
 {
     // mb TODO suspend
-    CONTEXT context;
-    memset(&context, 0, sizeof(CONTEXT));
+    //    CONTEXT context;
+    //    memset(&context, 0, sizeof(CONTEXT));
 
-    context.ContextFlags = CONTEXT_CONTROL | CONTEXT_INTEGER;
+    //    context.ContextFlags = CONTEXT_CONTROL | CONTEXT_INTEGER;
 
-    if (GetThreadContext(hThread, &context)) {
-        STACKFRAME64 frame;
-        ZeroMemory(&frame, sizeof(STACKFRAME64));
+    //    if (GetThreadContext(hThread, &context)) {
+    //        STACKFRAME64 frame;
+    //        ZeroMemory(&frame, sizeof(STACKFRAME64));
 
-#ifdef Q_PROCESSOR_X86_32
-        DWORD machineType = IMAGE_FILE_MACHINE_I386;
-        frame.AddrPC.Offset = context.Eip;
-        frame.AddrPC.Mode = AddrModeFlat;
-        frame.AddrFrame.Offset = context.Ebp;
-        frame.AddrFrame.Mode = AddrModeFlat;
-        frame.AddrStack.Offset = context.Esp;
-        frame.AddrStack.Mode = AddrModeFlat;
-#endif
-#ifdef Q_PROCESSOR_X86_64
-        DWORD machineType = IMAGE_FILE_MACHINE_AMD64;
-        frame.AddrPC.Offset = context.Rip;
-        frame.AddrPC.Mode = AddrModeFlat;
-        frame.AddrFrame.Offset = context.Rbp;
-        frame.AddrFrame.Mode = AddrModeFlat;
-        frame.AddrStack.Offset = context.Rsp;
-        frame.AddrStack.Mode = AddrModeFlat;
-#endif
-        for (qint32 i = 0; i < 100; i++) {
-            if (!StackWalk64(machineType, hProcess, hThread, &frame, &context, NULL, NULL, NULL, NULL)) {
-                break;
-            }
+    // #ifdef Q_PROCESSOR_X86_32
+    //         DWORD machineType = IMAGE_FILE_MACHINE_I386;
+    //         frame.AddrPC.Offset = context.Eip;
+    //         frame.AddrPC.Mode = AddrModeFlat;
+    //         frame.AddrFrame.Offset = context.Ebp;
+    //         frame.AddrFrame.Mode = AddrModeFlat;
+    //         frame.AddrStack.Offset = context.Esp;
+    //         frame.AddrStack.Mode = AddrModeFlat;
+    // #endif
+    // #ifdef Q_PROCESSOR_X86_64
+    //         DWORD machineType = IMAGE_FILE_MACHINE_AMD64;
+    //         frame.AddrPC.Offset = context.Rip;
+    //         frame.AddrPC.Mode = AddrModeFlat;
+    //         frame.AddrFrame.Offset = context.Rbp;
+    //         frame.AddrFrame.Mode = AddrModeFlat;
+    //         frame.AddrStack.Offset = context.Rsp;
+    //         frame.AddrStack.Mode = AddrModeFlat;
+    // #endif
+    //         for (qint32 i = 0; i < 100; i++) {
+    //             if (!StackWalk64(machineType, hProcess, hThread, &frame, &context, NULL, NULL, NULL, NULL)) {
+    //                 break;
+    //             }
 
-            if (frame.AddrPC.Offset != 0) {
-#ifdef QT_DEBUG
-                qDebug("Frame: %s", XBinary::valueToHexEx(frame.AddrFrame.Offset).toLatin1().data());
-                qDebug("PC: %s", XBinary::valueToHexEx(frame.AddrPC.Offset).toLatin1().data());
-                qDebug("Return: %s", XBinary::valueToHexEx(frame.AddrReturn.Offset).toLatin1().data());
-                qDebug("Stack: %s", XBinary::valueToHexEx(frame.AddrStack.Offset).toLatin1().data());
-#endif
-                // TODO
-            } else {
-                // END
-                break;
-            }
-        }
-    }
+    //            if (frame.AddrPC.Offset != 0) {
+    // #ifdef QT_DEBUG
+    //                qDebug("Frame: %s", XBinary::valueToHexEx(frame.AddrFrame.Offset).toLatin1().data());
+    //                qDebug("PC: %s", XBinary::valueToHexEx(frame.AddrPC.Offset).toLatin1().data());
+    //                qDebug("Return: %s", XBinary::valueToHexEx(frame.AddrReturn.Offset).toLatin1().data());
+    //                qDebug("Stack: %s", XBinary::valueToHexEx(frame.AddrStack.Offset).toLatin1().data());
+    // #endif
+    //                // TODO
+    //            } else {
+    //                // END
+    //                break;
+    //            }
+    //        }
+    //    }
 }
 #endif
 #ifdef Q_OS_WIN
@@ -1726,11 +1726,11 @@ XBinary::OSINFO XProcess::getOsInfo()
     result.osName = XBinary::OSNAME_WINDOWS;
     // TODO OS Version
 
-    OSVERSIONINFOEXA ovi = {};
+    OSVERSIONINFOEXW ovi = {};
 
-    ovi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXA);
+    ovi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
 
-    GetVersionExA((OSVERSIONINFOA *)&ovi);
+    GetVersionExW((OSVERSIONINFOW *)&ovi);  // TODO Check
 
     result.sBuild = QString("%1.%2.%3").arg(QString::number(ovi.dwMajorVersion), QString::number(ovi.dwMinorVersion), QString::number(ovi.dwBuildNumber));
 
