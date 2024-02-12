@@ -69,6 +69,7 @@ XProcess::XProcess(QObject *pParent) : XIODevice(pParent)
 {
     g_nProcessID = 0;
     g_hProcess = 0;
+    g_pListProcesses = 0;
 }
 
 XProcess::XProcess(X_ID nProcessID, XADDR nAddress, quint64 nSize, QObject *pParent) : XProcess(pParent)
@@ -2078,10 +2079,29 @@ QList<XBinary::_MEMORY_RECORD> XProcess::convertMemoryRegionsToMemoryRecords(QLi
     return listResult;
 }
 
+void XProcess::setDataGetProcessesInfo(QList<PROCESS_INFO> *pListProcesses, XBinary::PDSTRUCT *pPdStruct)
+{
+    g_pListProcesses = pListProcesses;
+    g_pPdStruct = pPdStruct;
+}
+
+void XProcess::processGetProcessesInfo()
+{
+    // TODO options
+    qint32 nFreeIndex = XBinary::getFreeIndex(g_pPdStruct);
+
+    *g_pListProcesses = XProcess::getProcessesList();
+    // TODO
+
+    XBinary::setPdStructFinished(g_pPdStruct, nFreeIndex);
+
+    emit completed(0);
+}
+
 void XProcess::_setMemoryMapHeader(XBinary::_MEMORY_MAP *pMemoryMap)
 {
     pMemoryMap->fileType = XBinary::FT_PROCESS;
-    pMemoryMap->bIsBigEndian = false;  // TODO
+    pMemoryMap->endian = XBinary::ENDIAN_LITTLE;  // TODO
     if (sizeof(void *) == 8) {
         pMemoryMap->mode = XBinary::MODE_64;
     } else {

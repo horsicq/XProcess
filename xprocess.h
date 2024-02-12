@@ -368,13 +368,24 @@ public:
     static XBinary::_MEMORY_MAP getMemoryMapById(X_ID nProcessID);
     static QList<XBinary::_MEMORY_RECORD> convertMemoryRegionsToMemoryRecords(QList<MEMORY_REGION> *pListMemoryRegions);
 
+    void setDataGetProcessesInfo(QList<XProcess::PROCESS_INFO> *pListProcesses, XBinary::PDSTRUCT *pPdStruct);
+
+public slots:
+    void processGetProcessesInfo();
+
 private:
     static void _setMemoryMapHeader(XBinary::_MEMORY_MAP *pMemoryMap);
+
+signals:
+    void errorMessage(const QString &sText);
+    void completed(qint64 nElapsed);
 
 private:
     const qint64 N_BUFFER_SIZE = 0x1000;
     X_ID g_nProcessID;
     X_HANDLE g_hProcess;
+    QList<XProcess::PROCESS_INFO> *g_pListProcesses;
+    XBinary::PDSTRUCT *g_pPdStruct;
 };
 
 #endif  // XPROCESS_H
