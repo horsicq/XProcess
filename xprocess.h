@@ -289,7 +289,7 @@ protected:
     virtual qint64 writeData(const char *pData, qint64 nMaxSize);
 
 public:
-    static QList<PROCESS_INFO> getProcessesList(bool bShowAll = false);
+    static QList<PROCESS_INFO> getProcessesList(bool bShowAll = false, XBinary::PDSTRUCT *pPdStruct = nullptr);
     static QList<THREAD_INFO> getThreadsList(qint64 nProcessID);
     static bool setPrivilege(const QString &sName, bool bEnable);
     static bool setDebugPrivilege(bool bEnable);
@@ -350,7 +350,7 @@ public:
                                                               //    static THREAD_INFO getInfoByThreadID(qint64 nThreadID);
     static QList<qint64> getThreadIDsList(X_ID nProcessID);
     static XBinary::OSINFO getOsInfo();
-    static QList<MODULE> getModulesList(qint64 nProcessID);
+    static QList<MODULE> getModulesList(qint64 nProcessID, XBinary::PDSTRUCT *pPdStruct = nullptr);
     static MODULE getModuleByAddress(QList<MODULE> *pListModules, quint64 nAddress);
     static MODULE getModuleByFileName(QList<MODULE> *pListModules, const QString &sFileName);
     static bool isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion, XADDR nAddress);
@@ -368,7 +368,20 @@ public:
     static XBinary::_MEMORY_MAP getMemoryMapById(X_ID nProcessID);
     static QList<XBinary::_MEMORY_RECORD> convertMemoryRegionsToMemoryRecords(QList<MEMORY_REGION> *pListMemoryRegions);
 
-    void setDataGetProcessesInfo(QList<XProcess::PROCESS_INFO> *pListProcesses, XBinary::PDSTRUCT *pPdStruct);
+    enum PIO {
+        PIO_ALL = 0,
+        PIO_VALID,
+        PIO_NET
+    };
+
+    struct PROCESS_INFO_OPTIONS {
+        PIO pio;
+    };
+
+    void setDataGetProcessesInfo(PROCESS_INFO_OPTIONS piOptions, QList<XProcess::PROCESS_INFO> *pListProcesses, XBinary::PDSTRUCT *pPdStruct);
+
+    static bool isNetProcess(static QList<MODULE> *pListModules, XBinary::PDSTRUCT *pPdStruct);
+    static bool isDllPesent(QString sDll, static QList<MODULE> *pListModules, XBinary::PDSTRUCT *pPdStruct);
 
 public slots:
     void processGetProcessesInfo();
@@ -384,6 +397,7 @@ private:
     const qint64 N_BUFFER_SIZE = 0x1000;
     X_ID g_nProcessID;
     X_HANDLE g_hProcess;
+    PROCESS_INFO_OPTIONS g_piOptions;
     QList<XProcess::PROCESS_INFO> *g_pListProcesses;
     XBinary::PDSTRUCT *g_pPdStruct;
 };

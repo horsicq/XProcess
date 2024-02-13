@@ -299,9 +299,16 @@ qint64 XProcess::writeData(const char *pData, qint64 nMaxSize)
     return nResult;
 }
 
-QList<XProcess::PROCESS_INFO> XProcess::getProcessesList(bool bShowAll)
+QList<XProcess::PROCESS_INFO> XProcess::getProcessesList(bool bShowAll, XBinary::PDSTRUCT *pPdStruct)
 {
     QList<PROCESS_INFO> listResult;
+
+    XBinary::PDSTRUCT pdStructEmpty = XBinary::createPdStruct();
+
+    if (!pPdStruct) {
+        pPdStruct = &pdStructEmpty;
+    }
+
 #ifdef Q_OS_WIN
     HANDLE hProcesses = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 
@@ -327,7 +334,7 @@ QList<XProcess::PROCESS_INFO> XProcess::getProcessesList(bool bShowAll)
                 if (bSuccess) {
                     listResult.append(processInfo);
                 }
-            } while (Process32NextW(hProcesses, &pe32));
+            } while (Process32NextW(hProcesses, &pe32) && (!(pPdStruct->bIsStop)));
         }
 
         CloseHandle(hProcesses);
@@ -1762,7 +1769,7 @@ XBinary::OSINFO XProcess::getOsInfo()
     return result;
 }
 
-QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID)
+QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID, XBinary::PDSTRUCT *pPdStruct)
 {
     QList<MODULE> listResult;
 
@@ -1783,7 +1790,7 @@ QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID)
                 record.sFileName = QString::fromWCharArray(me32.szExePath);
 
                 listResult.append(record);
-            } while (Module32NextW(hModules, &me32));
+            } while (Module32NextW(hModules, &me32) && (!(pPdStruct->bIsStop)));
         }
 
         CloseHandle(hModules);
@@ -2079,8 +2086,9 @@ QList<XBinary::_MEMORY_RECORD> XProcess::convertMemoryRegionsToMemoryRecords(QLi
     return listResult;
 }
 
-void XProcess::setDataGetProcessesInfo(QList<PROCESS_INFO> *pListProcesses, XBinary::PDSTRUCT *pPdStruct)
+void XProcess::setDataGetProcessesInfo(PROCESS_INFO_OPTIONS piOptions, QList<PROCESS_INFO> *pListProcesses, XBinary::PDSTRUCT *pPdStruct)
 {
+    g_piOptions = piOptions;
     g_pListProcesses = pListProcesses;
     g_pPdStruct = pPdStruct;
 }
@@ -2090,12 +2098,69 @@ void XProcess::processGetProcessesInfo()
     // TODO options
     qint32 nFreeIndex = XBinary::getFreeIndex(g_pPdStruct);
 
-    *g_pListProcesses = XProcess::getProcessesList();
-    // TODO
+    g_pListProcesses->clear();
+
+    QList<PROCESS_INFO> listResult = XProcess::getProcessesList(true, g_pPdStruct);
+
+    qint32 nNumberOfRecords = listResult.count();
+
+    XBinary::setPdStructInit(g_pPdStruct, nFreeIndex, nNumberOfRecords);
+
+    for (qint32 i = 0; (i < nNumberOfRecords) && (!g_pPdStruct->bIsStop); i++) {
+        bool bAdd = false;
+
+        if (g_piOptions.pio == PIO_ALL) {
+            bAdd = true;
+        }
+
+        if (!bAdd) {
+            if (listResult.at(i).sFilePath != "") {
+                if (g_piOptions.pio == PIO_VALID) {
+                    bAdd = true;
+                }
+
+                if (!bAdd) {
+                    if (g_piOptions.pio == PIO_NET) {
+                        QList<XProcess::MODULE> listModules = XProcess::getModulesList(listResult.at(i).nID, g_pPdStruct);
+
+                        bAdd = isNetProcess(&listModules, g_pPdStruct);
+                    }
+                }
+            }
+        }
+
+        if (bAdd) {
+            g_pListProcesses->append(listResult.at(i));
+        }
+
+        XBinary::setPdStructStatus(g_pPdStruct, nFreeIndex, listResult.at(i).sName);
+        XBinary::setPdStructCurrent(g_pPdStruct, nFreeIndex, i);
+    }
 
     XBinary::setPdStructFinished(g_pPdStruct, nFreeIndex);
 
     emit completed(0);
+}
+
+bool XProcess::isNetProcess(static QList<MODULE> *pListModules, XBinary::PDSTRUCT *pPdStruct)
+{
+    return isDllPesent("clr.dll", pListModules, pPdStruct) || isDllPesent("mscorwks.dll", pListModules, pPdStruct);
+}
+
+bool XProcess::isDllPesent(QString sDll, QList<MODULE> *pListModules, XBinary::PDSTRUCT *pPdStruct)
+{
+    bool bResult = false;
+
+    qint32 nNumberOfRecords = pListModules->count();
+
+    for (qint32 i = 0; (i < nNumberOfRecords) && (!(pPdStruct->bIsStop)); i++) {
+        if (pListModules->at(i).sName.toLower() == sDll.toLower()) {
+            bResult = true;
+            break;
+        }
+    }
+
+    return bResult;
 }
 
 void XProcess::_setMemoryMapHeader(XBinary::_MEMORY_MAP *pMemoryMap)
