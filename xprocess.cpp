@@ -2109,6 +2109,8 @@ void XProcess::processGetProcessesInfo()
     for (qint32 i = 0; (i < nNumberOfRecords) && (!g_pPdStruct->bIsStop); i++) {
         bool bAdd = false;
 
+        PROCESS_INFO record = listResult.at(i);
+
         if (g_piOptions.pio == PIO_ALL) {
             bAdd = true;
         }
@@ -2121,16 +2123,31 @@ void XProcess::processGetProcessesInfo()
 
                 if (!bAdd) {
                     if (g_piOptions.pio == PIO_NET) {
-                        QList<XProcess::MODULE> listModules = XProcess::getModulesList(listResult.at(i).nID, g_pPdStruct);
+#ifdef Q_OS_WIN
+                        QList<XProcess::MODULE> listModules = XProcess::getModulesList(record.nID, g_pPdStruct);
 
-                        bAdd = isNetProcess(&listModules, g_pPdStruct);
+                        if (isModulePesent("clr.dll", &listModules, g_pPdStruct)) {
+                            record.sInfoExtra += "clr.dll";
+                            bAdd = true;
+                        }
+
+                        if (isModulePesent("mscorwks.dll", &listModules, g_pPdStruct)) {
+                            if (record.sInfoExtra != "") {
+                                record.sInfoExtra += ", ";
+                                record.sInfoExtra += "mscorwks.dll";
+                            }
+                            bAdd = true;
+                        }
+
+                        // TODO Check version
+#endif
                     }
                 }
             }
         }
 
         if (bAdd) {
-            g_pListProcesses->append(listResult.at(i));
+            g_pListProcesses->append(record);
         }
 
         XBinary::setPdStructStatus(g_pPdStruct, nFreeIndex, listResult.at(i).sName);
@@ -2142,19 +2159,14 @@ void XProcess::processGetProcessesInfo()
     emit completed(0);
 }
 
-bool XProcess::isNetProcess(static QList<MODULE> *pListModules, XBinary::PDSTRUCT *pPdStruct)
-{
-    return isDllPesent("clr.dll", pListModules, pPdStruct) || isDllPesent("mscorwks.dll", pListModules, pPdStruct);
-}
-
-bool XProcess::isDllPesent(QString sDll, QList<MODULE> *pListModules, XBinary::PDSTRUCT *pPdStruct)
+bool XProcess::isModulePesent(QString sModuleName, QList<MODULE> *pListModules, XBinary::PDSTRUCT *pPdStruct)
 {
     bool bResult = false;
 
     qint32 nNumberOfRecords = pListModules->count();
 
     for (qint32 i = 0; (i < nNumberOfRecords) && (!(pPdStruct->bIsStop)); i++) {
-        if (pListModules->at(i).sName.toLower() == sDll.toLower()) {
+        if (pListModules->at(i).sName.toLower() == sModuleName.toLower()) {
             bResult = true;
             break;
         }

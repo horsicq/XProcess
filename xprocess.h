@@ -65,7 +65,18 @@
 #include <QMessageBox>
 #endif
 
-#include "xbinary.h"
+#ifdef Q_OS_WIN
+#include "xpe.h"
+#endif
+
+#ifdef Q_OS_LINUX
+#include "xelf.h"
+#endif
+
+#ifdef Q_OS_MACOS
+#include "xmach.h"
+#endif
+
 #include "xiodevice.h"
 
 #ifdef Q_OS_WIN
@@ -252,6 +263,8 @@ public:
         QString sFilePath;
         quint64 nImageAddress;
         quint64 nImageSize;
+        QString sInfo;
+        QString sInfoExtra;
     };
 
     struct THREAD_INFO {
@@ -264,6 +277,8 @@ public:
         quint64 nSize;
         QString sName;
         QString sFileName;
+        QString sInfo;
+        QString sInfoExtra;
     };
 
 #ifdef Q_OS_WIN
@@ -380,8 +395,7 @@ public:
 
     void setDataGetProcessesInfo(PROCESS_INFO_OPTIONS piOptions, QList<XProcess::PROCESS_INFO> *pListProcesses, XBinary::PDSTRUCT *pPdStruct);
 
-    static bool isNetProcess(static QList<MODULE> *pListModules, XBinary::PDSTRUCT *pPdStruct);
-    static bool isDllPesent(QString sDll, static QList<MODULE> *pListModules, XBinary::PDSTRUCT *pPdStruct);
+    static bool isModulePesent(QString sModuleName, QList<MODULE> *pListModules, XBinary::PDSTRUCT *pPdStruct);
 
 public slots:
     void processGetProcessesInfo();
