@@ -2116,7 +2116,7 @@ void XProcess::processGetProcessesInfo()
         }
 
         if (!bAdd) {
-            if (listResult.at(i).sFilePath != "") {
+            if ((listResult.at(i).sFilePath != "") && (XBinary::isFileExists(listResult.at(i).sFilePath))) {
                 if (g_piOptions.pio == PIO_VALID) {
                     bAdd = true;
                 }
