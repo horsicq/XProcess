@@ -383,22 +383,7 @@ public:
     static XBinary::_MEMORY_MAP getMemoryMapById(X_ID nProcessID);
     static QList<XBinary::_MEMORY_RECORD> convertMemoryRegionsToMemoryRecords(QList<MEMORY_REGION> *pListMemoryRegions);
 
-    enum PIO {
-        PIO_ALL = 0,
-        PIO_VALID,
-        PIO_NET
-    };
-
-    struct PROCESS_INFO_OPTIONS {
-        PIO pio;
-    };
-
-    void setDataGetProcessesInfo(PROCESS_INFO_OPTIONS piOptions, QList<XProcess::PROCESS_INFO> *pListProcesses, XBinary::PDSTRUCT *pPdStruct);
-
     static bool isModulePesent(QString sModuleName, QList<MODULE> *pListModules, XBinary::PDSTRUCT *pPdStruct);
-
-public slots:
-    void processGetProcessesInfo();
 
 private:
     static void _setMemoryMapHeader(XBinary::_MEMORY_MAP *pMemoryMap);
@@ -411,9 +396,6 @@ private:
     const qint64 N_BUFFER_SIZE = 0x1000;
     X_ID g_nProcessID;
     X_HANDLE g_hProcess;
-    PROCESS_INFO_OPTIONS g_piOptions;
-    QList<XProcess::PROCESS_INFO> *g_pListProcesses;
-    XBinary::PDSTRUCT *g_pPdStruct;
 };
 
 #endif  // XPROCESS_H

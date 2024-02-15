@@ -69,7 +69,6 @@ XProcess::XProcess(QObject *pParent) : XIODevice(pParent)
 {
     g_nProcessID = 0;
     g_hProcess = 0;
-    g_pListProcesses = 0;
 }
 
 XProcess::XProcess(X_ID nProcessID, XADDR nAddress, quint64 nSize, QObject *pParent) : XProcess(pParent)
@@ -2084,79 +2083,6 @@ QList<XBinary::_MEMORY_RECORD> XProcess::convertMemoryRegionsToMemoryRecords(QLi
     }
 
     return listResult;
-}
-
-void XProcess::setDataGetProcessesInfo(PROCESS_INFO_OPTIONS piOptions, QList<PROCESS_INFO> *pListProcesses, XBinary::PDSTRUCT *pPdStruct)
-{
-    g_piOptions = piOptions;
-    g_pListProcesses = pListProcesses;
-    g_pPdStruct = pPdStruct;
-}
-
-void XProcess::processGetProcessesInfo()
-{
-    // TODO options
-    qint32 nFreeIndex = XBinary::getFreeIndex(g_pPdStruct);
-
-    g_pListProcesses->clear();
-
-    QList<PROCESS_INFO> listResult = XProcess::getProcessesList(true, g_pPdStruct);
-
-    qint32 nNumberOfRecords = listResult.count();
-
-    XBinary::setPdStructInit(g_pPdStruct, nFreeIndex, nNumberOfRecords);
-
-    for (qint32 i = 0; (i < nNumberOfRecords) && (!g_pPdStruct->bIsStop); i++) {
-        bool bAdd = false;
-
-        PROCESS_INFO record = listResult.at(i);
-
-        if (g_piOptions.pio == PIO_ALL) {
-            bAdd = true;
-        }
-
-        if (!bAdd) {
-            if ((listResult.at(i).sFilePath != "") && (XBinary::isFileExists(listResult.at(i).sFilePath))) {
-                if (g_piOptions.pio == PIO_VALID) {
-                    bAdd = true;
-                }
-
-                if (!bAdd) {
-                    if (g_piOptions.pio == PIO_NET) {
-#ifdef Q_OS_WIN
-                        QList<XProcess::MODULE> listModules = XProcess::getModulesList(record.nID, g_pPdStruct);
-
-                        if (isModulePesent("clr.dll", &listModules, g_pPdStruct)) {
-                            record.sInfoExtra += "clr.dll";
-                            bAdd = true;
-                        }
-
-                        if (isModulePesent("mscorwks.dll", &listModules, g_pPdStruct)) {
-                            if (record.sInfoExtra != "") {
-                                record.sInfoExtra += ", ";
-                                record.sInfoExtra += "mscorwks.dll";
-                            }
-                            bAdd = true;
-                        }
-
-                        // TODO Check version
-#endif
-                    }
-                }
-            }
-        }
-
-        if (bAdd) {
-            g_pListProcesses->append(record);
-        }
-
-        XBinary::setPdStructStatus(g_pPdStruct, nFreeIndex, listResult.at(i).sName);
-        XBinary::setPdStructCurrent(g_pPdStruct, nFreeIndex, i);
-    }
-
-    XBinary::setPdStructFinished(g_pPdStruct, nFreeIndex);
-
-    emit completed(0);
 }
 
 bool XProcess::isModulePesent(QString sModuleName, QList<MODULE> *pListModules, XBinary::PDSTRUCT *pPdStruct)
