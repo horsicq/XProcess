@@ -261,8 +261,8 @@ public:
         //        qint64 nParentID;
         X_ID nID;
         QString sFilePath;
-        quint64 nImageAddress;
-        quint64 nImageSize;
+        XADDR nImageAddress;
+        qint64 nImageSize;
         QString sInfo;
         QString sInfoExtra;
     };
@@ -273,8 +273,8 @@ public:
     };
 
     struct MODULE {
-        quint64 nAddress;
-        quint64 nSize;
+        XADDR nAddress;
+        qint64 nSize;
         QString sName;
         QString sFileName;
         QString sInfo;
