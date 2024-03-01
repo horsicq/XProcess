@@ -1770,6 +1770,12 @@ XBinary::OSINFO XProcess::getOsInfo()
 
 QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID, XBinary::PDSTRUCT *pPdStruct)
 {
+    XBinary::PDSTRUCT pdStructEmpty = XBinary::createPdStruct();
+
+    if (!pPdStruct) {
+        pPdStruct = &pdStructEmpty;
+    }
+
     QList<MODULE> listResult;
 
 #ifdef Q_OS_WIN
