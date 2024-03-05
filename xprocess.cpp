@@ -1945,6 +1945,19 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegionByAddress(X_ID nProcessID, XADD
         CloseHandle(hProcess);
     }
 #endif
+#ifdef Q_OS_LINUX
+    X_HANDLE_MQ hProcess = openMemoryQuery(nProcessID);
+
+    if (hProcess) {
+        QList<XProcess::MEMORY_REGION> listRegions =  XProcess::getMemoryRegionsList_Handle(hProcess, nAddress, 0);
+
+        if (listRegions.count()) {
+            result = listRegions.at(0);
+        }
+
+        closeMemoryQuery(hProcess);
+    }
+#endif
     return result;
 }
 
