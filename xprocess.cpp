@@ -545,10 +545,10 @@ QList<XProcess::MEMORY_REGION> XProcess::getMemoryRegionsList_Handle(X_HANDLE_MQ
             memoryRegion.nType = mbi.Type;
 
             if (memoryRegion.nType) {
-                memoryRegion.nAddress = (qint64)mbi.BaseAddress;
+                memoryRegion.nAddress = (XADDR)mbi.BaseAddress;
                 memoryRegion.nSize = (qint64)mbi.RegionSize;
                 memoryRegion.mf = protectToFlags(mbi.Protect);
-                memoryRegion.nAllocationBase = (qint64)mbi.AllocationBase;
+                memoryRegion.nAllocationBase = (XADDR)mbi.AllocationBase;
                 memoryRegion.mfAllocation = protectToFlags(mbi.AllocationProtect);
                 memoryRegion.nState = mbi.State;
 
@@ -662,7 +662,7 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegion_Handle(X_HANDLE_MQ hProcess, X
     nAddress = S_ALIGN_DOWN(nAddress, 0x1000);
 
     if (VirtualQueryEx(hProcess, (LPCVOID)nAddress, (MEMORY_BASIC_INFORMATION *)&mbi, sizeof(mbi)) == sizeof(mbi)) {
-        result.nAddress = (qint64)mbi.BaseAddress;
+        result.nAddress = (XADDR)mbi.BaseAddress;
         result.nSize = (qint64)mbi.RegionSize;
         result.mf = protectToFlags(mbi.Protect);
     }
@@ -889,7 +889,7 @@ qint64 XProcess::getRegionBase(X_HANDLE hProcess, qint64 nAddress)
     MEMORY_BASIC_INFORMATION mbi = {};
 
     if (VirtualQueryEx(hProcess, (LPCVOID)nAddress, &mbi, sizeof(mbi))) {
-        nResult = (qint64)mbi.BaseAddress;
+        nResult = (XADDR)mbi.BaseAddress;
     }
 
     return nResult;
@@ -1768,7 +1768,7 @@ XBinary::OSINFO XProcess::getOsInfo()
     return result;
 }
 
-QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID, XBinary::PDSTRUCT *pPdStruct)
+QList<XProcess::MODULE> XProcess::getModulesList(X_ID nProcessID, XBinary::PDSTRUCT *pPdStruct)
 {
     XBinary::PDSTRUCT pdStructEmpty = XBinary::createPdStruct();
 
@@ -1789,8 +1789,8 @@ QList<XProcess::MODULE> XProcess::getModulesList(qint64 nProcessID, XBinary::PDS
             do {
                 XProcess::MODULE record = {};
 
-                record.nAddress = (quint64)me32.modBaseAddr;
-                record.nSize = (quint64)me32.modBaseSize;
+                record.nAddress = (XADDR)me32.modBaseAddr;
+                record.nSize = (qint64)me32.modBaseSize;
                 record.sName = QString::fromWCharArray(me32.szModule);
                 record.sFileName = QString::fromWCharArray(me32.szExePath);
 
@@ -1901,7 +1901,7 @@ bool XProcess::isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion, XADDR nAddr
     return bResult;
 }
 
-XProcess::MEMORY_REGION XProcess::getMemoryRegionByAddress(QList<MEMORY_REGION> *pListMemoryRegions, quint64 nAddress)
+XProcess::MEMORY_REGION XProcess::getMemoryRegionByAddress(QList<MEMORY_REGION> *pListMemoryRegions, XADDR nAddress)
 {
     MEMORY_REGION result = {};
 
@@ -1917,6 +1917,34 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegionByAddress(QList<MEMORY_REGION> 
         }
     }
 
+    return result;
+}
+
+XProcess::MEMORY_REGION XProcess::getMemoryRegionByAddress(X_ID nProcessID, XADDR nAddress)
+{
+    MEMORY_REGION result = {};
+#ifdef Q_OS_WIN
+    MEMORY_BASIC_INFORMATION mbi = {};
+
+    X_HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, 0, (DWORD)nProcessID);
+
+    if (hProcess) {
+        if (VirtualQueryEx(hProcess, (LPCVOID)nAddress, &mbi, sizeof(mbi)) == sizeof(mbi)) {
+            result.nType = mbi.Type;
+
+            if (result.nType) {
+                result.nAddress = (XADDR)mbi.BaseAddress;
+                result.nSize = (qint64)mbi.RegionSize;
+                result.mf = protectToFlags(mbi.Protect);
+                result.nAllocationBase = (XADDR)mbi.AllocationBase;
+                result.mfAllocation = protectToFlags(mbi.AllocationProtect);
+                result.nState = mbi.State;
+            }
+        }
+
+        CloseHandle(hProcess);
+    }
+#endif
     return result;
 }
 

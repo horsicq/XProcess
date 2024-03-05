@@ -243,7 +243,7 @@ public:
         quint64 nSize;
         MEMORY_FLAGS mf;
 #ifdef Q_OS_WIN
-        quint64 nAllocationBase;
+        XADDR nAllocationBase;
         MEMORY_FLAGS mfAllocation;
         quint32 nState;
         quint32 nType;
@@ -365,11 +365,12 @@ public:
                                                               //    static THREAD_INFO getInfoByThreadID(qint64 nThreadID);
     static QList<qint64> getThreadIDsList(X_ID nProcessID);
     static XBinary::OSINFO getOsInfo();
-    static QList<MODULE> getModulesList(qint64 nProcessID, XBinary::PDSTRUCT *pPdStruct = nullptr);
+    static QList<MODULE> getModulesList(X_ID nProcessID, XBinary::PDSTRUCT *pPdStruct = nullptr);
     static MODULE getModuleByAddress(QList<MODULE> *pListModules, quint64 nAddress);
     static MODULE getModuleByFileName(QList<MODULE> *pListModules, const QString &sFileName);
     static bool isAddressInMemoryRegion(MEMORY_REGION *pMemoryRegion, XADDR nAddress);
-    static MEMORY_REGION getMemoryRegionByAddress(QList<MEMORY_REGION> *pListMemoryRegions, quint64 nAddress);
+    static MEMORY_REGION getMemoryRegionByAddress(QList<MEMORY_REGION> *pListMemoryRegions, XADDR nAddress);
+    static MEMORY_REGION getMemoryRegionByAddress(X_ID nProcessID, XADDR nAddress);
     static QString memoryFlagsToString(MEMORY_FLAGS mf);
 
     static quint32 getMemoryRegionsListHash_Id(X_ID nProcessID);
