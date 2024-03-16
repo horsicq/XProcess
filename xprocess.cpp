@@ -1949,7 +1949,7 @@ XProcess::MEMORY_REGION XProcess::getMemoryRegionByAddress(X_ID nProcessID, XADD
     X_HANDLE_MQ hProcess = openMemoryQuery(nProcessID);
 
     if (hProcess) {
-        QList<XProcess::MEMORY_REGION> listRegions =  XProcess::getMemoryRegionsList_Handle(hProcess, nAddress, 0);
+        QList<XProcess::MEMORY_REGION> listRegions = XProcess::getMemoryRegionsList_Handle(hProcess, nAddress, 0);
 
         if (listRegions.count()) {
             result = listRegions.at(0);
