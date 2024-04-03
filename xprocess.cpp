@@ -21,9 +21,9 @@
 #include "xprocess.h"
 
 #ifdef Q_OS_LINUX
-qint64 _openLargeFile(QString sFileName, qint32 nFlags)
+qint32 _openLargeFile(QString sFileName, qint32 nFlags)
 {
-    qint64 nResult = open64(sFileName.toUtf8().data(), nFlags);
+    qint32 nResult = open64(sFileName.toUtf8().data(), nFlags);
 
     return nResult;
 }
@@ -1122,10 +1122,8 @@ void XProcess::closeMemoryIO(X_HANDLE_IO hProcess)
 #endif
 #ifdef Q_OS_LINUX
     // TODO _closeLargeFile
-    QFile *pFile = static_cast<QFile *>(hProcess);
-
-    if (pFile) {
-        pFile->close();
+    if (hProcess) {
+        _closeLargeFile((qint64)hProcess);
     }
 #endif
 }

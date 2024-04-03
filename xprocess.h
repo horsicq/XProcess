@@ -96,7 +96,7 @@ typedef task_t X_HANDLE_MQ;
 #ifdef Q_OS_LINUX
 typedef quint32 X_ID;
 typedef void *X_HANDLE;
-typedef void *X_HANDLE_IO;
+typedef qint32 X_HANDLE_IO;
 typedef void *X_HANDLE_MQ;
 #endif
 
