@@ -71,16 +71,18 @@ XProcess::XProcess(QObject *pParent) : XIODevice(pParent)
     g_hProcess = 0;
 }
 
-XProcess::XProcess(X_ID nProcessID, XADDR nAddress, quint64 nSize, QObject *pParent) : XProcess(pParent)
+XProcess::XProcess(X_ID nProcessID, XADDR nAddress, quint64 nSize, QObject *pParent) : XIODevice(pParent)
 {
     g_nProcessID = nProcessID;
+    g_hProcess = 0;
 
     setInitLocation(nAddress);
     setSize(nSize);
 }
 
-XProcess::XProcess(XADDR nAddress, quint64 nSize, X_HANDLE hHandle, QObject *pParent) : XProcess(pParent)
+XProcess::XProcess(XADDR nAddress, quint64 nSize, X_HANDLE_IO hHandle, QObject *pParent) : XIODevice(pParent)
 {
+    g_nProcessID = 0;
     g_hProcess = hHandle;
 
     setInitLocation(nAddress);
@@ -123,7 +125,7 @@ bool XProcess::open(OpenMode mode)
         qint64 nFD = _openLargeFile(sMapMemory, nFlag);
 
         if (nFD != -1) {
-            g_hProcess = (void *)nFD;
+            g_hProcess = nFD;
 
             bResult = true;
         }
