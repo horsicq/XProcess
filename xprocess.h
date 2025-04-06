@@ -364,7 +364,7 @@ public:
     static PROCESS_INFO getInfoByProcessID(X_ID nProcessID);  // TODO rename to getProcessInfoById
                                                               //    static THREAD_INFO getInfoByThreadID(qint64 nThreadID);
     static QList<qint64> getThreadIDsList(X_ID nProcessID);
-    static XBinary::OSINFO getOsInfo();
+    // static XBinary::OSINFO getOsInfo();
     static QList<MODULE> getModulesList(X_ID nProcessID, XBinary::PDSTRUCT *pPdStruct = nullptr);
     static MODULE getModuleByAddress(QList<MODULE> *pListModules, quint64 nAddress);
     static MODULE getModuleByFileName(QList<MODULE> *pListModules, const QString &sFileName);

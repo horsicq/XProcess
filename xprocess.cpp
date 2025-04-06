@@ -1726,47 +1726,47 @@ qint64 XProcess::getThreadIDByHandle(X_HANDLE hThread)
 }
 #endif
 
-XBinary::OSINFO XProcess::getOsInfo()
-{
-    XBinary::OSINFO result = {};
-#ifdef Q_OS_WIN
-    result.osName = XBinary::OSNAME_WINDOWS;
-    // TODO OS Version
+// XBinary::OSINFO XProcess::getOsInfo()
+// {
+//     XBinary::OSINFO result = {};
+// #ifdef Q_OS_WIN
+//     result.osName = XBinary::OSNAME_WINDOWS;
+//     // TODO OS Version
 
-    OSVERSIONINFOEXW ovi = {};
+//     OSVERSIONINFOEXW ovi = {};
 
-    ovi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
+//     ovi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
 
-    GetVersionExW((OSVERSIONINFOW *)&ovi);  // TODO Check
+//     GetVersionExW((OSVERSIONINFOW *)&ovi);  // TODO Check
 
-    result.sBuild = QString("%1.%2.%3").arg(QString::number(ovi.dwMajorVersion), QString::number(ovi.dwMinorVersion), QString::number(ovi.dwBuildNumber));
+//     result.sBuild = QString("%1.%2.%3").arg(QString::number(ovi.dwMajorVersion), QString::number(ovi.dwMinorVersion), QString::number(ovi.dwBuildNumber));
 
-    SYSTEM_INFO si = {};
-    GetSystemInfo(&si);
+//     SYSTEM_INFO si = {};
+//     GetSystemInfo(&si);
 
-    if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL) result.sArch = "I386";
-    else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64) result.sArch = "AMD64";
-    else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64) result.sArch = "IA64";
-    else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_ARM) result.sArch = "ARM";
-        // else if (si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_ARM64)       result.sArch="ARM64"; // TODO Macros
-#endif
-#ifdef Q_OS_LINUX
-    result.osName = XBinary::OSNAME_LINUX;
-#ifdef Q_PROCESSOR_X86_32
-    result.sArch = "I386";
-#endif
-#ifdef Q_PROCESSOR_X86_64
-    result.sArch = "AMD64";
-#endif
-#endif
-    if (sizeof(char *) == 8) {
-        result.mode = XBinary::MODE_64;
-    } else {
-        result.mode = XBinary::MODE_32;
-    }
+//     if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL) result.sArch = "I386";
+//     else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64) result.sArch = "AMD64";
+//     else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64) result.sArch = "IA64";
+//     else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_ARM) result.sArch = "ARM";
+//         // else if (si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_ARM64)       result.sArch="ARM64"; // TODO Macros
+// #endif
+// #ifdef Q_OS_LINUX
+//     result.osName = XBinary::OSNAME_LINUX;
+// #ifdef Q_PROCESSOR_X86_32
+//     result.sArch = "I386";
+// #endif
+// #ifdef Q_PROCESSOR_X86_64
+//     result.sArch = "AMD64";
+// #endif
+// #endif
+//     if (sizeof(char *) == 8) {
+//         result.mode = XBinary::MODE_64;
+//     } else {
+//         result.mode = XBinary::MODE_32;
+//     }
 
-    return result;
-}
+//     return result;
+// }
 
 QList<XProcess::MODULE> XProcess::getModulesList(X_ID nProcessID, XBinary::PDSTRUCT *pPdStruct)
 {
