@@ -2124,7 +2124,7 @@ QList<XBinary::_MEMORY_RECORD> XProcess::convertMemoryRegionsToMemoryRecords(QLi
         record.nAddress = pListMemoryRegions->at(i).nAddress;
         record.nSize = pListMemoryRegions->at(i).nSize;
         record.nIndex = i;
-        record.type = XBinary::MMT_LOADSEGMENT;
+        record.filePart = XBinary::FILEPART_REGION;
 
         listResult.append(record);
     }
