@@ -42,14 +42,14 @@ public:
     explicit XProcessDevice(QObject *pParent = nullptr);
     ~XProcessDevice();
 
-    virtual qint64 size() const;
-    virtual bool isSequential() const;
-    virtual bool seek(qint64 pos);
-    virtual bool reset();
-    virtual bool open(OpenMode mode);
-    virtual bool atEnd() const;
-    virtual void close();
-    virtual qint64 pos() const;
+    qint64 size() const override;
+    bool isSequential() const override;
+    bool seek(qint64 pos) override;
+    bool reset() override;
+    bool open(OpenMode mode) override;
+    bool atEnd() const override;
+    void close() override;
+    qint64 pos() const override;
     bool openPID(qint64 nPID, quint64 nAddress, quint64 nSize, OpenMode mode);
     bool openHandle(void *hProcess, quint64 nAddress, quint64 nSize, OpenMode mode);
 
@@ -60,9 +60,9 @@ private:
 #endif
 
 protected:
-    virtual qint64 readData(char *pData, qint64 nMaxSize);
-    virtual qint64 writeData(const char *pData, qint64 nMaxSize);
-    virtual void setErrorString(const QString &str);
+    qint64 readData(char *pData, qint64 nMaxSize) override;
+    qint64 writeData(const char *pData, qint64 nMaxSize) override;
+    void setErrorString(const QString &str);
 
 private:
     const qint64 N_BUFFER_SIZE = 0x1000;

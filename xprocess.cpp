@@ -20,6 +20,10 @@
  */
 #include "xprocess.h"
 
+#include <QVector>
+#include <limits>
+#include <new>
+
 #ifdef Q_OS_LINUX
 qint32 _openLargeFile(QString sFileName, qint32 nFlags)
 {
@@ -40,28 +44,20 @@ bool _closeLargeFile(qint32 nFD)
 #endif
 
 #ifdef Q_OS_LINUX
-quint32 _readLargeFile(qint32 nFD, quint64 nOffset, char *pData, quint32 nDataSize)
+qint64 _readLargeFile(qint32 nFD, quint64 nOffset, char *pData, quint32 nDataSize)
 {
-    quint32 nResult = 0;
-
-    if (lseek64(nFD, nOffset, SEEK_SET) != -1) {
-        nResult = pread64(nFD, pData, nDataSize, nOffset);
-    }
-
-    return nResult;
+    if ((nFD < 0) || ((nDataSize > 0) && !pData) ||
+        (nOffset > (quint64)(std::numeric_limits<qint64>::max)())) return -1;
+    return (qint64)pread64(nFD, pData, (size_t)nDataSize, (off64_t)nOffset);
 }
 #endif
 
 #ifdef Q_OS_LINUX
-quint32 _writeLargeFile(qint32 nFD, quint64 nOffset, const char *pData, quint32 nDataSize)
+qint64 _writeLargeFile(qint32 nFD, quint64 nOffset, const char *pData, quint32 nDataSize)
 {
-    quint32 nResult = 0;
-
-    if (lseek64(nFD, nOffset, SEEK_SET) != -1) {
-        nResult = pwrite64(nFD, pData, nDataSize, nOffset);
-    }
-
-    return nResult;
+    if ((nFD < 0) || ((nDataSize > 0) && !pData) ||
+        (nOffset > (quint64)(std::numeric_limits<qint64>::max)())) return -1;
+    return (qint64)pwrite64(nFD, pData, (size_t)nDataSize, (off64_t)nOffset);
 }
 #endif
 
@@ -89,11 +85,31 @@ XProcess::XProcess(XADDR nAddress, quint64 nSize, X_HANDLE_IO hHandle, QObject *
     setSize(nSize);
 }
 
+XProcess::~XProcess()
+{
+    close();
+}
+
 bool XProcess::open(OpenMode mode)
 {
     bool bResult = false;
 
-    if (g_nProcessID && size())  // TODO more checks
+    const qint64 nDeviceSize = size();
+    if (((mode != ReadOnly) && (mode != WriteOnly) && (mode != ReadWrite)) || (nDeviceSize <= 0) ||
+        (getInitLocation() > ((std::numeric_limits<quint64>::max)() - (quint64)(nDeviceSize - 1)))) {
+        return false;
+    }
+#ifdef Q_OS_WIN
+    if ((getInitLocation() + (quint64)nDeviceSize - 1) >
+        (quint64)(std::numeric_limits<quintptr>::max)()) return false;
+#elif defined(Q_OS_LINUX)
+    if ((getInitLocation() + (quint64)nDeviceSize - 1) >
+        (quint64)(std::numeric_limits<qint64>::max)()) return false;
+#endif
+
+    if (isOpen() || (g_nProcessID && g_hProcess)) close();
+
+    if (g_nProcessID)
     {
 #ifdef Q_OS_WIN
         quint32 nFlag = 0;
@@ -101,9 +117,9 @@ bool XProcess::open(OpenMode mode)
         if (mode == ReadOnly) {
             nFlag = PROCESS_VM_READ;
         } else if (mode == WriteOnly) {
-            nFlag = PROCESS_VM_WRITE;
-        } else if (mode == ReadWrite) {
-            nFlag = PROCESS_ALL_ACCESS;
+            nFlag = PROCESS_VM_WRITE | PROCESS_VM_OPERATION;
+        } else {
+            nFlag = PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION;
         }
 
         g_hProcess = OpenProcess(nFlag, 0, (DWORD)g_nProcessID);  // TODO Errors
@@ -134,98 +150,76 @@ bool XProcess::open(OpenMode mode)
         mach_port_name_t task = 0;
         kern_return_t error = task_for_pid(mach_task_self(), g_nProcessID, &task);
 
-        if (error != KERN_SUCCESS) {
+        if (error == KERN_SUCCESS) {
             g_hProcess = task;
             bResult = true;
         }
 #endif
-    } else if (g_hProcess && size())  // TODO more checks
+    } else if (g_hProcess)
     {
         bResult = true;
     }
 
-    if (bResult) {
-        setOpenMode(mode);
+    if (!bResult || !XIODevice::open(mode) || !XIODevice::seek(0)) {
+        close();
+        return false;
     }
 
-    return bResult;
+    return true;
 }
 
 void XProcess::close()
 {
-    bool bSuccess = false;
+    if (isOpen()) XIODevice::close();
 
     if (g_nProcessID && g_hProcess) {
 #ifdef Q_OS_WIN
-        bSuccess = CloseHandle(g_hProcess);
+        CloseHandle(g_hProcess);
 #endif
 #ifdef Q_OS_LINUX
-        bSuccess = _closeLargeFile((qint64)g_hProcess);
+        _closeLargeFile((qint64)g_hProcess);
 #endif
-    } else if (g_hProcess) {
-        bSuccess = true;
-    }
-
-    if (bSuccess) {
-        setOpenMode(NotOpen);
+#ifdef Q_OS_MACOS
+        mach_port_deallocate(mach_task_self(), g_hProcess);
+#endif
+        g_hProcess = 0;
     }
 }
 
 qint64 XProcess::readData(char *pData, qint64 nMaxSize)
 {
-    qint64 nResult = 0;
-
-    char *_pData = pData;
-    qint64 _nPos = pos();
-    quint64 nStartOffset = getInitLocation() + _nPos;
-
-    nMaxSize = qMin(nMaxSize, (qint64)(size() - _nPos));
-
-    for (qint64 i = 0; i < nMaxSize;) {
-        //    #ifdef QT_DEBUG
-        //        QString sDebugString=QString("%1").arg(_nPos+g_nAddress,0,16);
-        //        qDebug("Address: %s",sDebugString.toLatin1().data());
-        //    #endif
-
-        qint64 nDelta = S_ALIGN_UP(_nPos, N_BUFFER_SIZE) - _nPos;
-
-        if (nDelta == 0) {
-            nDelta = N_BUFFER_SIZE;
-        }
-
-        nDelta = qMin(nDelta, (qint64)(nMaxSize - i));
-
-        if (nDelta == 0) {
-            break;
-        }
-
-#ifdef Q_OS_WIN
-        SIZE_T nSize = 0;
-
-        if (!ReadProcessMemory(g_hProcess, (LPVOID *)(getInitLocation() + _nPos), _pData, (SIZE_T)nDelta, &nSize)) {
-            break;
-        }
-
-        if (nSize != (SIZE_T)nDelta) {
-            break;
-        }
-#endif
-#ifdef Q_OS_LINUX
-        if (nDelta != _readLargeFile((qint64)g_hProcess, getInitLocation() + _nPos, _pData, nDelta)) {
-            break;
-        }
-#endif
-        _nPos += nDelta;
-        _pData += nDelta;
-        nResult += nDelta;
-        i += nDelta;
+    const qint64 nPosition = pos();
+    if (!isOpen() || !isReadable() || !g_hProcess || (nMaxSize < 0) ||
+        ((nMaxSize > 0) && !pData) || (nPosition < 0) || (nPosition > size())) {
+        return -1;
     }
 
-    emit readDataSignal(nStartOffset, pData, nMaxSize);
+    nMaxSize = qMin(nMaxSize, size() - nPosition);
+    if (!nMaxSize) return 0;
 
-#ifdef Q_OS_WIN
-    // TODO error string
-#endif
+    const quint64 nStartOffset = getInitLocation() + (quint64)nPosition;
+    qint64 nResult = 0;
+    qint64 nCurrentPosition = nPosition;
+    char *pCurrentData = pData;
+
+    while (nResult < nMaxSize) {
+        qint64 nDelta = N_BUFFER_SIZE - (nCurrentPosition % N_BUFFER_SIZE);
+        nDelta = qMin(nDelta, nMaxSize - nResult);
+        const quint64 nTransferred = read_array(g_hProcess, getInitLocation() + (quint64)nCurrentPosition,
+                                                pCurrentData, (quint64)nDelta);
+        if (!nTransferred) {
+            if (!nResult) return -1;
+            break;
+        }
+        if (nTransferred > (quint64)nDelta) return nResult ? nResult : -1;
+
+        nCurrentPosition += (qint64)nTransferred;
+        pCurrentData += nTransferred;
+        nResult += (qint64)nTransferred;
+        if (nTransferred != (quint64)nDelta) break;
+    }
+
+    if (nResult) emit readDataSignal(nStartOffset, pData, nResult);
 
 #ifdef QT_DEBUG
     QString sErrorString = errorString();
@@ -239,56 +233,47 @@ qint64 XProcess::readData(char *pData, qint64 nMaxSize)
 
 qint64 XProcess::writeData(const char *pData, qint64 nMaxSize)
 {
-    qint64 nResult = 0;
-
-    qint64 _nPos = pos();
-    quint64 nStartOffset = getInitLocation() + _nPos;
-
-    nMaxSize = qMin(nMaxSize, (qint64)(size() - _nPos));
-
-    char *_pDataOrig = new char[nMaxSize];
-
-    XBinary::_copyMemory(_pDataOrig, (char *)pData, nMaxSize);
-
-    emit writeDataSignal(nStartOffset, _pDataOrig, nMaxSize);
-
-    char *_pData = _pDataOrig;
-
-    for (qint64 i = 0; i < nMaxSize;) {
-        qint64 nDelta = S_ALIGN_UP(_nPos, N_BUFFER_SIZE) - _nPos;
-
-        if (nDelta == 0) {
-            nDelta = N_BUFFER_SIZE;
-        }
-
-        nDelta = qMin(nDelta, (qint64)(nMaxSize - i));
-#ifdef Q_OS_WIN
-        SIZE_T nSize = 0;
-
-        if (!WriteProcessMemory(g_hProcess, (LPVOID *)(_nPos + getInitLocation()), _pData, (SIZE_T)nDelta, &nSize)) {
-            break;
-        }
-
-        if (nSize != (SIZE_T)nDelta) {
-            break;
-        }
-#endif
-#ifdef Q_OS_LINUX
-        if (nDelta != _writeLargeFile((qint64)g_hProcess, getInitLocation() + _nPos, _pData, nDelta)) {
-            break;
-        }
-#endif
-        _nPos += nDelta;
-        _pData += nDelta;
-        nResult += nDelta;
-        i += nDelta;
+    const qint64 nPosition = pos();
+    if (!isOpen() || !isWritable() || !g_hProcess || (nMaxSize < 0) ||
+        ((nMaxSize > 0) && !pData) || (nPosition < 0) || (nPosition > size())) {
+        return -1;
     }
 
-    delete[] _pDataOrig;
+    nMaxSize = qMin(nMaxSize, size() - nPosition);
+    if (!nMaxSize) return 0;
+    if ((quint64)nMaxSize > (quint64)(std::numeric_limits<size_t>::max)()) return -1;
 
-#ifdef Q_OS_WIN
-    // TODO error string
-#endif
+    char *pDataCopy = new (std::nothrow) char[(size_t)nMaxSize];
+    if (!pDataCopy) return -1;
+    XBinary::_copyMemory(pDataCopy, (char *)pData, nMaxSize);
+
+    const quint64 nStartOffset = getInitLocation() + (quint64)nPosition;
+    qint64 nResult = 0;
+    qint64 nCurrentPosition = nPosition;
+    char *pCurrentData = pDataCopy;
+
+    while (nResult < nMaxSize) {
+        qint64 nDelta = N_BUFFER_SIZE - (nCurrentPosition % N_BUFFER_SIZE);
+        nDelta = qMin(nDelta, nMaxSize - nResult);
+        const quint64 nTransferred = write_array(g_hProcess, getInitLocation() + (quint64)nCurrentPosition,
+                                                 pCurrentData, (quint64)nDelta);
+        if (!nTransferred) {
+            if (!nResult) nResult = -1;
+            break;
+        }
+        if (nTransferred > (quint64)nDelta) {
+            if (!nResult) nResult = -1;
+            break;
+        }
+
+        nCurrentPosition += (qint64)nTransferred;
+        pCurrentData += nTransferred;
+        nResult += (qint64)nTransferred;
+        if (nTransferred != (quint64)nDelta) break;
+    }
+
+    if (nResult > 0) emit writeDataSignal(nStartOffset, pDataCopy, nResult);
+    delete[] pDataCopy;
 
 #ifdef QT_DEBUG
     QString sErrorString = errorString();
@@ -1259,153 +1244,155 @@ void XProcess::write_uint64(X_HANDLE_IO hProcess, quint64 nAddress, quint64 nVal
 
 quint64 XProcess::read_array(X_HANDLE_IO hProcess, quint64 nAddress, char *pData, quint64 nSize)
 {
+    if (!nSize) return 0;
+    if (!pData || (nSize > (quint64)(std::numeric_limits<size_t>::max)()) ||
+        (nAddress > ((std::numeric_limits<quint64>::max)() - (nSize - 1)))) return 0;
+
     quint64 nResult = 0;
+    while (nResult < nSize) {
+        quint64 nChunkSize = nSize - nResult;
 #ifdef Q_OS_WIN
-    SIZE_T _nSize = 0;
-
-    if (ReadProcessMemory(hProcess, (LPVOID *)nAddress, pData, (SIZE_T)nSize, &_nSize)) {
-        nResult = (quint64)_nSize;
+        if (!hProcess) break;
+        nChunkSize = qMin<quint64>(nChunkSize, (quint64)(std::numeric_limits<SIZE_T>::max)());
+        SIZE_T nRead = 0;
+        const BOOL bSuccess = ReadProcessMemory(hProcess,
+                                                reinterpret_cast<LPCVOID>((quintptr)(nAddress + nResult)),
+                                                pData + (size_t)nResult, (SIZE_T)nChunkSize, &nRead);
+        if ((!bSuccess && !nRead) || ((quint64)nRead > nChunkSize)) break;
+        nChunkSize = (quint64)nRead;
+#elif defined(Q_OS_LINUX)
+        if (hProcess < 0) break;
+        nChunkSize = qMin<quint64>(nChunkSize, (quint64)(std::numeric_limits<quint32>::max)());
+        const qint64 nRead = _readLargeFile(hProcess, nAddress + nResult,
+                                           pData + (size_t)nResult, (quint32)nChunkSize);
+        if ((nRead <= 0) || ((quint64)nRead > nChunkSize)) break;
+        nChunkSize = (quint64)nRead;
+#elif defined(Q_OS_MACOS)
+        if (hProcess == MACH_PORT_NULL) break;
+        mach_vm_size_t nRead = 0;
+        const kern_return_t result = mach_vm_read_overwrite(hProcess, (mach_vm_address_t)(nAddress + nResult),
+                                                            (mach_vm_size_t)nChunkSize,
+                                                            (mach_vm_address_t)(pData + (size_t)nResult), &nRead);
+        if ((result != KERN_SUCCESS) || !nRead || ((quint64)nRead > nChunkSize)) break;
+        nChunkSize = (quint64)nRead;
+#else
+        break;
+#endif
+        nResult += nChunkSize;
+        if (!nChunkSize) break;
     }
-#endif
-#ifdef Q_OS_LINUX
-    qint32 nFD = (qint32)((qint64)hProcess & 0xFFFFFFFF);
 
-    nResult = _readLargeFile(nFD, nAddress, pData, nSize);
-#endif
-#ifdef Q_OS_MAC
-    task_t task = (task_t)((qint64)hProcess & 0xFFFFFFFF);
-
-    mach_msg_type_number_t _nSize = 0;
-
-    if (mach_vm_read(task, (mach_vm_address_t)nAddress, (mach_vm_size_t)nSize, (vm_offset_t *)pData, &_nSize)) {
-        nResult = (quint64)_nSize;
-    }
-#endif
     return nResult;
 }
 
 quint64 XProcess::write_array(X_HANDLE_IO hProcess, quint64 nAddress, char *pData, quint64 nSize)
 {
+    if (!nSize) return 0;
+    if (!pData || (nSize > (quint64)(std::numeric_limits<size_t>::max)()) ||
+        (nAddress > ((std::numeric_limits<quint64>::max)() - (nSize - 1)))) return 0;
+
     quint64 nResult = 0;
+    while (nResult < nSize) {
+        quint64 nChunkSize = nSize - nResult;
 #ifdef Q_OS_WIN
-    SIZE_T _nSize = 0;
-
-    if (WriteProcessMemory(hProcess, (LPVOID *)nAddress, pData, (SIZE_T)nSize, &_nSize)) {
-        nResult = (quint64)_nSize;
+        if (!hProcess) break;
+        nChunkSize = qMin<quint64>(nChunkSize, (quint64)(std::numeric_limits<SIZE_T>::max)());
+        SIZE_T nWritten = 0;
+        const BOOL bSuccess = WriteProcessMemory(hProcess,
+                                                 reinterpret_cast<LPVOID>((quintptr)(nAddress + nResult)),
+                                                 pData + (size_t)nResult, (SIZE_T)nChunkSize, &nWritten);
+        if ((!bSuccess && !nWritten) || ((quint64)nWritten > nChunkSize)) break;
+        nChunkSize = (quint64)nWritten;
+#elif defined(Q_OS_LINUX)
+        if (hProcess < 0) break;
+        nChunkSize = qMin<quint64>(nChunkSize, (quint64)(std::numeric_limits<quint32>::max)());
+        const qint64 nWritten = _writeLargeFile(hProcess, nAddress + nResult,
+                                               pData + (size_t)nResult, (quint32)nChunkSize);
+        if ((nWritten <= 0) || ((quint64)nWritten > nChunkSize)) break;
+        nChunkSize = (quint64)nWritten;
+#elif defined(Q_OS_MACOS)
+        if (hProcess == MACH_PORT_NULL) break;
+        nChunkSize = qMin<quint64>(nChunkSize, (quint64)(std::numeric_limits<mach_msg_type_number_t>::max)());
+        const kern_return_t result = mach_vm_write(hProcess, (mach_vm_address_t)(nAddress + nResult),
+                                                   (vm_offset_t)(pData + (size_t)nResult),
+                                                   (mach_msg_type_number_t)nChunkSize);
+        if (result != KERN_SUCCESS) break;
+#else
+        break;
+#endif
+        nResult += nChunkSize;
+        if (!nChunkSize) break;
     }
-#endif
-#ifdef Q_OS_LINUX
-    qint32 nFD = (qint32)((qint64)hProcess & 0xFFFFFFFF);
 
-    nResult = _writeLargeFile(nFD, nAddress, pData, nSize);
-#endif
-#ifdef Q_OS_MAC
-    task_t task = (task_t)((qint64)hProcess & 0xFFFFFFFF);
-
-    mach_msg_type_number_t _nSize = nSize;
-
-    if (vm_write(task, (vm_address_t)nAddress, (vm_offset_t)pData, _nSize)) {
-        nResult = (quint64)_nSize;
-    }
-#endif
     return nResult;
 }
 
 QByteArray XProcess::read_array(X_HANDLE_IO hProcess, quint64 nAddress, quint64 nSize)
 {
-    QByteArray baResult;
+    if (!nSize || (nSize > (quint64)(std::numeric_limits<qint32>::max)())) return QByteArray();
 
-    baResult.resize(nSize);
-    // TODO Check if fails
-    read_array(hProcess, nAddress, baResult.data(), nSize);
-
+    QByteArray baResult((qint32)nSize, Qt::Uninitialized);
+    const quint64 nRead = read_array(hProcess, nAddress, baResult.data(), nSize);
+    if (nRead > nSize) return QByteArray();
+    baResult.resize((qint32)nRead);
     return baResult;
 }
 
 QString XProcess::read_ansiString(X_HANDLE_IO hProcess, quint64 nAddress, quint64 nMaxSize)
 {
-    char *pBuffer = new char[nMaxSize + 1];
-    QString sResult;
-    quint32 i = 0;
-
-    for (; i < nMaxSize; i++) {
-        if (!read_array(hProcess, nAddress + i, &(pBuffer[i]), 1)) {
-            break;
-        }
-
-        if (pBuffer[i] == 0) {
-            break;
-        }
+    if (!nMaxSize || (nMaxSize > (quint64)(std::numeric_limits<qint32>::max)()) ||
+        (nAddress > ((std::numeric_limits<quint64>::max)() - (nMaxSize - 1)))) {
+        return QString();
     }
 
-    pBuffer[i] = 0;
-    sResult.append(pBuffer);
+    QByteArray data;
+    data.reserve((qint32)nMaxSize);
+    for (quint64 i = 0; i < nMaxSize; i++) {
+        char value = 0;
+        if (read_array(hProcess, nAddress + i, &value, 1) != 1 || !value) break;
+        data.append(value);
+    }
 
-    delete[] pBuffer;
-
-    return sResult;
+    return QString::fromLatin1(data.constData(), data.size());
 }
 
 QString XProcess::read_unicodeString(X_HANDLE_IO hProcess, quint64 nAddress, quint64 nMaxSize)
 {
-    QString sResult;
-
-    if (nMaxSize) {
-        quint16 *pBuffer = new quint16[nMaxSize + 1];
-
-        for (qint32 i = 0; i < (qint32)nMaxSize; i++) {
-            pBuffer[i] = read_uint16(hProcess, nAddress + 2 * i);
-
-            if (pBuffer[i] == 0) {
-                break;
-            }
-
-            if (i == (qint32)(nMaxSize - 1)) {
-                pBuffer[nMaxSize] = 0;
-            }
-        }
-
-        sResult = QString::fromUtf16(pBuffer);
-
-        delete[] pBuffer;
+    if (!nMaxSize || (nMaxSize > (quint64)(std::numeric_limits<qint32>::max)()) ||
+        (nMaxSize > ((std::numeric_limits<quint64>::max)() / 2)) ||
+        (nAddress > ((std::numeric_limits<quint64>::max)() - (nMaxSize * 2 - 1)))) {
+        return QString();
     }
 
-    return sResult;
+    QVector<quint16> data;
+    data.reserve((qint32)nMaxSize);
+    for (quint64 i = 0; i < nMaxSize; i++) {
+        quint16 value = 0;
+        if (read_array(hProcess, nAddress + i * 2, reinterpret_cast<char *>(&value), sizeof(value)) != sizeof(value)) break;
+        value = qFromLittleEndian(value);
+        if (!value) break;
+        data.append(value);
+    }
+
+    return QString::fromUtf16(data.constData(), data.size());
 }
 
 QString XProcess::read_utf8String(X_HANDLE_IO hProcess, quint64 nAddress, quint64 nMaxSize)
 {
-    QString sResult;
-
-    if (nMaxSize) {
-        qint32 nRealSize = 0;
-
-        for (qint32 i = 0; i < (qint32)nMaxSize; i++) {
-            quint8 nByte = read_uint8(hProcess, nAddress + nRealSize);
-
-            if (nByte == 0) {
-                break;
-            }
-
-            // TODO Check !!!
-            if ((nByte >> 7) & 0x1) {
-                nRealSize++;
-            } else if ((nByte >> 5) & 0x1) {
-                nRealSize += 2;
-            } else if ((nByte >> 4) & 0x1) {
-                nRealSize += 3;
-            } else if ((nByte >> 3) & 0x1) {
-                nRealSize += 4;
-            }
-        }
-
-        if (nRealSize) {
-            QByteArray baString = read_array(hProcess, nAddress, nRealSize);
-            sResult = QString::fromUtf8(baString.data());
-        }
+    if (!nMaxSize || (nMaxSize > (quint64)(std::numeric_limits<qint32>::max)()) ||
+        (nAddress > ((std::numeric_limits<quint64>::max)() - (nMaxSize - 1)))) {
+        return QString();
     }
 
-    return sResult;
+    QByteArray data;
+    data.reserve((qint32)nMaxSize);
+    for (quint64 i = 0; i < nMaxSize; i++) {
+        char value = 0;
+        if (read_array(hProcess, nAddress + i, &value, 1) != 1 || !value) break;
+        data.append(value);
+    }
+
+    return QString::fromUtf8(data.constData(), data.size());
 }
 #ifdef Q_OS_WIN
 qint64 XProcess::getTEBAddress(qint64 nThreadID)

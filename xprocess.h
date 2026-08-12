@@ -296,12 +296,13 @@ public:
     explicit XProcess(QObject *pParent = nullptr);
     XProcess(X_ID nProcessID, XADDR nAddress, quint64 nSize, QObject *pParent = nullptr);
     XProcess(XADDR nAddress, quint64 nSize, X_HANDLE_IO hHandle, QObject *pParent = nullptr);
-    virtual bool open(OpenMode mode);
-    virtual void close();
+    ~XProcess() override;
+    bool open(OpenMode mode) override;
+    void close() override;
 
 protected:
-    virtual qint64 readData(char *pData, qint64 nMaxSize);
-    virtual qint64 writeData(const char *pData, qint64 nMaxSize);
+    qint64 readData(char *pData, qint64 nMaxSize) override;
+    qint64 writeData(const char *pData, qint64 nMaxSize) override;
 
 public:
     static QList<PROCESS_INFO> getProcessesList(bool bShowAll = false, XBinary::PDSTRUCT *pPdStruct = nullptr);
