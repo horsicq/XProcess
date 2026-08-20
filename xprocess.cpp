@@ -964,7 +964,8 @@ QString XProcess::getFileNameByHandle(X_HANDLE hHandle)
             WCHAR wszBuffer[1024];
 
             if (GetMappedFileNameW(GetCurrentProcess(), pMem, wszBuffer, sizeof(wszBuffer))) {
-                sResult = QString::fromUtf16((ushort *)wszBuffer);
+                sResult = QString::fromUtf16(
+                    reinterpret_cast<const char16_t *>(wszBuffer));
                 sResult = convertNtToDosPath(sResult);
             }
 
@@ -992,13 +993,15 @@ QString XProcess::convertNtToDosPath(const QString &sNtPath)
         nSize = GetLogicalDriveStringsW(nSize, pwszBuffer);
 
         for (qint32 i = 0; i < nSize;) {
-            QString sDisk = QString::fromUtf16((ushort *)(pwszBuffer + i));
+            QString sDisk = QString::fromUtf16(
+                reinterpret_cast<const char16_t *>(pwszBuffer + i));
             sDisk = sDisk.remove("\\");
 
             i += sDisk.size() + 1;
 
             if (QueryDosDeviceW((WCHAR *)sDisk.utf16(), wszNtBuffer, sizeof(wszNtBuffer))) {
-                QString sNt = QString::fromUtf16((const ushort *)wszNtBuffer);
+                QString sNt = QString::fromUtf16(
+                    reinterpret_cast<const char16_t *>(wszNtBuffer));
 
                 QString _sNtPath = sNtPath;
                 _sNtPath.resize(sNt.size());
@@ -1374,7 +1377,8 @@ QString XProcess::read_unicodeString(X_HANDLE_IO hProcess, quint64 nAddress, qui
         data.append(value);
     }
 
-    return QString::fromUtf16(data.constData(), data.size());
+    return QString::fromUtf16(
+        reinterpret_cast<const char16_t *>(data.constData()), data.size());
 }
 
 QString XProcess::read_utf8String(X_HANDLE_IO hProcess, quint64 nAddress, quint64 nMaxSize)
