@@ -87,10 +87,11 @@ typedef HANDLE X_HANDLE_MQ;
 #endif
 
 #ifdef Q_OS_MACOS
-typedef quint32 X_ID;
+typedef quint64 X_ID;
 typedef task_t X_HANDLE;
 typedef task_t X_HANDLE_IO;
 typedef task_t X_HANDLE_MQ;
+static_assert(sizeof(X_ID) == sizeof(quint64), "Darwin thread identifiers must preserve THREAD_IDENTIFIER_INFO.thread_id");
 #endif
 
 #ifdef Q_OS_LINUX
