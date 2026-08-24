@@ -24,6 +24,41 @@
 #include <limits>
 #include <new>
 
+#ifdef Q_OS_MACOS
+#include <mach/mach.h>
+
+namespace {
+bool getDarwinMemoryRegion(task_t hProcess, mach_vm_address_t nAddress, mach_vm_address_t *pRegionAddress, mach_vm_size_t *pRegionSize,
+                           vm_prot_t *pProtection)
+{
+    mach_vm_address_t nRegionAddress = nAddress;
+    mach_vm_size_t nRegionSize = 0;
+    natural_t nDepth = 1024;
+
+#if defined(VM_REGION_SUBMAP_SHORT_INFO_COUNT_64)
+    vm_region_submap_short_info_data_64_t regionInfo = {};
+    mach_msg_type_number_t nInfoCount = VM_REGION_SUBMAP_SHORT_INFO_COUNT_64;
+#else
+    vm_region_submap_info_data_64_t regionInfo = {};
+    mach_msg_type_number_t nInfoCount = VM_REGION_SUBMAP_INFO_COUNT_64;
+#endif
+
+    const kern_return_t result = mach_vm_region_recurse(hProcess, &nRegionAddress, &nRegionSize, &nDepth,
+                                                        (vm_region_recurse_info_t)&regionInfo, &nInfoCount);
+
+    if ((result != KERN_SUCCESS) || (nRegionAddress > nAddress) || ((nAddress - nRegionAddress) >= nRegionSize)) {
+        return false;
+    }
+
+    *pRegionAddress = nRegionAddress;
+    *pRegionSize = nRegionSize;
+    *pProtection = regionInfo.protection;
+
+    return true;
+}
+}  // namespace
+#endif
+
 #ifdef Q_OS_LINUX
 qint32 _openLargeFile(QString sFileName, qint32 nFlags)
 {
@@ -1315,11 +1350,56 @@ quint64 XProcess::write_array(X_HANDLE_IO hProcess, quint64 nAddress, char *pDat
         nChunkSize = (quint64)nWritten;
 #elif defined(Q_OS_MACOS)
         if (hProcess == MACH_PORT_NULL) break;
+
+        const mach_vm_address_t nCurrentAddress = (mach_vm_address_t)(nAddress + nResult);
+        mach_vm_address_t nRegionAddress = 0;
+        mach_vm_size_t nRegionSize = 0;
+        vm_prot_t nOriginalProtection = VM_PROT_NONE;
+
+        if (!getDarwinMemoryRegion(hProcess, nCurrentAddress, &nRegionAddress, &nRegionSize, &nOriginalProtection)) break;
+
+        const mach_vm_size_t nRegionBytesLeft = nRegionSize - (nCurrentAddress - nRegionAddress);
+        nChunkSize = qMin<quint64>(nChunkSize, (quint64)nRegionBytesLeft);
         nChunkSize = qMin<quint64>(nChunkSize, (quint64)(std::numeric_limits<mach_msg_type_number_t>::max)());
-        const kern_return_t result = mach_vm_write(hProcess, (mach_vm_address_t)(nAddress + nResult),
-                                                   (vm_offset_t)(pData + (size_t)nResult),
-                                                   (mach_msg_type_number_t)nChunkSize);
-        if (result != KERN_SUCCESS) break;
+        if (!nChunkSize) break;
+
+        bool bProtectionChanged = false;
+        if (!(nOriginalProtection & VM_PROT_WRITE)) {
+            const vm_prot_t nWritableProtection = VM_PROT_READ | VM_PROT_WRITE;
+            kern_return_t protectResult = mach_vm_protect(hProcess, nCurrentAddress, (mach_vm_size_t)nChunkSize, FALSE, nWritableProtection);
+
+            if (protectResult != KERN_SUCCESS) {
+                protectResult = mach_vm_protect(hProcess, nCurrentAddress, (mach_vm_size_t)nChunkSize, FALSE,
+                                                nWritableProtection | VM_PROT_COPY);
+            }
+
+            if (protectResult != KERN_SUCCESS) break;
+            bProtectionChanged = true;
+        }
+
+        const kern_return_t writeResult = mach_vm_write(hProcess, nCurrentAddress, (vm_offset_t)(pData + (size_t)nResult),
+                                                        (mach_msg_type_number_t)nChunkSize);
+
+#if defined(Q_PROCESSOR_ARM_64)
+        if (writeResult == KERN_SUCCESS) {
+            vm_machine_attribute_val_t nCacheOperation = MATTR_VAL_CACHE_FLUSH;
+            const kern_return_t cacheResult = vm_machine_attribute(hProcess, nCurrentAddress, (mach_vm_size_t)nChunkSize, MATTR_CACHE, &nCacheOperation);
+
+            if (cacheResult != KERN_SUCCESS) {
+                qWarning("Cannot flush the remote instruction cache: %d", cacheResult);
+            }
+        }
+#endif
+
+        if (bProtectionChanged) {
+            const kern_return_t restoreResult = mach_vm_protect(hProcess, nCurrentAddress, (mach_vm_size_t)nChunkSize, FALSE, nOriginalProtection);
+
+            if (restoreResult != KERN_SUCCESS) {
+                qWarning("Cannot restore remote memory protection: %d", restoreResult);
+            }
+        }
+
+        if (writeResult != KERN_SUCCESS) break;
 #else
         break;
 #endif
