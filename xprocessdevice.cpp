@@ -101,8 +101,7 @@ qint64 XProcessDevice::pos() const
 bool XProcessDevice::openPID(qint64 nPID, quint64 nAddress, quint64 nSize, QIODevice::OpenMode mode)
 {
     if ((mode != ReadOnly) && (mode != WriteOnly) && (mode != ReadWrite)) return false;
-    if ((nPID <= 0) || !nSize || (nSize > (quint64)(std::numeric_limits<qint64>::max)()) ||
-        (nAddress > ((std::numeric_limits<quint64>::max)() - (nSize - 1)))) {
+    if ((nPID <= 0) || !nSize || (nSize > (quint64)(std::numeric_limits<qint64>::max)()) || (nAddress > ((std::numeric_limits<quint64>::max)() - (nSize - 1)))) {
         return false;
     }
 #ifdef Q_OS_WIN
@@ -165,8 +164,7 @@ bool XProcessDevice::openPID(qint64 nPID, quint64 nAddress, quint64 nSize, QIODe
 bool XProcessDevice::openHandle(void *hProcess, quint64 nAddress, quint64 nSize, QIODevice::OpenMode mode)
 {
     if ((mode != ReadOnly) && (mode != WriteOnly) && (mode != ReadWrite)) return false;
-    if (!hProcess || !nSize || (nSize > (quint64)(std::numeric_limits<qint64>::max)()) ||
-        (nAddress > ((std::numeric_limits<quint64>::max)() - (nSize - 1)))) {
+    if (!hProcess || !nSize || (nSize > (quint64)(std::numeric_limits<qint64>::max)()) || (nAddress > ((std::numeric_limits<quint64>::max)() - (nSize - 1)))) {
         return false;
     }
 #ifdef Q_OS_WIN
@@ -222,8 +220,7 @@ void XProcessDevice::checkWindowsLastError()
 qint64 XProcessDevice::readData(char *pData, qint64 nMaxSize)
 {
     const qint64 nPosition = pos();
-    if (!isOpen() || !isReadable() || !g_hProcess || (nMaxSize < 0) ||
-        ((nMaxSize > 0) && !pData) || (nPosition < 0) || (nPosition > size())) {
+    if (!isOpen() || !isReadable() || !g_hProcess || (nMaxSize < 0) || ((nMaxSize > 0) && !pData) || (nPosition < 0) || (nPosition > size())) {
         return -1;
     }
 
@@ -240,9 +237,7 @@ qint64 XProcessDevice::readData(char *pData, qint64 nMaxSize)
         qint64 nTransferred = -1;
 #ifdef Q_OS_WIN
         SIZE_T nRead = 0;
-        if (ReadProcessMemory(g_hProcess,
-                              reinterpret_cast<LPCVOID>((quintptr)(g_nAddress + (quint64)nCurrentPosition)),
-                              pData, (SIZE_T)nDelta, &nRead)) {
+        if (ReadProcessMemory(g_hProcess, reinterpret_cast<LPCVOID>((quintptr)(g_nAddress + (quint64)nCurrentPosition)), pData, (SIZE_T)nDelta, &nRead)) {
             nTransferred = (qint64)nRead;
         } else {
             checkWindowsLastError();
@@ -276,8 +271,7 @@ qint64 XProcessDevice::readData(char *pData, qint64 nMaxSize)
 qint64 XProcessDevice::writeData(const char *pData, qint64 nMaxSize)
 {
     const qint64 nPosition = pos();
-    if (!isOpen() || !isWritable() || !g_hProcess || (nMaxSize < 0) ||
-        ((nMaxSize > 0) && !pData) || (nPosition < 0) || (nPosition > size())) {
+    if (!isOpen() || !isWritable() || !g_hProcess || (nMaxSize < 0) || ((nMaxSize > 0) && !pData) || (nPosition < 0) || (nPosition > size())) {
         return -1;
     }
 
@@ -294,9 +288,7 @@ qint64 XProcessDevice::writeData(const char *pData, qint64 nMaxSize)
         qint64 nTransferred = -1;
 #ifdef Q_OS_WIN
         SIZE_T nWritten = 0;
-        if (WriteProcessMemory(g_hProcess,
-                               reinterpret_cast<LPVOID>((quintptr)(g_nAddress + (quint64)nCurrentPosition)),
-                               pData, (SIZE_T)nDelta, &nWritten)) {
+        if (WriteProcessMemory(g_hProcess, reinterpret_cast<LPVOID>((quintptr)(g_nAddress + (quint64)nCurrentPosition)), pData, (SIZE_T)nDelta, &nWritten)) {
             nTransferred = (qint64)nWritten;
         } else {
             checkWindowsLastError();
